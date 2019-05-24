@@ -95,8 +95,7 @@ mod tests {
         data.insert("data", params);
 
         let query = Query::create(Create::instance(Class::new("test")), data);
-
-        let result = serde_json::to_value(&query).unwrap();
+        let serialized = serde_json::to_value(&query).unwrap();
 
         let expected = json!({
             "params": {
@@ -120,6 +119,6 @@ mod tests {
             }
         });
 
-        assert_eq!(expected, result);
+        assert_eq!(expected, serialized);
     }
 }
