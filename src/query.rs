@@ -1,4 +1,4 @@
-use crate::expr::Expr;
+use crate::expr::{Class, Expr, Ref};
 
 #[derive(Debug, Serialize)]
 pub struct Query<'a> {
@@ -34,50 +34,14 @@ impl<'a> From<Create<'a>> for QueryType<'a> {
 #[derive(Debug, Serialize)]
 pub struct Create<'a> {
     #[serde(rename = "@ref")]
-    ref_: Ref<'a>,
+    reference: Ref<'a>,
 }
 
 impl<'a> Create<'a> {
     pub fn instance(class: Class<'a>) -> Self {
-        let mut ref_ = Ref::new(class.id);
-        ref_.class(class);
+        let reference = Ref::class(class.id, class);
 
-        Self { ref_ }
-    }
-}
-
-#[derive(Debug, Serialize)]
-pub struct Ref<'a> {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    class: Option<Box<Class<'a>>>,
-    id: &'a str,
-}
-
-impl<'a> Ref<'a> {
-    fn new(id: &'a str) -> Self {
-        Self { id, class: None }
-    }
-
-    fn class(&mut self, class: Class<'a>) -> &mut Self {
-        self.class = Some(Box::new(class));
-        self
-    }
-}
-
-#[derive(Debug, Serialize)]
-pub struct Class<'a> {
-    #[serde(rename = "@ref")]
-    ref_: Ref<'a>,
-    #[serde(skip_serializing)]
-    id: &'a str,
-}
-
-impl<'a> Class<'a> {
-    pub fn new(id: &'a str) -> Self {
-        Self {
-            ref_: Ref::new("classes"),
-            id,
-        }
+        Self { reference }
     }
 }
 
