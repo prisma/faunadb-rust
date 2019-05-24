@@ -1,28 +1,16 @@
-use crate::expr::Object;
-
-#[derive(Debug, Serialize)]
-pub enum Params<'a> {
-    #[serde(rename = "object")]
-    Object(Object<'a>),
-}
-
-impl<'a> From<Object<'a>> for Params<'a> {
-    fn from(obj: Object<'a>) -> Self {
-        Params::Object(obj)
-    }
-}
+use crate::expr::Expr;
 
 #[derive(Debug, Serialize)]
 pub struct Query<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     create: Option<Create<'a>>,
-    params: Params<'a>,
+    params: Expr<'a>,
 }
 
 impl<'a> Query<'a> {
     pub fn create<O>(query: Create<'a>, params: O) -> Self
     where
-        O: Into<Params<'a>>,
+        O: Into<Expr<'a>>,
     {
         Self {
             create: Some(query),
