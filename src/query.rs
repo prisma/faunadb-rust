@@ -1,9 +1,7 @@
 mod create;
 
-use crate::expr::Expr;
-use serde::{ser::SerializeMap, Serialize, Serializer};
-
 pub use create::*;
+use serde::{ser::SerializeMap, Serialize, Serializer};
 
 #[derive(Debug)]
 pub enum Query<'a> {
@@ -34,7 +32,7 @@ impl<'a> From<Create<'a>> for Query<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::*;
+    use crate::prelude::*;
     use serde_json::{self, json};
 
     #[test]

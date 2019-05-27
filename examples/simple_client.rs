@@ -1,10 +1,11 @@
 use faunadb::prelude::*;
-use futures::{future, Future};
-use tokio::runtime::current_thread::Runtime;
+use futures::{
+    future::{self, lazy},
+    Future,
+};
 
 fn main() {
-    let mut runtime = Runtime::new().unwrap();
-    let client = Client::new().unwrap();
+    let client = ClientBuilder::new("SECRET").build().unwrap();
 
     let mut params = Object::new();
     params.insert("test_field", "test_value");
@@ -12,13 +13,14 @@ fn main() {
     let mut data = Object::new();
     data.insert("data", params);
 
-    let requesting = client
-        .query(Create::instance(Class::new("test"), data))
-        .then(|res| {
-            println!("GOT A RESULT: {:?}", res);
-            future::ok(())
-        });
-
-    runtime.spawn(requesting);
-    runtime.run().unwrap();
+    tokio::run(lazy(move || {
+        client
+            .query(Create::instance(Class::new("test"), data))
+            .map(|response| {
+                println!("Success: {:?}", response);
+            })
+            .map_err(|error: faunadb::error::Error| {
+                println!("Error: {:?}", error);
+            })
+    }));
 }
