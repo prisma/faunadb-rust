@@ -1,47 +1,34 @@
-use crate::expr::{Class, Expr, Ref};
+mod create;
 
-#[derive(Debug, Serialize)]
-pub struct Query<'a> {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    create: Option<Create<'a>>,
-    params: Expr<'a>,
+use crate::expr::Expr;
+use serde::{ser::SerializeMap, Serialize, Serializer};
+
+pub use create::*;
+
+#[derive(Debug)]
+pub enum Query<'a> {
+    Create(Create<'a>),
 }
 
-impl<'a> Query<'a> {
-    pub fn create<O>(query: Create<'a>, params: O) -> Self
+impl<'a> Serialize for Query<'a> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        O: Into<Expr<'a>>,
+        S: Serializer,
     {
-        Self {
-            create: Some(query),
-            params: params.into(),
+        match self {
+            Query::Create(create) => {
+                let mut map = serializer.serialize_map(Some(1))?;
+                map.serialize_entry("create", &create)?;
+                map.serialize_entry("params", &create.params)?;
+                map.end()
+            }
         }
     }
 }
 
-#[derive(Debug, Serialize)]
-pub enum QueryType<'a> {
-    #[serde(rename = "create")]
-    Create(Create<'a>),
-}
-
-impl<'a> From<Create<'a>> for QueryType<'a> {
+impl<'a> From<Create<'a>> for Query<'a> {
     fn from(create: Create<'a>) -> Self {
-        QueryType::Create(create)
-    }
-}
-
-#[derive(Debug, Serialize)]
-pub struct Create<'a> {
-    #[serde(rename = "@ref")]
-    reference: Ref<'a>,
-}
-
-impl<'a> Create<'a> {
-    pub fn instance(class: Class<'a>) -> Self {
-        let reference = Ref::class(class.id, class);
-
-        Self { reference }
+        Query::Create(create)
     }
 }
 
@@ -58,8 +45,8 @@ mod tests {
         let mut data = Object::new();
         data.insert("data", params);
 
-        let query = Query::create(Create::instance(Class::new("test")), data);
-        let serialized = serde_json::to_value(&query).unwrap();
+        let query = Query::from(Create::instance(Class::new("test"), data));
+        let serialized = serde_json::to_string(&query).unwrap();
 
         let expected = json!({
             "params": {
@@ -83,6 +70,8 @@ mod tests {
             }
         });
 
-        assert_eq!(expected, serialized);
+        let expected_str = serde_json::to_string(&expected).unwrap();
+
+        assert_eq!(expected_str, serialized);
     }
 }

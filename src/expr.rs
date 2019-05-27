@@ -5,7 +5,7 @@ mod reference;
 mod set;
 
 use base64;
-use chrono::NaiveDate;
+use chrono::{DateTime, NaiveDate, Utc};
 use serde::{
     ser::Serializer,
     ser::{SerializeMap, SerializeSeq},
@@ -33,6 +33,7 @@ pub enum Expr<'a> {
     Ref(Ref<'a>),
     Array(&'a [Expr<'a>]),
     Set(Box<Set<'a>>),
+    Timestamp(DateTime<Utc>),
 }
 
 impl<'a> Serialize for Expr<'a> {
@@ -78,6 +79,11 @@ impl<'a> Serialize for Expr<'a> {
             Expr::Set(s) => {
                 let mut map = serializer.serialize_map(Some(2))?;
                 map.serialize_entry("@set", &s)?;
+                map.end()
+            }
+            Expr::Timestamp(dt) => {
+                let mut map = serializer.serialize_map(Some(1))?;
+                map.serialize_entry("@ts", &dt.to_rfc3339())?;
                 map.end()
             }
         }
@@ -207,10 +213,16 @@ impl<'a> From<Set<'a>> for Expr<'a> {
     }
 }
 
+impl<'a> From<DateTime<Utc>> for Expr<'a> {
+    fn from(dt: DateTime<Utc>) -> Expr<'a> {
+        Expr::Timestamp(dt)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::*;
-    use chrono::NaiveDate;
+    use chrono::{DateTime, NaiveDate, Utc};
     use serde_json::{self, json};
 
     #[test]
@@ -417,6 +429,21 @@ mod tests {
                 "terms": 8
             }
         });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_set_timestamp_expr() {
+        let dt_str = "2019-05-26T16:20:00Z";
+        let dt = DateTime::parse_from_rfc3339(dt_str)
+            .unwrap()
+            .with_timezone(&Utc);
+
+        let expr = Expr::from(dt);
+        let serialized = serde_json::to_value(&expr).unwrap();
+
+        let expected = json!({ "@ts": "2019-05-26T16:20:00+00:00" });
 
         assert_eq!(expected, serialized);
     }
