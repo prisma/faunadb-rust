@@ -5,7 +5,7 @@ pub use response::*;
 use crate::{error::Error, query::Query, FaunaResult};
 use futures::{future, stream::Stream, Future};
 use http::header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE};
-use hyper::{client::HttpConnector, Body, Uri};
+use hyper::{client::HttpConnector, Body, StatusCode, Uri};
 use hyper_tls::HttpsConnector;
 use serde_json;
 use std::time::Duration;
@@ -73,6 +73,8 @@ impl Client {
         let requesting = send_request.and_then(move |response| {
             trace!("Client::call got response status {}", response.status(),);
 
+            let status = response.status();
+
             let get_body = response
                 .into_body()
                 .map_err(|e| Error::ConnectionError(e.into()))
@@ -80,9 +82,13 @@ impl Client {
 
             get_body.and_then(move |body_chunk| {
                 if let Ok(body) = String::from_utf8(body_chunk.to_vec()) {
-                    future::ok(Some(body)) // too-o oo-o love
+                    match status {
+                        StatusCode::OK => future::ok(Some(body)),
+                        StatusCode::UNAUTHORIZED => future::err(Error::Unauthorized),
+                        _ => future::err(Error::TemporaryFailure(body)),
+                    }
                 } else {
-                    future::ok(None)
+                    future::err(Error::EmptyResponse)
                 }
             })
         });

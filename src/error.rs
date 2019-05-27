@@ -6,10 +6,16 @@ pub enum Error {
     ConnectionError(failure::Error),
     #[fail(display = "Configuration error: {}", _0)]
     ConfigurationError(failure::Error),
-    #[fail(display = "Timed out when requesting FaunaDB")]
+    #[fail(display = "Timed out")]
     TimeoutError,
     #[fail(display = "Unknown error")]
     Other,
+    #[fail(display = "Unauthorized")]
+    Unauthorized,
+    #[fail(display = "Server sent no response")]
+    EmptyResponse,
+    #[fail(display = "Temporary error wrapper for development, original: {}", _0)]
+    TemporaryFailure(String),
 }
 
 impl From<native_tls::Error> for Error {
