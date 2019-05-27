@@ -2,10 +2,11 @@ mod response;
 
 pub use response::*;
 
-use crate::{Error, FaunaResult, Query};
+use crate::{error::Error, query::Query, FaunaResult};
 use futures::{future, Future};
 use hyper::client::HttpConnector;
 use hyper_tls::HttpsConnector;
+use serde_json;
 
 type Transport = hyper::Client<HttpsConnector<HttpConnector>>;
 
@@ -15,7 +16,7 @@ pub struct Client {
 }
 
 impl Client {
-    fn new() -> FaunaResult<Self> {
+    pub fn new() -> FaunaResult<Self> {
         let builder = hyper::Client::builder();
         let transport = builder.build(HttpsConnector::new(1)?);
         let host = "https://db.fauna.com";
@@ -23,11 +24,13 @@ impl Client {
         Ok(Self { transport, host })
     }
 
-    fn query<'a, Q>(&self, _: Q) -> FutureResponse<&'static str>
+    pub fn query<'a, Q>(&self, query: Q) -> FutureResponse<String>
     where
         Q: Into<Query<'a>>,
     {
-        let requesting = future::ok("moikka moi");
+        let query = query.into();
+        let payload_json = serde_json::to_string(&query).unwrap();
+        let requesting = future::ok(payload_json);
 
         FutureResponse(Box::new(requesting))
     }

@@ -221,7 +221,7 @@ impl<'a> From<DateTime<Utc>> for Expr<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::*;
+    use crate::prelude::*;
     use chrono::{DateTime, NaiveDate, Utc};
     use serde_json::{self, json};
 
