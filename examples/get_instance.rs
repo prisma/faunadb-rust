@@ -24,11 +24,11 @@ fn main() {
     let client = ClientBuilder::new(secret).build().unwrap();
 
     tokio::run(lazy(move || {
+        let mut instance = Ref::instance("232975548966502924");
+        instance.set_class("HouseCats");
+
         client
-            .read(Get::instance(Ref::new(
-                "232975548966502924",
-                Ref::class("HouseCats"),
-            )))
+            .read(Get::instance(instance))
             .map(|response| {
                 println!("Success: {:?}", response);
             })

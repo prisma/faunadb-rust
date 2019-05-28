@@ -77,7 +77,7 @@ mod tests {
         data.insert("data", params);
 
         let query = WriteQuery::from(Create::instance(Ref::class("test"), data));
-        let serialized = serde_json::to_string(&query).unwrap();
+        let serialized = serde_json::to_value(&query).unwrap();
 
         let expected = json!({
             "params": {
@@ -90,12 +90,17 @@ mod tests {
                 }
             },
             "create": {
-                "@ref": "classes/test"
+                "@ref": {
+                    "class": {
+                        "@ref": {
+                            "id": "classes"
+                        }
+                    },
+                    "id": "test",
+                }
             }
         });
 
-        let expected_str = serde_json::to_string(&expected).unwrap();
-
-        assert_eq!(expected_str, serialized);
+        assert_eq!(expected, serialized);
     }
 }

@@ -2,178 +2,168 @@ mod object;
 mod reference;
 mod set;
 
-use base64;
 use chrono::{DateTime, NaiveDate, Utc};
-use serde::{
-    ser::Serializer,
-    ser::{SerializeMap, SerializeSeq},
-    Serialize,
-};
+use serde::Serializer;
 use std::borrow::Cow;
 
 pub use object::Object;
 pub use reference::Ref;
 pub use set::Set;
 
-#[derive(Debug, Clone)]
-pub enum Expr<'a> {
+#[derive(Debug, Clone, Serialize)]
+#[serde(untagged)]
+pub enum SimpleExpr<'a> {
     String(Cow<'a, str>),
     Double(f64),
     Float(f32),
     Int(i64),
     UInt(u64),
     Boolean(bool),
-    Null,
-    Object(Object<'a>),
-    Bytes(Cow<'a, [u8]>),
-    Date(NaiveDate),
-    Ref(Ref<'a>),
     Array(Vec<Expr<'a>>),
+    Null,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub enum AnnotatedExpr<'a> {
+    #[serde(rename = "object")]
+    Object(Object<'a>),
+    #[serde(rename = "@bytes", serialize_with = "as_base64")]
+    Bytes(Cow<'a, [u8]>),
+    #[serde(rename = "@date")]
+    Date(NaiveDate),
+    #[serde(rename = "@ref")]
+    Ref(Ref<'a>),
+    #[serde(rename = "@set")]
     Set(Box<Set<'a>>),
+    #[serde(rename = "@ts")]
     Timestamp(DateTime<Utc>),
 }
 
-impl<'a> Serialize for Expr<'a> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        match self {
-            Expr::String(s) => serializer.serialize_str(&*s),
-            Expr::Double(d) => serializer.serialize_f64(*d),
-            Expr::Float(f) => serializer.serialize_f32(*f),
-            Expr::Int(i) => serializer.serialize_i64(*i),
-            Expr::UInt(i) => serializer.serialize_u64(*i),
-            Expr::Boolean(b) => serializer.serialize_bool(*b),
-            Expr::Null => serializer.serialize_none(),
-            Expr::Object(obj) => {
-                let mut map = serializer.serialize_map(Some(obj.len()))?;
-                map.serialize_entry("object", &obj)?;
-                map.end()
-            }
-            Expr::Bytes(b) => {
-                let mut map = serializer.serialize_map(Some(1))?;
-                map.serialize_entry("@bytes", &base64::encode(b))?;
-                map.end()
-            }
-            Expr::Date(d) => {
-                let mut map = serializer.serialize_map(Some(1))?;
-                map.serialize_entry("@date", &d.format("%Y-%m-%d").to_string())?;
-                map.end()
-            }
-            Expr::Ref(r) => {
-                let mut map = serializer.serialize_map(Some(1))?;
-                map.serialize_entry("@ref", &r.path())?;
-                map.end()
-            }
-            Expr::Array(ary) => {
-                let mut seq = serializer.serialize_seq(Some(ary.len()))?;
-                for element in ary {
-                    seq.serialize_element(&element)?;
-                }
-                seq.end()
-            }
-            Expr::Set(s) => {
-                let mut map = serializer.serialize_map(Some(2))?;
-                map.serialize_entry("@set", &s)?;
-                map.end()
-            }
-            Expr::Timestamp(dt) => {
-                let mut map = serializer.serialize_map(Some(1))?;
-                map.serialize_entry("@ts", &dt.to_rfc3339())?;
-                map.end()
-            }
+fn as_base64<'a, S>(data: &Cow<'a, [u8]>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    serializer.serialize_str(&base64::encode(data))
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(untagged)]
+pub enum Expr<'a> {
+    Simple(SimpleExpr<'a>),
+    Annotated(AnnotatedExpr<'a>),
+}
+
+impl<'a> Expr<'a> {
+    pub fn null() -> Self {
+        Expr::Simple(SimpleExpr::Null)
+    }
+}
+
+impl<'a, T> From<Option<T>> for Expr<'a>
+where
+    T: Into<Expr<'a>>,
+{
+    fn from(t: Option<T>) -> Self {
+        match t {
+            Some(expr) => expr.into(),
+            None => Expr::null(),
         }
     }
 }
 
 impl<'a> From<&'a str> for Expr<'a> {
     fn from(s: &'a str) -> Expr<'a> {
-        Expr::String(Cow::from(s))
+        Expr::Simple(SimpleExpr::String(Cow::from(s)))
     }
 }
 
 impl<'a> From<String> for Expr<'a> {
     fn from(s: String) -> Expr<'a> {
-        Expr::String(Cow::from(s))
+        Expr::Simple(SimpleExpr::String(Cow::from(s)))
     }
 }
 
 impl<'a> From<f64> for Expr<'a> {
     fn from(f: f64) -> Expr<'a> {
-        Expr::Double(f)
+        Expr::Simple(SimpleExpr::Double(f))
     }
 }
 
 impl<'a> From<f32> for Expr<'a> {
     fn from(f: f32) -> Expr<'a> {
-        Expr::Float(f)
+        Expr::Simple(SimpleExpr::Float(f))
     }
 }
 
 impl<'a> From<i8> for Expr<'a> {
     fn from(i: i8) -> Expr<'a> {
-        Expr::Int(i as i64)
+        Expr::Simple(SimpleExpr::Int(i as i64))
     }
 }
 
 impl<'a> From<i16> for Expr<'a> {
     fn from(i: i16) -> Expr<'a> {
-        Expr::Int(i as i64)
+        Expr::Simple(SimpleExpr::Int(i as i64))
     }
 }
 
 impl<'a> From<i32> for Expr<'a> {
     fn from(i: i32) -> Expr<'a> {
-        Expr::Int(i as i64)
+        Expr::Simple(SimpleExpr::Int(i as i64))
     }
 }
 
 impl<'a> From<i64> for Expr<'a> {
     fn from(i: i64) -> Expr<'a> {
-        Expr::Int(i)
+        Expr::Simple(SimpleExpr::Int(i))
     }
 }
 
 impl<'a> From<isize> for Expr<'a> {
     fn from(i: isize) -> Expr<'a> {
-        Expr::Int(i as i64)
+        Expr::Simple(SimpleExpr::Int(i as i64))
     }
 }
 
 impl<'a> From<u8> for Expr<'a> {
     fn from(u: u8) -> Expr<'a> {
-        Expr::UInt(u as u64)
+        Expr::Simple(SimpleExpr::UInt(u as u64))
     }
 }
 
 impl<'a> From<u16> for Expr<'a> {
     fn from(u: u16) -> Expr<'a> {
-        Expr::UInt(u as u64)
+        Expr::Simple(SimpleExpr::UInt(u as u64))
     }
 }
 
 impl<'a> From<u32> for Expr<'a> {
     fn from(u: u32) -> Expr<'a> {
-        Expr::UInt(u as u64)
+        Expr::Simple(SimpleExpr::UInt(u as u64))
     }
 }
 
 impl<'a> From<u64> for Expr<'a> {
     fn from(u: u64) -> Expr<'a> {
-        Expr::UInt(u)
+        Expr::Simple(SimpleExpr::UInt(u))
     }
 }
 
 impl<'a> From<usize> for Expr<'a> {
     fn from(u: usize) -> Expr<'a> {
-        Expr::UInt(u as u64)
+        Expr::Simple(SimpleExpr::UInt(u as u64))
     }
 }
 
 impl<'a> From<bool> for Expr<'a> {
     fn from(b: bool) -> Expr<'a> {
-        Expr::Boolean(b)
+        Expr::Simple(SimpleExpr::Boolean(b))
+    }
+}
+
+impl<'a> From<Vec<Expr<'a>>> for Expr<'a> {
+    fn from(a: Vec<Expr<'a>>) -> Expr<'a> {
+        Expr::Simple(SimpleExpr::Array(a))
     }
 }
 
@@ -182,49 +172,43 @@ where
     O: Into<Object<'a>>,
 {
     fn from(o: O) -> Expr<'a> {
-        Expr::Object(o.into())
+        Expr::Annotated(AnnotatedExpr::Object(o.into()))
     }
 }
 
 impl<'a> From<Vec<u8>> for Expr<'a> {
     fn from(b: Vec<u8>) -> Expr<'a> {
-        Expr::Bytes(Cow::from(b))
+        Expr::Annotated(AnnotatedExpr::Bytes(Cow::from(b)))
     }
 }
 
 impl<'a> From<&'a [u8]> for Expr<'a> {
     fn from(b: &'a [u8]) -> Expr<'a> {
-        Expr::Bytes(Cow::from(b))
-    }
-}
-
-impl<'a> From<Vec<Expr<'a>>> for Expr<'a> {
-    fn from(a: Vec<Expr<'a>>) -> Expr<'a> {
-        Expr::Array(a)
+        Expr::Annotated(AnnotatedExpr::Bytes(Cow::from(b)))
     }
 }
 
 impl<'a> From<Ref<'a>> for Expr<'a> {
     fn from(r: Ref<'a>) -> Expr<'a> {
-        Expr::Ref(r)
+        Expr::Annotated(AnnotatedExpr::Ref(r))
     }
 }
 
 impl<'a> From<NaiveDate> for Expr<'a> {
     fn from(d: NaiveDate) -> Expr<'a> {
-        Expr::Date(d)
+        Expr::Annotated(AnnotatedExpr::Date(d))
     }
 }
 
 impl<'a> From<Set<'a>> for Expr<'a> {
     fn from(s: Set<'a>) -> Expr<'a> {
-        Expr::Set(Box::new(s))
+        Expr::Annotated(AnnotatedExpr::Set(Box::new(s)))
     }
 }
 
 impl<'a> From<DateTime<Utc>> for Expr<'a> {
     fn from(dt: DateTime<Utc>) -> Expr<'a> {
-        Expr::Timestamp(dt)
+        Expr::Annotated(AnnotatedExpr::Timestamp(dt))
     }
 }
 
@@ -357,10 +341,29 @@ mod tests {
 
     #[test]
     fn test_ref_with_class_expr() {
-        let expr = Expr::from(Ref::new("foo", Ref::class("test")));
-        let serialized = serde_json::to_string(&expr).unwrap();
+        let mut refer = Ref::instance("foo");
+        refer.set_class("test");
 
-        assert_eq!("{\"@ref\":\"classes/test/foo\"}", serialized)
+        let expr = Expr::from(refer);
+        let serialized = serde_json::to_value(&expr).unwrap();
+
+        let expected = json!({
+            "@ref": {
+                "class": {
+                    "@ref": {
+                        "class": {
+                            "@ref": {
+                                "id": "classes"
+                            }
+                        },
+                        "id": "test"
+                    }
+                },
+                "id": "foo"
+            }
+        });
+
+        assert_eq!(expected, serialized)
     }
 
     #[test]
@@ -373,7 +376,7 @@ mod tests {
 
     #[test]
     fn test_null_expr() {
-        let expr = Expr::Null;
+        let expr = Expr::null();
         let serialized = serde_json::to_string(&expr).unwrap();
 
         assert_eq!("null", serialized)
@@ -424,7 +427,16 @@ mod tests {
 
         let expected = json!({
             "@set": {
-                "match": { "@ref": "indexes/cats_age" },
+                "match": {
+                    "@ref": {
+                        "index": {
+                            "@ref": {
+                                "id": "indexes"
+                            }
+                        },
+                        "id": "cats_age"
+                    }
+                },
                 "terms": 8
             }
         });
@@ -442,7 +454,7 @@ mod tests {
         let expr = Expr::from(dt);
         let serialized = serde_json::to_value(&expr).unwrap();
 
-        let expected = json!({ "@ts": "2019-05-26T16:20:00+00:00" });
+        let expected = json!({ "@ts": dt_str });
 
         assert_eq!(expected, serialized);
     }
