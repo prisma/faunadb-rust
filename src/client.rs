@@ -67,7 +67,9 @@ impl Client {
     where
         Q: Into<ReadQuery<'a>>,
     {
-        let payload_json = dbg!(serde_json::to_string(&query.into()).unwrap());
+        let query = query.into();
+        let payload_json = serde_json::to_string(&query).unwrap();
+
         let request = self.build_request(payload_json);
 
         self.request(request, |body| Some(body))
@@ -77,7 +79,9 @@ impl Client {
     where
         Q: Into<WriteQuery<'a>>,
     {
-        let payload_json = serde_json::to_string(&query.into()).unwrap();
+        let query = query.into();
+        let payload_json = serde_json::to_string(&query).unwrap();
+
         let request = self.build_request(payload_json);
 
         self.request(request, |body| Some(body))
