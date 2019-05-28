@@ -1,20 +1,20 @@
-use crate::expr::{Class, Expr, Ref};
+use crate::expr::{Expr, Ref};
 
 #[derive(Debug, Serialize)]
 pub struct Create<'a> {
-    #[serde(rename = "@ref")]
-    reference: Ref<'a>,
+    #[serde(flatten)]
+    reference: Expr<'a>,
     #[serde(skip_serializing)]
     pub(crate) params: Expr<'a>,
 }
 
 impl<'a> Create<'a> {
-    pub fn instance<E>(class: Class<'a>, params: E) -> Self
+    pub fn instance<E>(reference: Ref<'a>, params: E) -> Self
     where
         E: Into<Expr<'a>>,
     {
-        let reference = Ref::class(class.id, class);
         let params = params.into();
+        let reference = Expr::from(reference);
 
         Self { reference, params }
     }

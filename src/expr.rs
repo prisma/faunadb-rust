@@ -1,5 +1,3 @@
-mod class;
-mod index;
 mod object;
 mod reference;
 mod set;
@@ -12,8 +10,6 @@ use serde::{
     Serialize,
 };
 
-pub use class::Class;
-pub use index::Index;
 pub use object::Object;
 pub use reference::Ref;
 pub use set::Set;
@@ -347,18 +343,8 @@ mod tests {
     }
 
     #[test]
-    fn test_simple_ref_expr() {
-        let expr = Expr::from(Ref::new("foo"));
-        let serialized = serde_json::to_string(&expr).unwrap();
-
-        assert_eq!("{\"@ref\":\"foo\"}", serialized)
-    }
-
-    #[test]
     fn test_ref_with_class_expr() {
-        let ref_ = Ref::class("foo", Class::new("test"));
-
-        let expr = Expr::from(ref_);
+        let expr = Expr::from(Ref::new("foo", Ref::class("test")));
         let serialized = serde_json::to_string(&expr).unwrap();
 
         assert_eq!("{\"@ref\":\"classes/test/foo\"}", serialized)
@@ -419,7 +405,7 @@ mod tests {
 
     #[test]
     fn test_set_expr() {
-        let set = Set::matching(Ref::index(Index::new("cats_age")), 8);
+        let set = Set::matching(Ref::index("cats_age"), 8);
         let expr = Expr::from(set);
         let serialized = serde_json::to_value(&expr).unwrap();
 

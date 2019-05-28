@@ -24,14 +24,15 @@ fn main() {
     let client = ClientBuilder::new(secret).build().unwrap();
 
     let mut params = Object::new();
-    params.insert("test_field", "test_value");
+    params.insert("name", "ellu");
+    params.insert("age", 10);
 
     let mut data = Object::new();
     data.insert("data", params);
 
     tokio::run(lazy(move || {
         client
-            .query(Create::instance(Class::new("test"), data))
+            .write(Create::instance(Ref::class("HouseCats"), data))
             .map(|response| {
                 println!("Success: {:?}", response);
             })

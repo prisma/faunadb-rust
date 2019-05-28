@@ -2,7 +2,11 @@ mod response;
 
 pub use response::*;
 
-use crate::{error::Error, query::Query, FaunaResult};
+use crate::{
+    error::Error,
+    query::{ReadQuery, WriteQuery},
+    FaunaResult,
+};
 use futures::{future, stream::Stream, Future};
 use http::header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE};
 use hyper::{client::HttpConnector, Body, StatusCode, Uri};
@@ -59,12 +63,31 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn query<'a, Q>(&self, query: Q) -> FutureResponse<Option<String>>
+    pub fn read<'a, Q>(&self, query: Q) -> FutureResponse<Option<String>>
     where
-        Q: Into<Query<'a>>,
+        Q: Into<ReadQuery<'a>>,
     {
-        let request = self.build_request(query);
+        let payload_json = dbg!(serde_json::to_string(&query.into()).unwrap());
+        let request = self.build_request(payload_json);
 
+        self.request(request, |body| Some(body))
+    }
+
+    pub fn write<'a, Q>(&self, query: Q) -> FutureResponse<Option<String>>
+    where
+        Q: Into<WriteQuery<'a>>,
+    {
+        let payload_json = serde_json::to_string(&query.into()).unwrap();
+        let request = self.build_request(payload_json);
+
+        self.request(request, |body| Some(body))
+    }
+
+    fn request<F, T>(&self, request: hyper::Request<Body>, f: F) -> FutureResponse<T>
+    where
+        T: Send + Sync + 'static,
+        F: FnOnce(String) -> T + Send + Sync + 'static,
+    {
         let send_request = self
             .transport
             .request(request)
@@ -83,7 +106,7 @@ impl Client {
             get_body.and_then(move |body_chunk| {
                 if let Ok(body) = String::from_utf8(body_chunk.to_vec()) {
                     match status {
-                        StatusCode::OK => future::ok(Some(body)),
+                        s if s.is_success() => future::ok(f(body)),
                         StatusCode::UNAUTHORIZED => future::err(Error::Unauthorized),
                         _ => future::err(Error::TemporaryFailure(body)),
                     }
@@ -107,21 +130,17 @@ impl Client {
         FutureResponse(Box::new(with_timeout))
     }
 
-    fn build_request<'a, Q>(&self, query: Q) -> hyper::Request<Body>
-    where
-        Q: Into<Query<'a>>,
-    {
-        let payload_json = serde_json::to_string(&query.into()).unwrap();
+    fn build_request<'a>(&self, payload: String) -> hyper::Request<Body> {
         let mut builder = hyper::Request::builder();
 
         builder.uri(&self.uri);
         builder.method("POST");
 
-        builder.header(CONTENT_LENGTH, format!("{}", payload_json.len()).as_bytes());
+        builder.header(CONTENT_LENGTH, format!("{}", payload.len()).as_bytes());
         builder.header(CONTENT_TYPE, "application/json");
         builder.header(AUTHORIZATION, self.authorization.as_bytes());
         builder.header("X-FaunaDB-API-Version", "2.1");
 
-        builder.body(Body::from(payload_json)).unwrap()
+        builder.body(Body::from(payload)).unwrap()
     }
 }
