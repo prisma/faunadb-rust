@@ -62,7 +62,7 @@ impl<'a> Serialize for Expr<'a> {
             }
             Expr::Ref(r) => {
                 let mut map = serializer.serialize_map(Some(1))?;
-                map.serialize_entry("@ref", &r.path())?;
+                map.serialize_entry("@ref", &r)?;
                 map.end()
             }
             Expr::Array(ary) => {
@@ -344,7 +344,7 @@ mod tests {
 
     #[test]
     fn test_ref_with_class_expr() {
-        let expr = Expr::from(Ref::new("foo", Ref::class("test")));
+        let expr = Expr::from(Ref::class_instance("foo", Ref::class("test")));
         let serialized = serde_json::to_string(&expr).unwrap();
 
         assert_eq!("{\"@ref\":\"classes/test/foo\"}", serialized)
