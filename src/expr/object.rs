@@ -1,14 +1,14 @@
 use crate::expr::Expr;
-use std::collections::BTreeMap;
+use std::{borrow::Cow, collections::BTreeMap};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Object<'a> {
     #[serde(flatten)]
-    data: BTreeMap<&'a str, Expr<'a>>,
+    data: BTreeMap<Cow<'a, str>, Expr<'a>>,
 }
 
-impl<'a> From<BTreeMap<&'a str, Expr<'a>>> for Object<'a> {
-    fn from(data: BTreeMap<&'a str, Expr<'a>>) -> Self {
+impl<'a> From<BTreeMap<Cow<'a, str>, Expr<'a>>> for Object<'a> {
+    fn from(data: BTreeMap<Cow<'a, str>, Expr<'a>>) -> Self {
         Object { data }
     }
 }
@@ -24,7 +24,7 @@ impl<'a> Object<'a> {
     where
         E: Into<Expr<'a>>,
     {
-        self.data.insert(key, val.into());
+        self.data.insert(Cow::from(key), val.into());
         self
     }
 

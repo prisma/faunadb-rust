@@ -1,6 +1,6 @@
 use crate::expr::{Expr, Ref};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Set<'a> {
     #[serde(rename = "match")]
     matching: Expr<'a>,

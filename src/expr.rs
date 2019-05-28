@@ -9,14 +9,15 @@ use serde::{
     ser::{SerializeMap, SerializeSeq},
     Serialize,
 };
+use std::borrow::Cow;
 
 pub use object::Object;
 pub use reference::Ref;
 pub use set::Set;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr<'a> {
-    String(&'a str),
+    String(Cow<'a, str>),
     Double(f64),
     Float(f32),
     Int(i64),
@@ -24,10 +25,10 @@ pub enum Expr<'a> {
     Boolean(bool),
     Null,
     Object(Object<'a>),
-    Bytes(&'a [u8]),
+    Bytes(Cow<'a, [u8]>),
     Date(NaiveDate),
     Ref(Ref<'a>),
-    Array(&'a [Expr<'a>]),
+    Array(Vec<Expr<'a>>),
     Set(Box<Set<'a>>),
     Timestamp(DateTime<Utc>),
 }
@@ -38,7 +39,7 @@ impl<'a> Serialize for Expr<'a> {
         S: Serializer,
     {
         match self {
-            Expr::String(s) => serializer.serialize_str(*s),
+            Expr::String(s) => serializer.serialize_str(&*s),
             Expr::Double(d) => serializer.serialize_f64(*d),
             Expr::Float(f) => serializer.serialize_f32(*f),
             Expr::Int(i) => serializer.serialize_i64(*i),
@@ -67,7 +68,7 @@ impl<'a> Serialize for Expr<'a> {
             }
             Expr::Array(ary) => {
                 let mut seq = serializer.serialize_seq(Some(ary.len()))?;
-                for element in *ary {
+                for element in ary {
                     seq.serialize_element(&element)?;
                 }
                 seq.end()
@@ -88,7 +89,13 @@ impl<'a> Serialize for Expr<'a> {
 
 impl<'a> From<&'a str> for Expr<'a> {
     fn from(s: &'a str) -> Expr<'a> {
-        Expr::String(s)
+        Expr::String(Cow::from(s))
+    }
+}
+
+impl<'a> From<String> for Expr<'a> {
+    fn from(s: String) -> Expr<'a> {
+        Expr::String(Cow::from(s))
     }
 }
 
@@ -179,14 +186,20 @@ where
     }
 }
 
-impl<'a> From<&'a [u8]> for Expr<'a> {
-    fn from(b: &'a [u8]) -> Expr<'a> {
-        Expr::Bytes(b)
+impl<'a> From<Vec<u8>> for Expr<'a> {
+    fn from(b: Vec<u8>) -> Expr<'a> {
+        Expr::Bytes(Cow::from(b))
     }
 }
 
-impl<'a> From<&'a [Expr<'a>]> for Expr<'a> {
-    fn from(a: &'a [Expr<'a>]) -> Expr<'a> {
+impl<'a> From<&'a [u8]> for Expr<'a> {
+    fn from(b: &'a [u8]) -> Expr<'a> {
+        Expr::Bytes(Cow::from(b))
+    }
+}
+
+impl<'a> From<Vec<Expr<'a>>> for Expr<'a> {
+    fn from(a: Vec<Expr<'a>>) -> Expr<'a> {
         Expr::Array(a)
     }
 }
@@ -369,7 +382,7 @@ mod tests {
     #[test]
     fn test_simple_array_expr() {
         let array = vec![Expr::from(1), Expr::from("test")];
-        let expr = Expr::from(array.as_slice());
+        let expr = Expr::from(array);
         let serialized = serde_json::to_string(&expr).unwrap();
 
         assert_eq!("[1,\"test\"]", serialized)
@@ -382,7 +395,7 @@ mod tests {
         object.insert("lol", false);
 
         let array = vec![Expr::from(1), Expr::from(object)];
-        let expr = Expr::from(array.as_slice());
+        let expr = Expr::from(array);
         let serialized = serde_json::to_string(&expr).unwrap();
 
         assert_eq!(
