@@ -7,8 +7,9 @@ extern crate log;
 pub mod client;
 pub mod error;
 pub mod expr;
+pub mod prelude;
 pub mod query;
 
-pub mod prelude;
+mod serde;
 
 pub type FaunaResult<T> = Result<T, error::Error>;

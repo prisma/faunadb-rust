@@ -63,16 +63,16 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn read<'a, Q>(&self, query: Q) -> FutureResponse<Option<String>>
+    pub fn read<'a, Q>(&self, query: Q) -> FutureResponse<Response>
     where
         Q: Into<ReadQuery<'a>>,
     {
         let query = query.into();
         let payload_json = serde_json::to_string(&query).unwrap();
 
-        let request = self.build_request(payload_json);
-
-        self.request(request, |body| Some(body))
+        self.request(self.build_request(payload_json), |body| {
+            serde_json::from_str(dbg!(&body)).unwrap()
+        })
     }
 
     pub fn write<'a, Q>(&self, query: Q) -> FutureResponse<Option<String>>
@@ -81,10 +81,7 @@ impl Client {
     {
         let query = query.into();
         let payload_json = serde_json::to_string(&query).unwrap();
-
-        let request = self.build_request(payload_json);
-
-        self.request(request, |body| Some(body))
+        self.request(self.build_request(payload_json), |body| Some(body))
     }
 
     fn request<F, T>(&self, request: hyper::Request<Body>, f: F) -> FutureResponse<T>
