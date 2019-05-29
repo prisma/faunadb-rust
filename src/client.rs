@@ -2,11 +2,7 @@ mod response;
 
 pub use response::*;
 
-use crate::{
-    error::Error,
-    query::{ReadQuery, WriteQuery},
-    FaunaResult,
-};
+use crate::{error::Error, query::Query, FaunaResult};
 use futures::{future, stream::Stream, Future};
 use http::header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE};
 use hyper::{client::HttpConnector, Body, StatusCode, Uri};
@@ -63,25 +59,16 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn read<'a, Q>(&self, query: Q) -> FutureResponse<Response>
+    pub fn query<'a, Q>(&self, query: Q) -> FutureResponse<Response>
     where
-        Q: Into<ReadQuery<'a>>,
+        Q: Into<Query<'a>>,
     {
         let query = query.into();
         let payload_json = serde_json::to_string(&query).unwrap();
 
         self.request(self.build_request(payload_json), |body| {
-            serde_json::from_str(dbg!(&body)).unwrap()
+            serde_json::from_str(&body).unwrap()
         })
-    }
-
-    pub fn write<'a, Q>(&self, query: Q) -> FutureResponse<Option<String>>
-    where
-        Q: Into<WriteQuery<'a>>,
-    {
-        let query = query.into();
-        let payload_json = serde_json::to_string(&query).unwrap();
-        self.request(self.build_request(payload_json), |body| Some(body))
     }
 
     fn request<F, T>(&self, request: hyper::Request<Body>, f: F) -> FutureResponse<T>

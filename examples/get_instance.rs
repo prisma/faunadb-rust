@@ -28,12 +28,12 @@ fn main() {
         instance.set_class("HouseCats");
 
         client
-            .read(Get::instance(instance))
+            .query(Get::instance(instance))
             .map(|response| {
                 println!("Success: {:#?}", response);
             })
             .map_err(|error: faunadb::error::Error| {
-                println!("Error: {:?}", error);
+                println!("Error: {:#?}", error);
             })
     }));
 }

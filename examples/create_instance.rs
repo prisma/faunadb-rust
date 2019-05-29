@@ -32,12 +32,12 @@ fn main() {
 
     tokio::run(lazy(move || {
         client
-            .write(Create::instance(Ref::class("HouseCats"), data))
+            .query(Create::instance(Ref::class("HouseCats"), data))
             .map(|response| {
-                println!("Success: {:?}", response);
+                println!("Success: {:#?}", response);
             })
             .map_err(|error: faunadb::error::Error| {
-                println!("Error: {:?}", error);
+                println!("Error: {:#?}", error);
             })
     }));
 }
