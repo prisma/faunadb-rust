@@ -28,7 +28,8 @@ impl<'a> Serialize for Query<'a> {
                 map.serialize_entry("get", &get)?;
 
                 if let Some(ref ts) = get.timestamp {
-                    map.serialize_entry("ts", ts)?;
+                    let microseconds = (ts.timestamp_nanos() / 1000) as i64;
+                    map.serialize_entry("ts", &microseconds)?;
                 }
 
                 map.end()

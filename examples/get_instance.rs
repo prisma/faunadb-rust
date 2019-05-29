@@ -1,3 +1,4 @@
+use chrono::Utc;
 use clap::{App, Arg};
 use faunadb::prelude::*;
 use futures::{future::lazy, Future};
@@ -27,8 +28,11 @@ fn main() {
         let mut instance = Ref::instance("232975548966502924");
         instance.set_class("HouseCats");
 
+        let mut query = Get::instance(instance);
+        query.timestamp(Utc::now());
+
         client
-            .query(Get::instance(instance))
+            .query(query)
             .map(|response| {
                 println!("Success: {:#?}", response);
             })
