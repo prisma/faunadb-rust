@@ -3,7 +3,7 @@ mod reference;
 mod set;
 
 use chrono::{DateTime, NaiveDate, Utc};
-use serde::Serializer;
+use serde::{Deserialize, Deserializer, Serializer};
 use std::borrow::Cow;
 
 pub use object::Object;
@@ -27,7 +27,11 @@ pub enum SimpleExpr<'a> {
 pub enum AnnotatedExpr<'a> {
     #[serde(rename = "object")]
     Object(Object<'a>),
-    #[serde(rename = "@bytes", serialize_with = "as_base64")]
+    #[serde(
+        rename = "@bytes",
+        serialize_with = "as_base64",
+        deserialize_with = "from_base64"
+    )]
     Bytes(Cow<'a, [u8]>),
     #[serde(rename = "@date")]
     Date(NaiveDate),
@@ -44,6 +48,17 @@ where
     S: Serializer,
 {
     serializer.serialize_str(&base64::encode(data))
+}
+
+fn from_base64<'de, 'a, D>(deserializer: D) -> Result<Cow<'a, [u8]>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    use serde::de::Error;
+
+    String::deserialize(deserializer)
+        .and_then(|string| base64::decode(&string).map_err(|err| Error::custom(err.to_string())))
+        .map(|bytes| Cow::from(bytes.to_vec()))
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -329,6 +344,17 @@ mod tests {
         let serialized = serde_json::to_string(&expr).unwrap();
 
         assert_eq!("{\"@bytes\":\"AQIDBA==\"}", serialized)
+    }
+
+    #[test]
+    fn test_bytes_deserialize() {
+        if let Ok(Expr::Annotated(AnnotatedExpr::Bytes(bytes))) =
+            serde_json::from_str("{\"@bytes\":\"AQIDBA==\"}")
+        {
+            assert_eq!(vec![0x1, 0x2, 0x3, 0x4], bytes.to_vec())
+        } else {
+            panic!("was not bytes")
+        }
     }
 
     #[test]
