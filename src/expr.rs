@@ -10,7 +10,7 @@ pub use object::Object;
 pub use reference::Ref;
 pub use set::Set;
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SimpleExpr<'a> {
     String(Cow<'a, str>),
@@ -23,7 +23,7 @@ pub enum SimpleExpr<'a> {
     Null,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum AnnotatedExpr<'a> {
     #[serde(rename = "object")]
     Object(Object<'a>),
@@ -46,7 +46,7 @@ where
     serializer.serialize_str(&base64::encode(data))
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Expr<'a> {
     Simple(SimpleExpr<'a>),

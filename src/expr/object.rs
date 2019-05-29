@@ -1,7 +1,7 @@
 use crate::expr::Expr;
 use std::{borrow::Cow, collections::BTreeMap};
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Object<'a> {
     #[serde(flatten)]
     data: BTreeMap<Cow<'a, str>, Expr<'a>>,

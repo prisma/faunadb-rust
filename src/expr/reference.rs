@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum RefLocation<'a> {
     #[serde(rename = "class")]
     Class {
@@ -23,7 +23,7 @@ impl<'a> RefLocation<'a> {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Ref<'a> {
     id: Cow<'a, str>,
     #[serde(skip_serializing_if = "Option::is_none", flatten)]
