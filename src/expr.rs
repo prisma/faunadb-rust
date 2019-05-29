@@ -74,6 +74,33 @@ impl<'a> Expr<'a> {
     }
 }
 
+macro_rules! int_expr {
+    ($($kind:ident),*) => (
+        $(
+            impl<'a> From<$kind> for Expr<'a> {
+                fn from(i: $kind) -> Expr<'a> {
+                    Expr::Simple(SimpleExpr::Int(i as i64))
+                }
+            }
+        )*
+    );
+}
+
+macro_rules! uint_expr {
+    ($($kind:ident),*) => (
+        $(
+            impl<'a> From<$kind> for Expr<'a> {
+                fn from(u: $kind) -> Expr<'a> {
+                    Expr::Simple(SimpleExpr::UInt(u as u64))
+                }
+            }
+        )*
+    );
+}
+
+int_expr!(i8, i16, i32, i64, isize);
+uint_expr!(u8, u16, u32, u64, usize);
+
 impl<'a, T> From<Option<T>> for Expr<'a>
 where
     T: Into<Expr<'a>>,
@@ -107,66 +134,6 @@ impl<'a> From<f64> for Expr<'a> {
 impl<'a> From<f32> for Expr<'a> {
     fn from(f: f32) -> Expr<'a> {
         Expr::Simple(SimpleExpr::Float(f))
-    }
-}
-
-impl<'a> From<i8> for Expr<'a> {
-    fn from(i: i8) -> Expr<'a> {
-        Expr::Simple(SimpleExpr::Int(i as i64))
-    }
-}
-
-impl<'a> From<i16> for Expr<'a> {
-    fn from(i: i16) -> Expr<'a> {
-        Expr::Simple(SimpleExpr::Int(i as i64))
-    }
-}
-
-impl<'a> From<i32> for Expr<'a> {
-    fn from(i: i32) -> Expr<'a> {
-        Expr::Simple(SimpleExpr::Int(i as i64))
-    }
-}
-
-impl<'a> From<i64> for Expr<'a> {
-    fn from(i: i64) -> Expr<'a> {
-        Expr::Simple(SimpleExpr::Int(i))
-    }
-}
-
-impl<'a> From<isize> for Expr<'a> {
-    fn from(i: isize) -> Expr<'a> {
-        Expr::Simple(SimpleExpr::Int(i as i64))
-    }
-}
-
-impl<'a> From<u8> for Expr<'a> {
-    fn from(u: u8) -> Expr<'a> {
-        Expr::Simple(SimpleExpr::UInt(u as u64))
-    }
-}
-
-impl<'a> From<u16> for Expr<'a> {
-    fn from(u: u16) -> Expr<'a> {
-        Expr::Simple(SimpleExpr::UInt(u as u64))
-    }
-}
-
-impl<'a> From<u32> for Expr<'a> {
-    fn from(u: u32) -> Expr<'a> {
-        Expr::Simple(SimpleExpr::UInt(u as u64))
-    }
-}
-
-impl<'a> From<u64> for Expr<'a> {
-    fn from(u: u64) -> Expr<'a> {
-        Expr::Simple(SimpleExpr::UInt(u))
-    }
-}
-
-impl<'a> From<usize> for Expr<'a> {
-    fn from(u: usize) -> Expr<'a> {
-        Expr::Simple(SimpleExpr::UInt(u as u64))
     }
 }
 
