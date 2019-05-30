@@ -18,6 +18,8 @@ pub enum Error {
     BadRequest(FaunaErrors),
     #[fail(display = "Not found: {}", _0)]
     NotFound(FaunaErrors),
+    #[fail(display = "Request data failure: {}", _0)]
+    RequestDataFailure(&'static str),
     #[fail(display = "Temporary error wrapper for development, original: {}", _0)]
     TemporaryFailure(String),
 }

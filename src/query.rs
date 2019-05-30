@@ -1,9 +1,11 @@
 mod create;
+mod create_database;
 mod create_class;
 mod get;
 
 pub use create::*;
 pub use create_class::*;
+pub use create_database::*;
 pub use get::*;
 use serde::{ser::SerializeMap, Serialize, Serializer};
 
@@ -11,6 +13,7 @@ use serde::{ser::SerializeMap, Serialize, Serializer};
 pub enum Query<'a> {
     Create(Create<'a>),
     CreateClass(CreateClass<'a>),
+    CreateDatabase(CreateDatabase<'a>),
     Get(Get<'a>),
 }
 
@@ -29,6 +32,11 @@ impl<'a> Serialize for Query<'a> {
             Query::CreateClass(create_class) => {
                 let mut map = serializer.serialize_map(Some(1))?;
                 map.serialize_entry("create_class", &create_class)?;
+                map.end()
+            }
+            Query::CreateDatabase(create_database) => {
+                let mut map = serializer.serialize_map(Some(1))?;
+                map.serialize_entry("create_database", &create_database)?;
                 map.end()
             }
             Query::Get(get) => {
