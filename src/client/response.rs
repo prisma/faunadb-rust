@@ -25,9 +25,9 @@ pub enum Response {
 }
 
 impl Response {
-    pub fn data(self) -> Option<Object<'static>> {
+    pub fn clone_data(&self) -> Option<Object<'static>> {
         match self {
-            Response::Resource(Resource::Instance(inst)) => Some(inst.data.reuse()),
+            Response::Resource(Resource::Instance(ref inst)) => Some(inst.data.clone().reuse()),
             _ => None
         }
     }
