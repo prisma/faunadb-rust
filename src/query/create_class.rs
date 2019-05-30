@@ -1,14 +1,15 @@
-use crate::expr::Object;
+use crate::expr::{Object, Expr};
 
 #[derive(Debug, Serialize)]
 pub struct CreateClass<'a> {
-    param_object: Object<'a>
+    #[serde(flatten)]
+    param_object: Expr<'a>
 }
 
 impl<'a> CreateClass<'a> {
     pub fn new(params: ClassParams<'a>) -> Self {
         Self {
-            param_object: Object::from(params),
+            param_object: Expr::from(params),
         }
     }
 }

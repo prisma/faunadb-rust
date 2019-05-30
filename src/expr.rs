@@ -1,6 +1,7 @@
 mod object;
 mod reference;
 mod set;
+mod array;
 
 use crate::serde::base64_bytes;
 use chrono::{DateTime, NaiveDate, Utc};
@@ -9,6 +10,7 @@ use std::{borrow::Cow, fmt};
 pub use object::Object;
 pub use reference::Ref;
 pub use set::Set;
+pub use array::{Array, Bytes};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -19,16 +21,15 @@ pub enum SimpleExpr<'a> {
     Int(i64),
     UInt(u64),
     Boolean(bool),
-    Array(Vec<Expr<'a>>),
+    Array(Array<'a>),
+    Object(Object<'a>),
     Null,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum AnnotatedExpr<'a> {
-    #[serde(rename = "object")]
-    Object(Object<'a>),
     #[serde(rename = "@bytes", with = "base64_bytes")]
-    Bytes(Cow<'a, [u8]>),
+    Bytes(Bytes<'a>),
     #[serde(rename = "@date")]
     Date(NaiveDate),
     #[serde(rename = "@ref")]
@@ -37,13 +38,15 @@ pub enum AnnotatedExpr<'a> {
     Set(Box<Set<'a>>),
     #[serde(rename = "@ts")]
     Timestamp(DateTime<Utc>),
+    #[serde(rename = "object")]
+    Object(Object<'a>),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Expr<'a> {
-    Simple(SimpleExpr<'a>),
     Annotated(AnnotatedExpr<'a>),
+    Simple(SimpleExpr<'a>),
 }
 
 impl<'a> fmt::Display for Expr<'a> {
@@ -55,13 +58,14 @@ impl<'a> fmt::Display for Expr<'a> {
             Expr::Simple(SimpleExpr::Int(i)) => write!(f, "{}", i),
             Expr::Simple(SimpleExpr::UInt(i)) => write!(f, "{}", i),
             Expr::Simple(SimpleExpr::Boolean(b)) => write!(f, "{}", b),
+            Expr::Simple(SimpleExpr::Null) => write!(f, "null"),
             Expr::Simple(SimpleExpr::Array(v)) => {
-                let exprs: Vec<String> = v.iter().map(|e| format!("{}", e)).collect();
+                let exprs: Vec<String> = v.0.iter().map(|e| format!("{}", e)).collect();
                 write!(f, "[{}]", exprs.join(","))
             }
-            Expr::Simple(SimpleExpr::Null) => write!(f, "null"),
+            Expr::Simple(SimpleExpr::Object(o)) => write!(f, "{}", o),
             Expr::Annotated(AnnotatedExpr::Object(o)) => write!(f, "{}", o),
-            Expr::Annotated(AnnotatedExpr::Bytes(b)) => write!(f, "{}", base64::encode(b)),
+            Expr::Annotated(AnnotatedExpr::Bytes(b)) => write!(f, "{}", base64::encode(&b.0)),
             Expr::Annotated(AnnotatedExpr::Date(d)) => write!(f, "{}", d),
             Expr::Annotated(AnnotatedExpr::Ref(r)) => write!(f, "{}", r),
             Expr::Annotated(AnnotatedExpr::Set(s)) => write!(f, "{}", s),
@@ -71,6 +75,21 @@ impl<'a> fmt::Display for Expr<'a> {
 }
 
 impl<'a> Expr<'a> {
+    pub fn reuse(self) -> Self {
+        match self {
+            Expr::Simple(SimpleExpr::Object(o)) => {
+                Expr::Annotated(AnnotatedExpr::Object(o.reuse()))
+            },
+            Expr::Annotated(AnnotatedExpr::Object(o)) => {
+                Expr::Annotated(AnnotatedExpr::Object(o.reuse()))
+            },
+            Expr::Simple(SimpleExpr::Array(v)) => {
+                Expr::Simple(SimpleExpr::Array(v.reuse()))
+            },
+            expr => expr,
+        }
+    }
+
     pub fn null() -> Self {
         Expr::Simple(SimpleExpr::Null)
     }
@@ -145,8 +164,8 @@ impl<'a> From<bool> for Expr<'a> {
     }
 }
 
-impl<'a> From<Vec<Expr<'a>>> for Expr<'a> {
-    fn from(a: Vec<Expr<'a>>) -> Expr<'a> {
+impl<'a> From<Array<'a>> for Expr<'a> {
+    fn from(a: Array<'a>) -> Expr<'a> {
         Expr::Simple(SimpleExpr::Array(a))
     }
 }
@@ -160,15 +179,9 @@ where
     }
 }
 
-impl<'a> From<Vec<u8>> for Expr<'a> {
-    fn from(b: Vec<u8>) -> Expr<'a> {
-        Expr::Annotated(AnnotatedExpr::Bytes(Cow::from(b)))
-    }
-}
-
-impl<'a> From<&'a [u8]> for Expr<'a> {
-    fn from(b: &'a [u8]) -> Expr<'a> {
-        Expr::Annotated(AnnotatedExpr::Bytes(Cow::from(b)))
+impl<'a> From<Bytes<'a>> for Expr<'a> {
+    fn from(b: Bytes<'a>) -> Expr<'a> {
+        Expr::Annotated(AnnotatedExpr::Bytes(b))
     }
 }
 
@@ -308,8 +321,7 @@ mod tests {
 
     #[test]
     fn test_bytes_expr() {
-        let bytes = vec![0x1, 0x2, 0x3, 0x4];
-        let expr = Expr::from(bytes.as_slice());
+        let expr = Expr::from(Bytes::from(vec![0x1, 0x2, 0x3, 0x4]));
         let serialized = serde_json::to_string(&expr).unwrap();
 
         assert_eq!("{\"@bytes\":\"AQIDBA==\"}", serialized)
@@ -317,12 +329,10 @@ mod tests {
 
     #[test]
     fn test_bytes_deserialize() {
-        if let Ok(Expr::Annotated(AnnotatedExpr::Bytes(bytes))) =
-            serde_json::from_str("{\"@bytes\":\"AQIDBA==\"}")
-        {
-            assert_eq!(vec![0x1, 0x2, 0x3, 0x4], bytes.to_vec())
-        } else {
-            panic!("was not bytes")
+        match serde_json::from_str("{\"@bytes\":\"AQIDBA==\"}") {
+            Ok(Expr::Annotated(AnnotatedExpr::Bytes(bytes))) =>
+                assert_eq!(Bytes::from(vec![0x1, 0x2, 0x3, 0x4]), bytes),
+            expr => panic!("{:?} was not bytes", expr)
         }
     }
 
@@ -379,7 +389,7 @@ mod tests {
 
     #[test]
     fn test_simple_array_expr() {
-        let array = vec![Expr::from(1), Expr::from("test")];
+        let array = Array::from(vec![Expr::from(1), Expr::from("test")]);
         let expr = Expr::from(array);
         let serialized = serde_json::to_string(&expr).unwrap();
 
@@ -392,7 +402,7 @@ mod tests {
         object.insert("foo", "bar");
         object.insert("lol", false);
 
-        let array = vec![Expr::from(1), Expr::from(object)];
+        let array = Array::from(vec![Expr::from(1), Expr::from(object)]);
         let expr = Expr::from(array);
         let serialized = serde_json::to_string(&expr).unwrap();
 

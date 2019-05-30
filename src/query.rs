@@ -10,6 +10,7 @@ use serde::{ser::SerializeMap, Serialize, Serializer};
 #[derive(Debug)]
 pub enum Query<'a> {
     Create(Create<'a>),
+    CreateClass(CreateClass<'a>),
     Get(Get<'a>),
 }
 
@@ -23,6 +24,11 @@ impl<'a> Serialize for Query<'a> {
                 let mut map = serializer.serialize_map(Some(2))?;
                 map.serialize_entry("create", &create)?;
                 map.serialize_entry("params", &create.params)?;
+                map.end()
+            }
+            Query::CreateClass(create_class) => {
+                let mut map = serializer.serialize_map(Some(1))?;
+                map.serialize_entry("create_class", &create_class)?;
                 map.end()
             }
             Query::Get(get) => {
@@ -43,6 +49,12 @@ impl<'a> Serialize for Query<'a> {
 impl<'a> From<Create<'a>> for Query<'a> {
     fn from(create: Create<'a>) -> Self {
         Query::Create(create)
+    }
+}
+
+impl<'a> From<CreateClass<'a>> for Query<'a> {
+    fn from(create: CreateClass<'a>) -> Self {
+        Query::CreateClass(create)
     }
 }
 

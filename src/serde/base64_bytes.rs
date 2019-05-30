@@ -1,14 +1,15 @@
+use crate::expr::Bytes;
 use serde::{de, ser};
-use std::{borrow::Cow, fmt};
+use std::fmt;
 
-pub fn serialize<'a, S>(data: &Cow<'a, [u8]>, serializer: S) -> Result<S::Ok, S::Error>
+pub fn serialize<'a, S>(data: &Bytes<'a>, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: ser::Serializer,
 {
-    serializer.serialize_str(&base64::encode(data))
+    serializer.serialize_str(&base64::encode(&data.0))
 }
 
-pub fn deserialize<'a, 'de, D>(d: D) -> Result<Cow<'a, [u8]>, D::Error>
+pub fn deserialize<'a, 'de, D>(d: D) -> Result<Bytes<'a>, D::Error>
 where
     D: de::Deserializer<'de>,
 {
@@ -18,7 +19,7 @@ where
 struct Base64BytesVisitor;
 
 impl<'de> de::Visitor<'de> for Base64BytesVisitor {
-    type Value = Cow<'static, [u8]>;
+    type Value = Bytes<'static>;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         formatter.write_str("base64-encoded string of bytes")
@@ -30,7 +31,7 @@ impl<'de> de::Visitor<'de> for Base64BytesVisitor {
     {
         base64::decode(value)
             .map_err(|err| de::Error::custom(err.to_string()))
-            .map(|bytes| Cow::from(bytes.to_vec()))
+            .map(|bytes| Bytes::from(bytes.to_vec()))
     }
 
     fn visit_string<E>(self, value: String) -> Result<Self::Value, E>
@@ -39,6 +40,6 @@ impl<'de> de::Visitor<'de> for Base64BytesVisitor {
     {
         base64::decode(value.as_str())
             .map_err(|err| de::Error::custom(err.to_string()))
-            .map(|bytes| Cow::from(bytes.to_vec()))
+            .map(|bytes| Bytes::from(bytes.to_vec()))
     }
 }

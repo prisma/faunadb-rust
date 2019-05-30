@@ -1,5 +1,5 @@
 pub use crate::{
     client::{Client, ClientBuilder, FutureResponse},
-    expr::{AnnotatedExpr, Expr, Object, Ref, Set, SimpleExpr},
-    query::{Create, Get, Query},
+    expr::{AnnotatedExpr, Array, Bytes, Expr, Object, Ref, Set, SimpleExpr},
+    query::{ClassParams, Create, CreateClass, Get, Query},
 };

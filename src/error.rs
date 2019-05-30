@@ -15,14 +15,16 @@ pub enum Error {
     #[fail(display = "Server sent no response")]
     EmptyResponse,
     #[fail(display = "Bad request: {}", _0)]
-    BadRequest(BadRequestError),
+    BadRequest(FaunaErrors),
+    #[fail(display = "Not found: {}", _0)]
+    NotFound(FaunaErrors),
     #[fail(display = "Temporary error wrapper for development, original: {}", _0)]
     TemporaryFailure(String),
 }
 
 #[derive(Debug, Deserialize, Fail)]
 #[fail(display = "Errors in the request data: [{:?}]", errors)]
-pub struct BadRequestError {
+pub struct FaunaErrors {
     errors: Vec<FaunaError>
 }
 

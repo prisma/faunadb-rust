@@ -2,7 +2,7 @@ mod response;
 
 pub use response::*;
 
-use crate::{error::{Error, BadRequestError}, query::Query, FaunaResult};
+use crate::{error::{Error, FaunaErrors}, query::Query, FaunaResult};
 use futures::{future, stream::Stream, Future};
 use http::header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE};
 use hyper::{client::HttpConnector, Body, StatusCode, Uri};
@@ -67,6 +67,7 @@ impl Client {
         let payload_json = serde_json::to_string(&query).unwrap();
 
         self.request(self.build_request(payload_json), |body| {
+            trace!("Got response: {:?}", &body);
             serde_json::from_str(&body).unwrap()
         })
     }
@@ -97,8 +98,12 @@ impl Client {
                         s if s.is_success() => future::ok(f(body)),
                         StatusCode::UNAUTHORIZED => future::err(Error::Unauthorized),
                         StatusCode::BAD_REQUEST => {
-                            let error: BadRequestError = serde_json::from_str(&body).unwrap();
-                            future::err(Error::BadRequest(error))
+                            let errors: FaunaErrors = serde_json::from_str(&body).unwrap();
+                            future::err(Error::BadRequest(errors))
+                        },
+                        StatusCode::NOT_FOUND => {
+                            let errors: FaunaErrors = serde_json::from_str(&body).unwrap();
+                            future::err(Error::NotFound(errors))
                         },
                         _ => future::err(Error::TemporaryFailure(body)),
                     }

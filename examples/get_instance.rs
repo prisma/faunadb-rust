@@ -19,13 +19,22 @@ fn main() {
                 .help("The FaunaDB connection secret")
                 .takes_value(true),
         )
+        .arg(
+            Arg::with_name("id")
+                .short("i")
+                .long("id")
+                .value_name("STRING")
+                .required(true)
+                .help("ID of the instance")
+                .takes_value(true),
+        )
         .get_matches();
 
     let secret = matches.value_of("secret").unwrap();
     let client = ClientBuilder::new(secret).build().unwrap();
 
     tokio::run(lazy(move || {
-        let mut instance = Ref::instance("232975548966502924");
+        let mut instance = Ref::instance(matches.value_of("id").unwrap());
         instance.set_class("HouseCats");
 
         let mut query = Get::instance(instance);
