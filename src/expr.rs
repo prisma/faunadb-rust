@@ -16,10 +16,10 @@ pub use array::{Array, Bytes};
 #[serde(untagged)]
 pub enum SimpleExpr<'a> {
     String(Cow<'a, str>),
+    UInt(u64),
+    Int(i64),
     Double(f64),
     Float(f32),
-    Int(i64),
-    UInt(u64),
     Boolean(bool),
     Array(Array<'a>),
     Object(Object<'a>),

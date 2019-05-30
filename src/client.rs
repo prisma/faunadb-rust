@@ -2,7 +2,11 @@ mod response;
 
 pub use response::*;
 
-use crate::{error::{Error, FaunaErrors}, query::Query, FaunaResult};
+use crate::{
+    error::{Error, FaunaErrors},
+    query::Query,
+    FaunaResult,
+};
 use futures::{future, stream::Stream, Future};
 use http::header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE};
 use hyper::{client::HttpConnector, Body, StatusCode, Uri};
@@ -83,7 +87,7 @@ impl Client {
             .map_err(|e| Error::ConnectionError(e.into()));
 
         let requesting = send_request.and_then(move |response| {
-            trace!("Client::call got response status {}", response.status(),);
+            trace!("Client::call got response status {}", response.status());
 
             let status = response.status();
 
@@ -100,11 +104,11 @@ impl Client {
                         StatusCode::BAD_REQUEST => {
                             let errors: FaunaErrors = serde_json::from_str(&body).unwrap();
                             future::err(Error::BadRequest(errors))
-                        },
+                        }
                         StatusCode::NOT_FOUND => {
                             let errors: FaunaErrors = serde_json::from_str(&body).unwrap();
                             future::err(Error::NotFound(errors))
-                        },
+                        }
                         _ => future::err(Error::TemporaryFailure(body)),
                     }
                 } else {

@@ -24,6 +24,15 @@ pub enum Response {
     Resource(Resource),
 }
 
+impl Response {
+    pub fn data(self) -> Option<Object<'static>> {
+        match self {
+            Response::Resource(Resource::Instance(inst)) => Some(inst.data.reuse()),
+            _ => None
+        }
+    }
+}
+
 #[derive(Deserialize, Debug)]
 pub struct Instance {
     #[serde(rename = "ref")]
