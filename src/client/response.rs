@@ -5,6 +5,7 @@ use crate::{
 };
 use chrono::{DateTime, Utc};
 use futures::{Future, Poll};
+use std::fmt;
 
 pub struct FutureResponse<T>(pub Box<Future<Item = T, Error = Error> + Send + 'static>);
 
@@ -30,4 +31,17 @@ pub struct Resource {
     #[serde(with = "ts_microseconds", rename = "ts")]
     timestamp: DateTime<Utc>,
     data: Object<'static>,
+}
+
+impl fmt::Display for Response {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Response::Resource(res) => write!(
+                f,
+                "Resource(ref={},ts={},data={})",
+                res.reference,
+                res.timestamp, res.data
+            ),
+        }
+    }
 }

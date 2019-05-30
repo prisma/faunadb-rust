@@ -4,7 +4,7 @@ mod set;
 
 use crate::serde::base64_bytes;
 use chrono::{DateTime, NaiveDate, Utc};
-use std::borrow::Cow;
+use std::{borrow::Cow, fmt};
 
 pub use object::Object;
 pub use reference::Ref;
@@ -44,6 +44,30 @@ pub enum AnnotatedExpr<'a> {
 pub enum Expr<'a> {
     Simple(SimpleExpr<'a>),
     Annotated(AnnotatedExpr<'a>),
+}
+
+impl<'a> fmt::Display for Expr<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Expr::Simple(SimpleExpr::String(s)) => write!(f, "\"{}\"", s),
+            Expr::Simple(SimpleExpr::Double(d)) => write!(f, "{}", d),
+            Expr::Simple(SimpleExpr::Float(flt)) => write!(f, "{}", flt),
+            Expr::Simple(SimpleExpr::Int(i)) => write!(f, "{}", i),
+            Expr::Simple(SimpleExpr::UInt(i)) => write!(f, "{}", i),
+            Expr::Simple(SimpleExpr::Boolean(b)) => write!(f, "{}", b),
+            Expr::Simple(SimpleExpr::Array(v)) => {
+                let exprs: Vec<String> = v.iter().map(|e| format!("{}", e)).collect();
+                write!(f, "[{}]", exprs.join(","))
+            }
+            Expr::Simple(SimpleExpr::Null) => write!(f, "null"),
+            Expr::Annotated(AnnotatedExpr::Object(o)) => write!(f, "{}", o),
+            Expr::Annotated(AnnotatedExpr::Bytes(b)) => write!(f, "{}", base64::encode(b)),
+            Expr::Annotated(AnnotatedExpr::Date(d)) => write!(f, "{}", d),
+            Expr::Annotated(AnnotatedExpr::Ref(r)) => write!(f, "{}", r),
+            Expr::Annotated(AnnotatedExpr::Set(s)) => write!(f, "{}", s),
+            Expr::Annotated(AnnotatedExpr::Timestamp(ts)) => write!(f, "{}", ts),
+        }
+    }
 }
 
 impl<'a> Expr<'a> {

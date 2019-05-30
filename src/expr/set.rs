@@ -1,4 +1,5 @@
 use crate::expr::{Expr, Ref};
+use std::fmt;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Set<'a> {
@@ -16,5 +17,11 @@ impl<'a> Set<'a> {
         let terms = terms.into();
 
         Self { matching, terms }
+    }
+}
+
+impl<'a> fmt::Display for Set<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Set(match={},terms={})", self.matching, self.terms)
     }
 }

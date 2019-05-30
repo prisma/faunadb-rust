@@ -1,5 +1,5 @@
 use crate::expr::Expr;
-use std::{borrow::Cow, collections::BTreeMap};
+use std::{borrow::Cow, collections::BTreeMap, fmt};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Object<'a> {
@@ -30,5 +30,17 @@ impl<'a> Object<'a> {
 
     pub fn len(&self) -> usize {
         self.data.len()
+    }
+}
+
+impl<'a> fmt::Display for Object<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let pairs: Vec<String> = self
+            .data
+            .iter()
+            .map(|(k, v)| format!("{}:{}", k, v))
+            .collect();
+
+        write!(f, "{{{}}}", pairs.join(","))
     }
 }

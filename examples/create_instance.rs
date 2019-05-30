@@ -34,7 +34,7 @@ fn main() {
         client
             .query(Create::instance(Ref::class("HouseCats"), data))
             .map(|response| {
-                println!("Success: {:#?}", response);
+                println!("{}", response);
             })
             .map_err(|error: faunadb::error::Error| {
                 println!("Error: {:#?}", error);

@@ -2,7 +2,7 @@ mod response;
 
 pub use response::*;
 
-use crate::{error::Error, query::Query, FaunaResult};
+use crate::{error::{Error, BadRequestError}, query::Query, FaunaResult};
 use futures::{future, stream::Stream, Future};
 use http::header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE};
 use hyper::{client::HttpConnector, Body, StatusCode, Uri};
@@ -96,6 +96,10 @@ impl Client {
                     match status {
                         s if s.is_success() => future::ok(f(body)),
                         StatusCode::UNAUTHORIZED => future::err(Error::Unauthorized),
+                        StatusCode::BAD_REQUEST => {
+                            let error: BadRequestError = serde_json::from_str(&body).unwrap();
+                            future::err(Error::BadRequest(error))
+                        },
                         _ => future::err(Error::TemporaryFailure(body)),
                     }
                 } else {

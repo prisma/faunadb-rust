@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, fmt};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum RefLocation<'a> {
@@ -28,6 +28,20 @@ pub struct Ref<'a> {
     id: Cow<'a, str>,
     #[serde(skip_serializing_if = "Option::is_none", flatten)]
     location: Option<RefLocation<'a>>,
+}
+
+impl<'a> fmt::Display for Ref<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self.location {
+            Some(RefLocation::Class { ref location }) => {
+                write!(f, "Ref(id={},class={})", self.id, location.path())
+            }
+            Some(RefLocation::Index { ref location }) => {
+                write!(f, "Ref(id={},index={})", self.id, location.path())
+            }
+            None => write!(f, "Ref(id={})", self.id),
+        }
+    }
 }
 
 impl<'a> Ref<'a> {

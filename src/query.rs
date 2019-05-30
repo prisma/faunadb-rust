@@ -1,7 +1,9 @@
 mod create;
+mod create_class;
 mod get;
 
 pub use create::*;
+pub use create_class::*;
 pub use get::*;
 use serde::{ser::SerializeMap, Serialize, Serializer};
 
