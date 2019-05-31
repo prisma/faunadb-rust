@@ -66,6 +66,12 @@ impl<'a> From<CreateClass<'a>> for Query<'a> {
     }
 }
 
+impl<'a> From<CreateDatabase<'a>> for Query<'a> {
+    fn from(create: CreateDatabase<'a>) -> Self {
+        Query::CreateDatabase(create)
+    }
+}
+
 impl<'a> From<Get<'a>> for Query<'a> {
     fn from(get: Get<'a>) -> Self {
         Query::Get(get)
@@ -76,9 +82,10 @@ impl<'a> From<Get<'a>> for Query<'a> {
 mod tests {
     use crate::prelude::*;
     use serde_json::{self, json};
+    use chrono::{Utc, offset::TimeZone};
 
     #[test]
-    fn test_create_instance() {
+    fn test_create() {
         let mut obj = Object::new();
         obj.insert("test_field", "test_value");
 
@@ -106,6 +113,76 @@ mod tests {
                     },
                     "id": "test",
                 }
+            }
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_create_class() {
+        let mut permission = ClassPermission::default();
+        permission.read(Level::public());
+
+        let mut params = ClassParams::new("test");
+        params.history_days(10);
+        params.ttl_days(6);
+        params.permissions(permission);
+
+        let query = Query::from(CreateClass::new(params));
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "create_class": {
+                "object": {
+                    "history_days": 10,
+                    "name": "test",
+                    "permissions": { "object": { "read": "public" } },
+                    "ttl_days": 6,
+                }
+            }
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_create_database() {
+        let mut params = DatabaseParams::new("test");
+        params.priority(10).unwrap();
+
+        let query = Query::from(CreateDatabase::new(params));
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "create_database": {
+                "object": {
+                    "name": "test",
+                    "api_version": 2.0,
+                    "priority": 10,
+                }
+            }
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_get() {
+        let mut get = Get::instance(Ref::instance("musti"));
+        get.timestamp(Utc.timestamp(60, 0));
+
+        let query = Query::from(get);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "get": {
+                "@ref": {
+                    "id": "musti"
+                }
+            },
+            "ts": {
+                "@ts": Utc.timestamp(60, 0)
             }
         });
 

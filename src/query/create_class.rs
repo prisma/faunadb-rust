@@ -1,4 +1,4 @@
-use crate::expr::{Object, ClassPermission};
+use crate::expr::{Expr, Object, ClassPermission};
 
 #[derive(Debug, Serialize)]
 pub struct CreateClass<'a> {
@@ -16,7 +16,8 @@ impl<'a> CreateClass<'a> {
 #[derive(Debug, Default, Serialize)]
 pub struct ClassParams<'a> {
     name: &'a str,
-    data: Option<Object<'a>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    data: Option<Expr<'a>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     history_days: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -34,7 +35,7 @@ impl<'a> ClassParams<'a> {
     }
 
     pub fn data(&mut self, data: Object<'a>) -> &mut Self {
-        self.data = Some(data);
+        self.data = Some(Expr::from(data));
         self
     }
 
