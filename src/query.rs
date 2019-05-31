@@ -1,12 +1,14 @@
 mod create;
-mod create_database;
 mod create_class;
+mod create_database;
+mod create_index;
 mod delete;
 mod get;
 
 pub use create::*;
 pub use create_class::*;
 pub use create_database::*;
+pub use create_index::*;
 pub use delete::*;
 pub use get::*;
 use serde::{ser::SerializeMap, Serialize, Serializer};
@@ -95,8 +97,8 @@ impl<'a> From<Delete<'a>> for Query<'a> {
 #[cfg(test)]
 mod tests {
     use crate::prelude::*;
+    use chrono::{offset::TimeZone, Utc};
     use serde_json::{self, json};
-    use chrono::{Utc, offset::TimeZone};
 
     #[test]
     fn test_create() {

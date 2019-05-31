@@ -35,7 +35,7 @@ fn main() {
 
     tokio::run(lazy(move || {
         let mut instance = Ref::instance(matches.value_of("id").unwrap());
-        instance.set_class("HouseCats");
+        instance.set_class("HouseFats");
 
         let mut query = Get::instance(instance);
         query.timestamp(Utc::now());
