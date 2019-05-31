@@ -70,6 +70,8 @@ impl Client {
         let query = query.into();
         let payload_json = serde_json::to_string(&query).unwrap();
 
+        trace!("Querying with: {:?}", &payload_json);
+
         self.request(self.build_request(payload_json), |body| {
             trace!("Got response: {:?}", &body);
             serde_json::from_str(&body).unwrap()

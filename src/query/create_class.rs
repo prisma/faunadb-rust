@@ -1,25 +1,28 @@
-use crate::expr::{Object, Expr};
+use crate::expr::{Object, ClassPermission};
 
 #[derive(Debug, Serialize)]
 pub struct CreateClass<'a> {
-    #[serde(flatten)]
-    param_object: Expr<'a>
+    object: ClassParams<'a>
 }
 
 impl<'a> CreateClass<'a> {
     pub fn new(params: ClassParams<'a>) -> Self {
         Self {
-            param_object: Expr::from(params),
+            object: params,
         }
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Serialize)]
 pub struct ClassParams<'a> {
     name: &'a str,
     data: Option<Object<'a>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     history_days: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     ttl_days: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    permissions: Option<ClassPermission<'a>>,
 }
 
 impl<'a> ClassParams<'a> {
@@ -44,25 +47,9 @@ impl<'a> ClassParams<'a> {
         self.ttl_days = Some(days);
         self
     }
-}
 
-impl<'a> From<ClassParams<'a>> for Object<'a> {
-    fn from(cp: ClassParams<'a>) -> Self {
-        let mut obj = Object::new();
-        obj.insert("name", cp.name);
-
-        if let Some(data) = cp.data {
-            obj.insert("data", data);
-        }
-
-        if let Some(days) = cp.history_days {
-            obj.insert("history_days", days);
-        }
-
-        if let Some(days) = cp.ttl_days {
-            obj.insert("ttl_days", days);
-        }
-
-        obj
+    pub fn permissions(&mut self, permissions: ClassPermission<'a>) -> &mut Self {
+        self.permissions = Some(permissions);
+        self
     }
 }

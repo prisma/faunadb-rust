@@ -25,6 +25,7 @@ impl<'a> Serialize for Query<'a> {
         match self {
             Query::Create(create) => {
                 let mut map = serializer.serialize_map(Some(2))?;
+
                 map.serialize_entry("create", &create)?;
                 map.serialize_entry("params", &create.params)?;
                 map.end()
@@ -44,8 +45,7 @@ impl<'a> Serialize for Query<'a> {
                 map.serialize_entry("get", &get)?;
 
                 if let Some(ref ts) = get.timestamp {
-                    let microseconds = (ts.timestamp_nanos() / 1000) as i64;
-                    map.serialize_entry("ts", &microseconds)?;
+                    map.serialize_entry("ts", &ts)?;
                 }
 
                 map.end()
@@ -79,13 +79,12 @@ mod tests {
 
     #[test]
     fn test_create_instance() {
-        let mut params = Object::new();
-        params.insert("test_field", "test_value");
+        let mut obj = Object::new();
+        obj.insert("test_field", "test_value");
 
-        let mut data = Object::new();
-        data.insert("data", params);
+        let params = InstanceParams::new(obj);
 
-        let query = Query::from(Create::instance(Ref::class("test"), data));
+        let query = Query::from(Create::new(Ref::class("test"), params));
         let serialized = serde_json::to_value(&query).unwrap();
 
         let expected = json!({

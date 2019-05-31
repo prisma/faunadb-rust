@@ -23,7 +23,6 @@ fn main() {
             Arg::with_name("create_class")
                 .short("c")
                 .long("create_class")
-                .value_name("CLASS_NAME")
                 .required(false)
                 .help("Create a new class called HouseCats")
                 .takes_value(false),
@@ -34,35 +33,38 @@ fn main() {
     let client = ClientBuilder::new(secret).build().unwrap();
 
     let create_instance = {
-        let mut params = Object::new();
+        let mut obj = Object::new();
 
-        params.insert("name", "Musti");
-        params.insert("age", 7);
-        params.insert("byte_data", Bytes::from(vec![0x1, 0x2, 0x3]));
-        params.insert("nicknames", Array::from(vec!["mustu", "muspus", "mustikka"]));
-        params.insert("this_is_null", Expr::null());
-        params.insert("am_i_cute", true);
-        params.insert("created_at", Utc::now());
-        params.insert("birthday", NaiveDate::from_ymd(2011, 7, 7));
+        obj.insert("name", "Musti");
+        obj.insert("age", 7);
+        obj.insert("byte_data", Bytes::from(vec![0x1, 0x2, 0x3]));
+        obj.insert("nicknames", Array::from(vec!["mustu", "muspus", "mustikka"]));
+        obj.insert("this_is_null", Expr::null());
+        obj.insert("am_i_cute", true);
+        obj.insert("created_at", Utc::now());
+        obj.insert("birthday", NaiveDate::from_ymd(2011, 7, 7));
 
         {
-            let mut obj = Object::new();
-            obj.insert("foo", "bar");
-            params.insert("objective", obj);
+            let mut obj2 = Object::new();
+            obj2.insert("foo", "bar");
+            obj.insert("objective", obj2);
         }
 
-        let mut data = Object::new();
-        data.insert("data", params);
+        let params = InstanceParams::new(obj);
 
-        Create::instance(Ref::class("HouseCats"), data)
+        Create::new(Ref::class("HouseFats"), params)
     };
 
     let instance_query = client.query(create_instance);
 
     let query = if matches.is_present("create_class") {
-        let mut params = ClassParams::new("HouseCats");
+        let mut perms = ClassPermission::default();
+        perms.read(Level::public());
+
+        let mut params = ClassParams::new("HouseFats");
         params.history_days(3);
         params.ttl_days(3);
+        params.permissions(perms);
 
         let class_query = client.query(CreateClass::new(params));
 

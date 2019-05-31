@@ -2,6 +2,7 @@ mod object;
 mod reference;
 mod set;
 mod array;
+mod permission;
 
 use crate::serde::base64_bytes;
 use chrono::{DateTime, NaiveDate, Utc};
@@ -11,6 +12,7 @@ pub use object::Object;
 pub use reference::Ref;
 pub use set::Set;
 pub use array::{Array, Bytes};
+pub use permission::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
