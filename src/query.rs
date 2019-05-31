@@ -1,11 +1,13 @@
 mod create;
 mod create_database;
 mod create_class;
+mod delete;
 mod get;
 
 pub use create::*;
 pub use create_class::*;
 pub use create_database::*;
+pub use delete::*;
 pub use get::*;
 use serde::{ser::SerializeMap, Serialize, Serializer};
 
@@ -14,6 +16,7 @@ pub enum Query<'a> {
     Create(Create<'a>),
     CreateClass(CreateClass<'a>),
     CreateDatabase(CreateDatabase<'a>),
+    Delete(Delete<'a>),
     Get(Get<'a>),
 }
 
@@ -50,6 +53,11 @@ impl<'a> Serialize for Query<'a> {
 
                 map.end()
             }
+            Query::Delete(delete) => {
+                let mut map = serializer.serialize_map(Some(1))?;
+                map.serialize_entry("delete", &delete)?;
+                map.end()
+            }
         }
     }
 }
@@ -75,6 +83,12 @@ impl<'a> From<CreateDatabase<'a>> for Query<'a> {
 impl<'a> From<Get<'a>> for Query<'a> {
     fn from(get: Get<'a>) -> Self {
         Query::Get(get)
+    }
+}
+
+impl<'a> From<Delete<'a>> for Query<'a> {
+    fn from(get: Delete<'a>) -> Self {
+        Query::Delete(get)
     }
 }
 
@@ -183,6 +197,23 @@ mod tests {
             },
             "ts": {
                 "@ts": Utc.timestamp(60, 0)
+            }
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_delete() {
+        let delete = Delete::instance(Ref::instance("musti"));
+        let query = Query::from(delete);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "delete": {
+                "@ref": {
+                    "id": "musti"
+                }
             }
         });
 
