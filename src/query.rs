@@ -182,14 +182,14 @@ mod tests {
         let mut params = IndexParams::new("meows", Ref::class("cats"));
         params.permissions(permission);
 
-        let age_term = Term::new(vec!["data", "age"], "cats_age");
-        let name_term = Term::new(vec!["data", "name"], "cats_name");
+        let age_term = Term::field(vec!["data", "age"]);
+        let name_term = Term::binding("cats_name");
 
         params.terms(vec![age_term, name_term]);
 
-        let name_value = Value::new(vec!["data", "name"], "cats_name");
+        let name_value = Value::field(vec!["data", "name"]);
 
-        let mut age_value = Value::new(vec!["data", "age"], "cats_age");
+        let mut age_value = Value::binding("cats_age");
         age_value.reverse();
 
         params.values(vec![age_value, name_value]);
@@ -221,14 +221,12 @@ mod tests {
                     "terms": [
                         {
                             "object": {
-                                "binding": "cats_age",
                                 "field": ["data", "age"],
                             }
                         },
                         {
                             "object": {
                                 "binding": "cats_name",
-                                "field": ["data", "name"],
                             }
                         },
                     ],
@@ -237,13 +235,11 @@ mod tests {
                         {
                             "object": {
                                 "binding": "cats_age",
-                                "field": ["data", "age"],
                                 "reverse": true,
                             }
                         },
                         {
                             "object": {
-                                "binding": "cats_name",
                                 "field": ["data", "name"],
                                 "reverse": false,
                             }

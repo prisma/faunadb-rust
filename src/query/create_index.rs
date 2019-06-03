@@ -13,9 +13,17 @@ impl<'a> CreateIndex<'a> {
 }
 
 #[derive(Debug, Serialize)]
-pub struct TermObject<'a> {
-    field: Vec<Cow<'a, str>>,
-    binding: Cow<'a, str>,
+pub struct Field<'a>(Vec<Cow<'a, str>>);
+
+#[derive(Debug, Serialize)]
+pub struct Binding<'a>(Cow<'a, str>);
+
+#[derive(Debug, Serialize)]
+pub enum TermObject<'a> {
+    #[serde(rename = "field")]
+    Field(Field<'a>),
+    #[serde(rename = "binding")]
+    Binding(Binding<'a>),
 }
 
 #[derive(Debug, Serialize)]
@@ -24,24 +32,35 @@ pub struct Term<'a> {
 }
 
 impl<'a> Term<'a> {
-    pub fn new<T, U>(field: Vec<T>, binding: U) -> Self
+    pub fn field<T>(path: Vec<T>) -> Self
     where
         T: Into<Cow<'a, str>>,
-        U: Into<Cow<'a, str>>,
     {
+        let field = Field(path.into_iter().map(Into::into).collect());
+
         Self {
-            object: TermObject {
-                field: field.into_iter().map(Into::into).collect(),
-                binding: binding.into(),
-            },
+            object: TermObject::Field(field),
+        }
+    }
+
+    pub fn binding<T>(name: T) -> Self
+    where
+        T: Into<Cow<'a, str>>,
+    {
+        let binding = Binding(name.into());
+
+        Self {
+            object: TermObject::Binding(binding),
         }
     }
 }
 
 #[derive(Debug, Serialize)]
 pub struct ValueObject<'a> {
-    field: Vec<Cow<'a, str>>,
-    binding: Cow<'a, str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    field: Option<Field<'a>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    binding: Option<Binding<'a>>,
     reverse: bool,
 }
 
@@ -51,15 +70,31 @@ pub struct Value<'a> {
 }
 
 impl<'a> Value<'a> {
-    pub fn new<T, U>(field: Vec<T>, binding: U) -> Self
+    pub fn field<T>(path: Vec<T>) -> Self
     where
         T: Into<Cow<'a, str>>,
-        U: Into<Cow<'a, str>>,
     {
+        let field = Field(path.into_iter().map(Into::into).collect());
+
         Self {
             object: ValueObject {
-                field: field.into_iter().map(Into::into).collect(),
-                binding: binding.into(),
+                field: Some(field),
+                binding: None,
+                reverse: false,
+            },
+        }
+    }
+
+    pub fn binding<T>(name: T) -> Self
+    where
+        T: Into<Cow<'a, str>>,
+    {
+        let binding = Binding(name.into());
+
+        Self {
+            object: ValueObject {
+                field: None,
+                binding: Some(binding),
                 reverse: false,
             },
         }

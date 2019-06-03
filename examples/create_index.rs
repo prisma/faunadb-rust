@@ -26,19 +26,21 @@ fn main() {
     let mut permission = IndexPermission::default();
     permission.read(Level::public());
 
-    let mut params = IndexParams::new("meows", Ref::class("HouseFats"));
+    let mut params = IndexParams::new("new_meows", Ref::class("HouseCats"));
     params.permissions(permission);
+    params.serialized();
+    params.partitions(8);
 
-    let age_term = Term::new(vec!["data", "age"], "cats_age");
-    let name_term = Term::new(vec!["data", "name"], "cats_name");
+    let id_term = Term::field(vec!["data", "id"]);
 
-    params.terms(vec![age_term, name_term]);
+    params.terms(vec![id_term]);
 
-    let name_value = Value::new(vec!["data", "name"], "cats_name");
-    let mut age_value = Value::new(vec!["data", "age"], "cats_age");
+    let ref_value = Value::field(vec!["ref"]);
+    let name_value = Value::field(vec!["data", "name"]);
+    let mut age_value = Value::field(vec!["data", "age"]);
 
     age_value.reverse();
-    params.values(vec![age_value, name_value]);
+    params.values(vec![ref_value, age_value, name_value]);
 
     tokio::run(lazy(move || {
         client

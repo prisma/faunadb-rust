@@ -39,6 +39,7 @@ fn main() {
         let mut obj = Object::default();
 
         obj.insert("name", "Musti");
+        obj.insert("id", 1);
         obj.insert("age", 7);
         obj.insert("byte_data", Bytes::from(vec![0x1, 0x2, 0x3]));
         obj.insert(
@@ -58,7 +59,7 @@ fn main() {
 
         let params = InstanceParams::new(obj);
 
-        Create::new(Ref::class("HouseFats"), params)
+        Create::new(Ref::class("HouseCats"), params)
     };
 
     let instance_query = client.query(create_instance);
@@ -67,7 +68,7 @@ fn main() {
         let mut perms = ClassPermission::default();
         perms.read(Level::public());
 
-        let mut params = ClassParams::new("HouseFats");
+        let mut params = ClassParams::new("HouseCats");
         params.history_days(3);
         params.ttl_days(3);
         params.permissions(perms);
