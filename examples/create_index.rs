@@ -26,16 +26,16 @@ fn main() {
     let mut permission = IndexPermission::default();
     permission.read(Level::public());
 
-    let mut params = IndexParams::new("meows", Ref::class("HouseCats"));
+    let mut params = IndexParams::new("meows", Ref::class("HouseFats"));
     params.permissions(permission);
 
-    let age_term = Term::new(vec!["cats", "age"], "cats_age");
-    let name_term = Term::new(vec!["cats", "name"], "cats_name");
+    let age_term = Term::new(vec!["data", "age"], "cats_age");
+    let name_term = Term::new(vec!["data", "name"], "cats_name");
 
     params.terms(vec![age_term, name_term]);
 
-    let name_value = Value::new(vec!["cats", "name"], "cats_name");
-    let mut age_value = Value::new(vec!["cats", "age"], "cats_age");
+    let name_value = Value::new(vec!["data", "name"], "cats_name");
+    let mut age_value = Value::new(vec!["data", "age"], "cats_age");
 
     age_value.reverse();
     params.values(vec![age_value, name_value]);
