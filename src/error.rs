@@ -28,7 +28,7 @@ pub enum Error {
 #[derive(Debug, Deserialize, Fail)]
 #[fail(display = "Errors in the request data: [{:?}]", errors)]
 pub struct FaunaErrors {
-    errors: Vec<FaunaError>,
+    pub errors: Vec<FaunaError>,
 }
 
 #[derive(Debug, Deserialize, Fail)]
@@ -37,9 +37,9 @@ pub struct FaunaErrors {
     position, code, description
 )]
 pub struct FaunaError {
-    position: Vec<Expr<'static>>,
-    code: String,
-    description: String,
+    pub position: Vec<Expr<'static>>,
+    pub code: String,
+    pub description: String,
 }
 
 impl From<native_tls::Error> for Error {

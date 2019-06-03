@@ -16,36 +16,88 @@ pub use set::Set;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
+/// A simple expression with no annotation.
 pub enum SimpleExpr<'a> {
+    /// String data types store any letters, numbers, whitespaces, and/or
+    /// symbols in a fixed order.
     String(Cow<'a, str>),
+    /// Numbers are any real number which are bounded by double precision
+    /// (64-bit), such as 3, -27, 3.1415. (Neither infinity nor NaN are
+    /// allowed.)
     UInt(u64),
+    /// Numbers are any real number which are bounded by double precision
+    /// (64-bit), such as 3, -27, 3.1415. (Neither infinity nor NaN are
+    /// allowed.)
     Int(i64),
+    /// Numbers are any real number which are bounded by double precision
+    /// (64-bit), such as 3, -27, 3.1415. (Neither infinity nor NaN are
+    /// allowed.)
     Double(f64),
+    /// Numbers are any real number which are bounded by double precision
+    /// (64-bit), such as 3, -27, 3.1415. (Neither infinity nor NaN are
+    /// allowed.)
     Float(f32),
+    /// The boolean data type can only store "true" or "false" values. These can
+    /// be directly compared for equality or inequality. They can also be
+    /// compared to the Boolean literal values of `true` and `false`.
     Boolean(bool),
+    /// An array is a data structure that contains a group of elements.
+    /// Typically the elements of an array are of the same or related type. When
+    /// an array is used in FQL it evaluates to its contents.
     Array(Array<'a>),
+    /// For reading a value from a Fauna response. Due to a bug, Fauna sends
+    /// objects back with no annotation.
     Object(Object<'a>),
+    /// Null is a special marker used to indicate that a data value does not
+    /// exist. It is a representation of missing information. A null value
+    /// indicates a lack of a value. A lack of a value is not the same thing as
+    /// a value of zero, in the same way that a lack of an answer is not the
+    /// same thing as an answer of "no". Null is a value that can be directly
+    /// compared for application programmer simplicity. This means that `Null == Null`
+    /// returns `true`.
     Null,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// A special expression with an annotation marker.
 pub enum AnnotatedExpr<'a> {
     #[serde(rename = "@bytes", with = "base64_bytes")]
+    /// Denotes a base64 encoded string representing a byte array.
     Bytes(Bytes<'a>),
     #[serde(rename = "@date")]
+    /// Denotes a date, with no associated time zone.
     Date(NaiveDate),
     #[serde(rename = "@ref")]
+    /// Denotes a resource ref. Refs may be extracted from instances, or
+    /// constructed using the ref function.
     Ref(Ref<'a>),
     #[serde(rename = "@set")]
+    /// Denotes a set identifier.
     Set(Box<Set<'a>>),
     #[serde(rename = "@ts")]
+    /// Stores an instant in time expressed as a calendar date and time of
+    /// day in UTC. A Timestamp can safely store nanoseconds precision, but be
+    /// careful as many operating system clocks provide only microsecond
+    /// precision. Timestamps may be inserted with offsets, but are converted to
+    /// UTC; the offset component is lost. A time must be within the range
+    /// `-999999999-01-01T00:00:00Z` - `9999-12-31T23:59:59.999999999Z`.
     Timestamp(DateTime<Utc>),
     #[serde(rename = "object")]
+    /// Object values are a collection of key/value pairs. The keys must be
+    /// strings and the values must be valid Fauna data types. The value
+    /// expressions are evaluated sequentially in the order that they were
+    /// specified, left to right. Objects evaluate to their contents:
     Object(Object<'a>),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
+/// A representation of a FaunaDB Query Expression.
+///
+/// Expressions should be created using the `From`/`Into` traits.
+///
+/// See the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/types).
 pub enum Expr<'a> {
     Annotated(AnnotatedExpr<'a>),
     Simple(SimpleExpr<'a>),
@@ -93,6 +145,7 @@ impl<'a> Expr<'a> {
         }
     }
 
+    /// A helper to create a null expression.
     pub fn null() -> Self {
         Expr::Simple(SimpleExpr::Null)
     }

@@ -1,3 +1,5 @@
+//! An asynchronous client for communicating with Fauna.
+
 mod response;
 
 pub use response::*;
@@ -17,6 +19,7 @@ use tokio_timer::Timeout;
 
 type Transport = hyper::Client<HttpsConnector<HttpConnector>>;
 
+/// For building a new Fauna client.
 pub struct ClientBuilder<'a> {
     uri: &'a str,
     secret: &'a str,
@@ -24,6 +27,8 @@ pub struct ClientBuilder<'a> {
 }
 
 impl<'a> ClientBuilder<'a> {
+    /// Create a new client builder. Secret can be generated in [Fauna Cloud
+    /// Console](https://dashboard.fauna.com/keys-new/@db/).
     pub fn new(secret: &'a str) -> Self {
         Self {
             uri: "https://db.fauna.com",
@@ -32,18 +37,24 @@ impl<'a> ClientBuilder<'a> {
         }
     }
 
+    /// Change the uri if using dedicated Fauna servers. Default:
+    /// `https://db.fauna.com`.
     pub fn uri(&mut self, uri: &'a str) -> &mut Self {
         self.uri = uri;
         self
     }
 
+    /// Request timeout. Default: `60 seconds`.
     pub fn timeout(&mut self, timeout: Duration) -> &mut Self {
         self.timeout = timeout;
         self
     }
 
+    /// Creates the client.
     pub fn build(self) -> FaunaResult<Client> {
-        let builder = hyper::Client::builder();
+        let mut builder = hyper::Client::builder();
+        builder.keep_alive(true);
+
         let secret_b64 = base64::encode(&format!("{}:", self.secret));
 
         Ok(Client {
@@ -55,6 +66,11 @@ impl<'a> ClientBuilder<'a> {
     }
 }
 
+/// The client for Fauna. Should be created using the
+/// [ClientBuilder](struct.ClientBuilder.html).
+///
+/// Do not create new clients for every request to prevent
+/// spamming Fauna servers with new connections.
 pub struct Client {
     transport: Transport,
     uri: Uri,
@@ -63,6 +79,7 @@ pub struct Client {
 }
 
 impl Client {
+    /// Send a query to Fauna servers and parsing the response.
     pub fn query<'a, Q>(&self, query: Q) -> FutureResponse<Response>
     where
         Q: Into<Query<'a>>,

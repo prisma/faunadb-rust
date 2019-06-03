@@ -1,7 +1,7 @@
 use std::{borrow::Cow, fmt};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum RefLocation<'a> {
+enum RefLocation<'a> {
     #[serde(rename = "class")]
     Class {
         #[serde(rename = "@ref")]
@@ -15,7 +15,7 @@ pub enum RefLocation<'a> {
 }
 
 impl<'a> RefLocation<'a> {
-    pub fn path(&self) -> String {
+    fn path(&self) -> String {
         match self {
             RefLocation::Class { location } => location.path(),
             RefLocation::Index { location } => location.path(),
@@ -24,6 +24,7 @@ impl<'a> RefLocation<'a> {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Denotes a resource ref.
 pub struct Ref<'a> {
     id: Cow<'a, str>,
     #[serde(skip_serializing_if = "Option::is_none", flatten)]
@@ -45,6 +46,7 @@ impl<'a> fmt::Display for Ref<'a> {
 }
 
 impl<'a> Ref<'a> {
+    /// A ref to a singleton instance.
     pub fn instance<S>(id: S) -> Self
     where
         S: Into<Cow<'a, str>>,
@@ -55,6 +57,7 @@ impl<'a> Ref<'a> {
         }
     }
 
+    /// A ref to a class.
     pub fn class<S>(id: S) -> Self
     where
         S: Into<Cow<'a, str>>,
@@ -67,6 +70,7 @@ impl<'a> Ref<'a> {
         }
     }
 
+    /// A ref to an index.
     pub fn index<S>(id: S) -> Self
     where
         S: Into<Cow<'a, str>>,
@@ -79,6 +83,7 @@ impl<'a> Ref<'a> {
         }
     }
 
+    /// Set the class for the singleton ref.
     pub fn set_class<S>(&mut self, id: S) -> &mut Self
     where
         S: Into<Cow<'a, str>>,
@@ -90,6 +95,7 @@ impl<'a> Ref<'a> {
         self
     }
 
+    /// Set the index for the singleton ref.
     pub fn set_index<S>(&mut self, id: S) -> &mut Self
     where
         S: Into<Cow<'a, str>>,
@@ -101,6 +107,7 @@ impl<'a> Ref<'a> {
         self
     }
 
+    /// Gets the fully qualified path.
     pub fn path(&self) -> String {
         match self.location {
             Some(ref location) => format!("{}/{}", location.path(), self.id),
