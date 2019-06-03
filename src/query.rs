@@ -18,6 +18,7 @@ pub enum Query<'a> {
     Create(Create<'a>),
     CreateClass(Box<CreateClass<'a>>),
     CreateDatabase(CreateDatabase<'a>),
+    CreateIndex(CreateIndex<'a>),
     Delete(Delete<'a>),
     Get(Get<'a>),
 }
@@ -43,6 +44,11 @@ impl<'a> Serialize for Query<'a> {
             Query::CreateDatabase(create_database) => {
                 let mut map = serializer.serialize_map(Some(1))?;
                 map.serialize_entry("create_database", &create_database)?;
+                map.end()
+            }
+            Query::CreateIndex(create_index) => {
+                let mut map = serializer.serialize_map(Some(1))?;
+                map.serialize_entry("create_index", &create_index)?;
                 map.end()
             }
             Query::Get(get) => {
@@ -79,6 +85,12 @@ impl<'a> From<CreateClass<'a>> for Query<'a> {
 impl<'a> From<CreateDatabase<'a>> for Query<'a> {
     fn from(create: CreateDatabase<'a>) -> Self {
         Query::CreateDatabase(create)
+    }
+}
+
+impl<'a> From<CreateIndex<'a>> for Query<'a> {
+    fn from(create: CreateIndex<'a>) -> Self {
+        Query::CreateIndex(create)
     }
 }
 
@@ -155,6 +167,88 @@ mod tests {
                     "name": "test",
                     "permissions": { "object": { "read": "public" } },
                     "ttl_days": 6,
+                }
+            }
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_create_index() {
+        let mut permission = IndexPermission::default();
+        permission.read(Level::public());
+
+        let mut params = IndexParams::new("meows", Ref::class("cats"));
+        params.permissions(permission);
+
+        let age_term = Term::new(vec!["cats", "age"], "cats_age");
+        let name_term = Term::new(vec!["cats", "name"], "cats_name");
+
+        params.terms(vec![age_term, name_term]);
+
+        let name_value = Value::new(vec!["cats", "name"], "cats_name");
+
+        let mut age_value = Value::new(vec!["cats", "age"], "cats_age");
+        age_value.reverse();
+
+        params.values(vec![age_value, name_value]);
+
+        let query = Query::from(CreateIndex::new(params));
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "create_index": {
+                "object": {
+                    "active": false,
+                    "name": "meows",
+                    "permissions": {
+                        "object": {
+                            "read": "public",
+                        }
+                    },
+                    "serialized": false,
+                    "source": {
+                        "@ref": {
+                            "class": {
+                                "@ref": {
+                                    "id": "classes",
+                                },
+                            },
+                            "id": "cats",
+                        },
+                    },
+                    "terms": [
+                        {
+                            "object": {
+                                "binding": "cats_age",
+                                "field": ["cats", "age"],
+                            }
+                        },
+                        {
+                            "object": {
+                                "binding": "cats_name",
+                                "field": ["cats", "name"],
+                            }
+                        },
+                    ],
+                    "unique": false,
+                    "values": [
+                        {
+                            "object": {
+                                "binding": "cats_age",
+                                "field": ["cats", "age"],
+                                "reverse": true,
+                            }
+                        },
+                        {
+                            "object": {
+                                "binding": "cats_name",
+                                "field": ["cats", "name"],
+                                "reverse": false,
+                            }
+                        },
+                    ]
                 }
             }
         });

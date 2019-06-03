@@ -9,14 +9,14 @@ pub enum SimpleLevel {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(untagged)]
 pub enum AnnotatedLevel<'a> {
-    Reference(Expr<'a>)
+    Reference(Expr<'a>),
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(untagged)]
 pub enum Level<'a> {
     Annotated(AnnotatedLevel<'a>),
-    Simple(SimpleLevel)
+    Simple(SimpleLevel),
 }
 
 impl<'a> Level<'a> {
@@ -44,7 +44,7 @@ pub struct ClassPermissionObject<'a> {
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct ClassPermission<'a> {
-    object: ClassPermissionObject<'a>
+    object: ClassPermissionObject<'a>,
 }
 
 impl<'a> ClassPermission<'a> {
@@ -177,10 +177,7 @@ mod tests {
             }
         });
 
-        assert_eq!(
-            expected,
-            serde_json::to_value(&perm).unwrap(),
-        )
+        assert_eq!(expected, serde_json::to_value(&perm).unwrap(),)
     }
 
     #[test]
@@ -224,10 +221,7 @@ mod tests {
             }
         });
 
-        assert_eq!(
-            expected,
-            serde_json::to_value(&perm).unwrap(),
-        )
+        assert_eq!(expected, serde_json::to_value(&perm).unwrap(),)
     }
 
     #[test]
@@ -263,9 +257,6 @@ mod tests {
             }
         });
 
-        assert_eq!(
-            expected,
-            serde_json::to_value(&perm).unwrap(),
-        )
+        assert_eq!(expected, serde_json::to_value(&perm).unwrap(),)
     }
 }

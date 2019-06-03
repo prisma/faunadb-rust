@@ -1,3 +1,4 @@
+use crate::expr::Expr;
 use failure::{self, Fail};
 
 #[derive(Debug, Fail)]
@@ -27,13 +28,16 @@ pub enum Error {
 #[derive(Debug, Deserialize, Fail)]
 #[fail(display = "Errors in the request data: [{:?}]", errors)]
 pub struct FaunaErrors {
-    errors: Vec<FaunaError>
+    errors: Vec<FaunaError>,
 }
 
 #[derive(Debug, Deserialize, Fail)]
-#[fail(display = "{{position={:?},code={},description={}}}", position, code, description)]
+#[fail(
+    display = "{{position={:?},code={},description={}}}",
+    position, code, description
+)]
 pub struct FaunaError {
-    position: Vec<String>,
+    position: Vec<Expr<'static>>,
     code: String,
     description: String,
 }

@@ -1,4 +1,4 @@
-use crate::expr::{Expr, IndexPermission, Ref, Object};
+use crate::expr::{Expr, IndexPermission, Object, Ref};
 use std::borrow::Cow;
 
 #[derive(Debug, Serialize)]
@@ -13,9 +13,14 @@ impl<'a> CreateIndex<'a> {
 }
 
 #[derive(Debug, Serialize)]
-pub struct Term<'a> {
+pub struct TermObject<'a> {
     field: Vec<Cow<'a, str>>,
     binding: Cow<'a, str>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct Term<'a> {
+    object: TermObject<'a>,
 }
 
 impl<'a> Term<'a> {
@@ -25,17 +30,24 @@ impl<'a> Term<'a> {
         U: Into<Cow<'a, str>>,
     {
         Self {
-            field: field.into_iter().map(Into::into).collect(),
-            binding: binding.into(),
+            object: TermObject {
+                field: field.into_iter().map(Into::into).collect(),
+                binding: binding.into(),
+            },
         }
     }
 }
 
 #[derive(Debug, Serialize)]
-pub struct Value<'a> {
+pub struct ValueObject<'a> {
     field: Vec<Cow<'a, str>>,
     binding: Cow<'a, str>,
     reverse: bool,
+}
+
+#[derive(Debug, Serialize)]
+pub struct Value<'a> {
+    object: ValueObject<'a>,
 }
 
 impl<'a> Value<'a> {
@@ -45,14 +57,16 @@ impl<'a> Value<'a> {
         U: Into<Cow<'a, str>>,
     {
         Self {
-            field: field.into_iter().map(Into::into).collect(),
-            binding: binding.into(),
-            reverse: false,
+            object: ValueObject {
+                field: field.into_iter().map(Into::into).collect(),
+                binding: binding.into(),
+                reverse: false,
+            },
         }
     }
 
     pub fn reverse(&mut self) -> &mut Self {
-        self.reverse = true;
+        self.object.reverse = true;
         self
     }
 }
@@ -129,6 +143,7 @@ impl<'a> IndexParams<'a> {
         self.permissions = Some(permissions);
         self
     }
+
     pub fn data(&mut self, data: Object<'a>) -> &mut Self {
         self.data = Some(Expr::from(data));
         self
