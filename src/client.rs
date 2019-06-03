@@ -27,7 +27,7 @@ impl<'a> ClientBuilder<'a> {
     pub fn new(secret: &'a str) -> Self {
         Self {
             uri: "https://db.fauna.com",
-            secret: secret,
+            secret,
             timeout: Duration::new(60, 0),
         }
     }
@@ -133,7 +133,7 @@ impl Client {
         FutureResponse(Box::new(with_timeout))
     }
 
-    fn build_request<'a>(&self, payload: String) -> hyper::Request<Body> {
+    fn build_request(&self, payload: String) -> hyper::Request<Body> {
         let mut builder = hyper::Request::builder();
 
         builder.uri(&self.uri);

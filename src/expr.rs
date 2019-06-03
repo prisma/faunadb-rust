@@ -1,18 +1,18 @@
+mod array;
 mod object;
+mod permission;
 mod reference;
 mod set;
-mod array;
-mod permission;
 
 use crate::serde::base64_bytes;
 use chrono::{DateTime, NaiveDate, Utc};
 use std::{borrow::Cow, fmt};
 
+pub use array::{Array, Bytes};
 pub use object::Object;
+pub use permission::*;
 pub use reference::Ref;
 pub use set::Set;
-pub use array::{Array, Bytes};
-pub use permission::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -84,13 +84,11 @@ impl<'a> Expr<'a> {
         match self {
             Expr::Simple(SimpleExpr::Object(o)) => {
                 Expr::Annotated(AnnotatedExpr::Object(o.reuse()))
-            },
+            }
             Expr::Annotated(AnnotatedExpr::Object(o)) => {
                 Expr::Annotated(AnnotatedExpr::Object(o.reuse()))
-            },
-            Expr::Simple(SimpleExpr::Array(v)) => {
-                Expr::Simple(SimpleExpr::Array(v.reuse()))
-            },
+            }
+            Expr::Simple(SimpleExpr::Array(v)) => Expr::Simple(SimpleExpr::Array(v.reuse())),
             expr => expr,
         }
     }
@@ -105,7 +103,7 @@ macro_rules! int_expr {
         $(
             impl<'a> From<$kind> for Expr<'a> {
                 fn from(i: $kind) -> Expr<'a> {
-                    Expr::Simple(SimpleExpr::Int(i as i64))
+                    Expr::Simple(SimpleExpr::Int(i64::from(i)))
                 }
             }
         )*
@@ -117,15 +115,15 @@ macro_rules! uint_expr {
         $(
             impl<'a> From<$kind> for Expr<'a> {
                 fn from(u: $kind) -> Expr<'a> {
-                    Expr::Simple(SimpleExpr::UInt(u as u64))
+                    Expr::Simple(SimpleExpr::UInt(u64::from(u)))
                 }
             }
         )*
     );
 }
 
-int_expr!(i8, i16, i32, i64, isize);
-uint_expr!(u8, u16, u32, u64, usize);
+int_expr!(i8, i16, i32, i64);
+uint_expr!(u8, u16, u32, u64);
 
 impl<'a, T> From<Option<T>> for Expr<'a>
 where
@@ -277,14 +275,6 @@ mod tests {
     }
 
     #[test]
-    fn test_isize_expr() {
-        let expr = Expr::from(4isize);
-        let serialized = serde_json::to_string(&expr).unwrap();
-
-        assert_eq!("4", serialized);
-    }
-
-    #[test]
     fn test_u8_expr() {
         let expr = Expr::from(4u8);
         let serialized = serde_json::to_string(&expr).unwrap();
@@ -317,14 +307,6 @@ mod tests {
     }
 
     #[test]
-    fn test_usize_expr() {
-        let expr = Expr::from(4usize);
-        let serialized = serde_json::to_string(&expr).unwrap();
-
-        assert_eq!("4", serialized);
-    }
-
-    #[test]
     fn test_bytes_expr() {
         let expr = Expr::from(Bytes::from(vec![0x1, 0x2, 0x3, 0x4]));
         let serialized = serde_json::to_string(&expr).unwrap();
@@ -335,9 +317,10 @@ mod tests {
     #[test]
     fn test_bytes_deserialize() {
         match serde_json::from_str("{\"@bytes\":\"AQIDBA==\"}") {
-            Ok(Expr::Annotated(AnnotatedExpr::Bytes(bytes))) =>
-                assert_eq!(Bytes::from(vec![0x1, 0x2, 0x3, 0x4]), bytes),
-            expr => panic!("{:?} was not bytes", expr)
+            Ok(Expr::Annotated(AnnotatedExpr::Bytes(bytes))) => {
+                assert_eq!(Bytes::from(vec![0x1, 0x2, 0x3, 0x4]), bytes)
+            }
+            expr => panic!("{:?} was not bytes", expr),
         }
     }
 
@@ -403,7 +386,7 @@ mod tests {
 
     #[test]
     fn test_complex_array_expr() {
-        let mut object = Object::new();
+        let mut object = Object::default();
         object.insert("foo", "bar");
         object.insert("lol", false);
 
@@ -419,7 +402,7 @@ mod tests {
 
     #[test]
     fn test_object_expr() {
-        let mut object = Object::new();
+        let mut object = Object::default();
         object.insert("foo", "bar");
         object.insert("lol", false);
 

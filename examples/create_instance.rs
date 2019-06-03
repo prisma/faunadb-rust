@@ -1,7 +1,10 @@
+use chrono::{NaiveDate, Utc};
 use clap::{App, Arg};
 use faunadb::prelude::*;
-use futures::{{future::Either, lazy}, Future};
-use chrono::{Utc, NaiveDate};
+use futures::{
+    Future,
+    {future::Either, lazy},
+};
 
 fn main() {
     pretty_env_logger::init();
@@ -33,19 +36,22 @@ fn main() {
     let client = ClientBuilder::new(secret).build().unwrap();
 
     let create_instance = {
-        let mut obj = Object::new();
+        let mut obj = Object::default();
 
         obj.insert("name", "Musti");
         obj.insert("age", 7);
         obj.insert("byte_data", Bytes::from(vec![0x1, 0x2, 0x3]));
-        obj.insert("nicknames", Array::from(vec!["mustu", "muspus", "mustikka"]));
+        obj.insert(
+            "nicknames",
+            Array::from(vec!["mustu", "muspus", "mustikka"]),
+        );
         obj.insert("this_is_null", Expr::null());
         obj.insert("am_i_cute", true);
         obj.insert("created_at", Utc::now());
         obj.insert("birthday", NaiveDate::from_ymd(2011, 7, 7));
 
         {
-            let mut obj2 = Object::new();
+            let mut obj2 = Object::default();
             obj2.insert("foo", "bar");
             obj.insert("objective", obj2);
         }

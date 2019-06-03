@@ -16,7 +16,7 @@ use serde::{ser::SerializeMap, Serialize, Serializer};
 #[derive(Debug)]
 pub enum Query<'a> {
     Create(Create<'a>),
-    CreateClass(CreateClass<'a>),
+    CreateClass(Box<CreateClass<'a>>),
     CreateDatabase(CreateDatabase<'a>),
     Delete(Delete<'a>),
     Get(Get<'a>),
@@ -72,7 +72,7 @@ impl<'a> From<Create<'a>> for Query<'a> {
 
 impl<'a> From<CreateClass<'a>> for Query<'a> {
     fn from(create: CreateClass<'a>) -> Self {
-        Query::CreateClass(create)
+        Query::CreateClass(Box::new(create))
     }
 }
 
@@ -102,7 +102,7 @@ mod tests {
 
     #[test]
     fn test_create() {
-        let mut obj = Object::new();
+        let mut obj = Object::default();
         obj.insert("test_field", "test_value");
 
         let params = InstanceParams::new(obj);
