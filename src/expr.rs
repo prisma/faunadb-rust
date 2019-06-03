@@ -129,10 +129,10 @@ impl<'a> fmt::Display for Expr<'a> {
 }
 
 impl<'a> Expr<'a> {
-    /// Use this hack for now when reusing resulting `Expr` from FaunaDB. Due to
-    /// a deficiency the resulting object will lose its annotation, and we must
-    /// annotate it again for Fauna to accept the data.
-    pub fn reuse(self) -> Self {
+    /// This hack is here for now for reusing the resulting `Expr` from FaunaDB.
+    /// Due to a deficiency the resulting object will lose its annotation, and
+    /// we must annotate it again for Fauna to accept the data.
+    pub(crate) fn reuse(self) -> Self {
         match self {
             Expr::Simple(SimpleExpr::Object(o)) => {
                 Expr::Annotated(AnnotatedExpr::Object(o.reuse()))

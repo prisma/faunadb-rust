@@ -3,6 +3,7 @@ mod create_class;
 mod create_database;
 mod create_index;
 mod delete;
+mod do_many;
 mod get;
 
 pub use create::*;
@@ -10,6 +11,7 @@ pub use create_class::*;
 pub use create_database::*;
 pub use create_index::*;
 pub use delete::*;
+pub use do_many::*;
 pub use get::*;
 use serde::{ser::SerializeMap, Serialize, Serializer};
 
@@ -18,9 +20,10 @@ pub enum Query<'a> {
     Create(Create<'a>),
     CreateClass(Box<CreateClass<'a>>),
     CreateDatabase(CreateDatabase<'a>),
-    CreateIndex(CreateIndex<'a>),
+    CreateIndex(Box<CreateIndex<'a>>),
     Delete(Delete<'a>),
     Get(Get<'a>),
+    Do(Do<'a>),
 }
 
 impl<'a> Serialize for Query<'a> {
@@ -66,6 +69,11 @@ impl<'a> Serialize for Query<'a> {
                 map.serialize_entry("delete", &delete)?;
                 map.end()
             }
+            Query::Do(do_many) => {
+                let mut map = serializer.serialize_map(Some(1))?;
+                map.serialize_entry("do", &do_many)?;
+                map.end()
+            }
         }
     }
 }
@@ -90,7 +98,7 @@ impl<'a> From<CreateDatabase<'a>> for Query<'a> {
 
 impl<'a> From<CreateIndex<'a>> for Query<'a> {
     fn from(create: CreateIndex<'a>) -> Self {
-        Query::CreateIndex(create)
+        Query::CreateIndex(Box::new(create))
     }
 }
 
@@ -101,8 +109,14 @@ impl<'a> From<Get<'a>> for Query<'a> {
 }
 
 impl<'a> From<Delete<'a>> for Query<'a> {
-    fn from(get: Delete<'a>) -> Self {
-        Query::Delete(get)
+    fn from(delete: Delete<'a>) -> Self {
+        Query::Delete(delete)
+    }
+}
+
+impl<'a> From<Do<'a>> for Query<'a> {
+    fn from(do_many: Do<'a>) -> Self {
+        Query::Do(do_many)
     }
 }
 
@@ -154,7 +168,6 @@ mod tests {
 
         let mut params = ClassParams::new("test");
         params.history_days(10);
-        params.ttl_days(6);
         params.permissions(permission);
 
         let query = Query::from(CreateClass::new(params));
@@ -166,7 +179,7 @@ mod tests {
                     "history_days": 10,
                     "name": "test",
                     "permissions": { "object": { "read": "public" } },
-                    "ttl_days": 6,
+                    "ttl_days": null,
                 }
             }
         });
@@ -307,6 +320,24 @@ mod tests {
                     "id": "musti"
                 }
             }
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_do() {
+        let mut do_many = Do::new(Get::instance(Ref::instance("musti")));
+        do_many.push(Delete::instance(Ref::instance("musti")));
+
+        let query = Query::from(do_many);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "do": [
+                {"get": {"@ref": {"id": "musti"}}},
+                {"delete": {"@ref": {"id": "musti"}}},
+            ]
         });
 
         assert_eq!(expected, serialized);

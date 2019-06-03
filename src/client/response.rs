@@ -25,6 +25,14 @@ pub enum Response {
 }
 
 impl Response {
+    /// Take the data object if exists from the response.
+    pub fn take_data(self) -> Option<Object<'static>> {
+        match self {
+            Response::Resource(Resource::Instance(inst)) => Some(inst.data.reuse()),
+            _ => None,
+        }
+    }
+
     pub fn clone_data(&self) -> Option<Object<'static>> {
         match self {
             Response::Resource(Resource::Instance(ref inst)) => Some(inst.data.clone().reuse()),
