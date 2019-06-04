@@ -1,3 +1,4 @@
+mod cond;
 mod create;
 mod create_class;
 mod create_database;
@@ -6,6 +7,7 @@ mod delete;
 mod do_many;
 mod get;
 
+pub use cond::*;
 pub use create::*;
 pub use create_class::*;
 pub use create_database::*;
@@ -24,7 +26,11 @@ pub enum Query<'a> {
     Delete(Delete<'a>),
     Get(Get<'a>),
     Do(Do<'a>),
+    If(If<'a>),
 }
+
+query!(Create, CreateDatabase, Get, If, Delete, Do);
+boxed_query!(CreateClass, CreateIndex);
 
 impl<'a> Serialize for Query<'a> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -74,49 +80,15 @@ impl<'a> Serialize for Query<'a> {
                 map.serialize_entry("do", &do_many)?;
                 map.end()
             }
+            Query::If(cond) => {
+                let mut map = serializer.serialize_map(Some(3))?;
+
+                map.serialize_entry("if", &cond.cond)?;
+                map.serialize_entry("then", &cond.if_true)?;
+                map.serialize_entry("else", &cond.if_false)?;
+                map.end()
+            }
         }
-    }
-}
-
-impl<'a> From<Create<'a>> for Query<'a> {
-    fn from(create: Create<'a>) -> Self {
-        Query::Create(create)
-    }
-}
-
-impl<'a> From<CreateClass<'a>> for Query<'a> {
-    fn from(create: CreateClass<'a>) -> Self {
-        Query::CreateClass(Box::new(create))
-    }
-}
-
-impl<'a> From<CreateDatabase<'a>> for Query<'a> {
-    fn from(create: CreateDatabase<'a>) -> Self {
-        Query::CreateDatabase(create)
-    }
-}
-
-impl<'a> From<CreateIndex<'a>> for Query<'a> {
-    fn from(create: CreateIndex<'a>) -> Self {
-        Query::CreateIndex(Box::new(create))
-    }
-}
-
-impl<'a> From<Get<'a>> for Query<'a> {
-    fn from(get: Get<'a>) -> Self {
-        Query::Get(get)
-    }
-}
-
-impl<'a> From<Delete<'a>> for Query<'a> {
-    fn from(delete: Delete<'a>) -> Self {
-        Query::Delete(delete)
-    }
-}
-
-impl<'a> From<Do<'a>> for Query<'a> {
-    fn from(do_many: Do<'a>) -> Self {
-        Query::Do(do_many)
     }
 }
 
@@ -338,6 +310,20 @@ mod tests {
                 {"get": {"@ref": {"id": "musti"}}},
                 {"delete": {"@ref": {"id": "musti"}}},
             ]
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_if() {
+        let query = Query::from(If::cond(true, "is true", "is false"));
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "if": true,
+            "then": "is true",
+            "else": "is false",
         });
 
         assert_eq!(expected, serialized);

@@ -151,30 +151,6 @@ impl<'a> Expr<'a> {
     }
 }
 
-macro_rules! int_expr {
-    ($($kind:ident),*) => (
-        $(
-            impl<'a> From<$kind> for Expr<'a> {
-                fn from(i: $kind) -> Expr<'a> {
-                    Expr::Simple(SimpleExpr::Int(i64::from(i)))
-                }
-            }
-        )*
-    );
-}
-
-macro_rules! uint_expr {
-    ($($kind:ident),*) => (
-        $(
-            impl<'a> From<$kind> for Expr<'a> {
-                fn from(u: $kind) -> Expr<'a> {
-                    Expr::Simple(SimpleExpr::UInt(u64::from(u)))
-                }
-            }
-        )*
-    );
-}
-
 int_expr!(i8, i16, i32, i64);
 uint_expr!(u8, u16, u32, u64);
 

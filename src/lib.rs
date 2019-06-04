@@ -4,6 +4,9 @@ extern crate serde_derive;
 #[macro_use]
 extern crate log;
 
+#[macro_use]
+mod macros;
+
 pub mod client;
 pub mod error;
 pub mod expr;

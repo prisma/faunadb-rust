@@ -68,6 +68,7 @@ pub struct ClassData {
 pub enum Resource {
     Instance(InstanceData),
     Class(ClassData),
+    Expr(Expr<'static>),
 }
 
 impl fmt::Display for Response {
@@ -83,6 +84,7 @@ impl fmt::Display for Response {
                 "Class(ref={},name={},history={:?},ttl={:?},ts={})",
                 res.reference, res.name, res.history_days, res.ttl_days, res.timestamp,
             ),
+            Response::Resource(Resource::Expr(res)) => write!(f, "Expr({})", res,),
         }
     }
 }
