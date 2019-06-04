@@ -1,0 +1,52 @@
+#+TITLE: Todo
+
+* TODO Functions
+** DONE Lambda
+** TODO At
+** TODO Append
+** TODO Drop
+** TODO Filter
+** TODO Foreach
+** TODO IsEmpty
+** TODO IsNonEmpty
+** TODO Prepend
+** TODO Take
+** TODO ToDate
+** TODO ToNumber
+** TODO ToString
+** TODO ToTime
+** TODO And
+** TODO Contains
+** TODO Equals
+** TODO Exists
+** TODO Logical (And, Contains ... (10 functions))
+** TODO Math (Abs, Acos, Add, Asin ... (34 functions))
+** TODO Abort
+** TODO Class/Classes
+** TODO Database/Databases
+** TODO Function/Functions
+** TODO Index/Indexes
+** TODO NewId
+** TODO KeyFromSecret
+** TODO Paginate
+** TODO Select
+** TODO SelectAll
+** TODO Difference
+** TODO Distinct
+** TODO Intersection
+** TODO Join
+** TODO Match
+** TODO Union
+** TODO String (CaseFold, Concat, FindStr ... (16 functions))
+** TODO Date
+** TODO Epoch
+** TODO Time
+** TODO CreateFunction
+** TODO CreateKey
+** TODO Insert
+** TODO Remove
+** TODO Replace
+** TODO Update
+
+* TODO Integration tests with dockerized Fauna
+* TODO Massage the documentation
