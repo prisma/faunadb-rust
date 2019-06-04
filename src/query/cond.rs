@@ -8,11 +8,14 @@ use crate::expr::Expr;
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/if);
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct If<'a> {
-    pub(crate) cond: Expr<'a>,
-    pub(crate) if_true: Expr<'a>,
-    pub(crate) if_false: Expr<'a>,
+    #[serde(rename = "if")]
+    cond: Expr<'a>,
+    #[serde(rename = "then")]
+    if_true: Expr<'a>,
+    #[serde(rename = "else")]
+    if_false: Expr<'a>,
 }
 
 impl<'a> If<'a> {

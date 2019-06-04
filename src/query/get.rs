@@ -1,22 +1,21 @@
 use crate::expr::{Expr, Ref};
 use chrono::{DateTime, Utc};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
+struct GetObject<'a>(Expr<'a>);
+
+#[derive(Debug, Serialize, Clone)]
 pub struct Get<'a> {
-    #[serde(flatten)]
-    pub(crate) reference: Expr<'a>,
-    #[serde(skip_serializing)]
-    pub(crate) timestamp: Option<Expr<'a>>,
+    get: GetObject<'a>,
+    #[serde(rename = "ts", skip_serializing_if = "Option::is_none")]
+    timestamp: Option<Expr<'a>>,
 }
 
 impl<'a> Get<'a> {
     pub fn instance(reference: Ref<'a>) -> Self {
-        let reference = Expr::from(reference);
-        let timestamp = None;
-
         Self {
-            reference,
-            timestamp,
+            get: GetObject(Expr::from(reference)),
+            timestamp: None,
         }
     }
 

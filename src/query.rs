@@ -17,9 +17,9 @@ pub use delete::*;
 pub use do_many::*;
 pub use get::*;
 pub use let_var::*;
-use serde::{ser::SerializeMap, Serialize, Serializer};
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Serialize)]
+#[serde(untagged)]
 pub enum Query<'a> {
     Create(Create<'a>),
     CreateClass(Box<CreateClass<'a>>),
@@ -34,73 +34,6 @@ pub enum Query<'a> {
 
 query!(Create, CreateDatabase, Get, If, Delete, Do, Let);
 boxed_query!(CreateClass, CreateIndex);
-
-impl<'a> Serialize for Query<'a> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        match self {
-            Query::Create(create) => {
-                let mut map = serializer.serialize_map(Some(2))?;
-
-                map.serialize_entry("create", &create)?;
-                map.serialize_entry("params", &create.params)?;
-                map.end()
-            }
-            Query::CreateClass(create_class) => {
-                let mut map = serializer.serialize_map(Some(1))?;
-                map.serialize_entry("create_class", &create_class)?;
-                map.end()
-            }
-            Query::CreateDatabase(create_database) => {
-                let mut map = serializer.serialize_map(Some(1))?;
-                map.serialize_entry("create_database", &create_database)?;
-                map.end()
-            }
-            Query::CreateIndex(create_index) => {
-                let mut map = serializer.serialize_map(Some(1))?;
-                map.serialize_entry("create_index", &create_index)?;
-                map.end()
-            }
-            Query::Get(get) => {
-                let mut map = serializer.serialize_map(Some(2))?;
-                map.serialize_entry("get", &get)?;
-
-                if let Some(ref ts) = get.timestamp {
-                    map.serialize_entry("ts", &ts)?;
-                }
-
-                map.end()
-            }
-            Query::Delete(delete) => {
-                let mut map = serializer.serialize_map(Some(1))?;
-                map.serialize_entry("delete", &delete)?;
-                map.end()
-            }
-            Query::Do(do_many) => {
-                let mut map = serializer.serialize_map(Some(1))?;
-                map.serialize_entry("do", &do_many)?;
-                map.end()
-            }
-            Query::If(cond) => {
-                let mut map = serializer.serialize_map(Some(3))?;
-
-                map.serialize_entry("if", &cond.cond)?;
-                map.serialize_entry("then", &cond.if_true)?;
-                map.serialize_entry("else", &cond.if_false)?;
-                map.end()
-            }
-            Query::Let(let_vars) => {
-                let mut map = serializer.serialize_map(Some(2))?;
-
-                map.serialize_entry("let", &let_vars.bindings)?;
-                map.serialize_entry("in", &let_vars.in_expr)?;
-                map.end()
-            }
-        }
-    }
-}
 
 #[cfg(test)]
 mod tests {

@@ -1,29 +1,31 @@
-use crate::{
-    error::Error,
-    expr::{Expr, Object},
-    FaunaResult,
-};
+use crate::{error::Error, expr::Object, FaunaResult};
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct CreateDatabase<'a> {
-    #[serde(flatten)]
-    param_object: Expr<'a>,
+    create_database: DatabaseParams<'a>,
+}
+
+#[derive(Debug, Default, Serialize, Clone)]
+pub struct DatabaseParamsInternal<'a> {
+    name: &'a str,
+    api_version: f64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    data: Option<Object<'a>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    priority: Option<u16>,
+}
+
+#[derive(Debug, Default, Serialize, Clone)]
+pub struct DatabaseParams<'a> {
+    object: DatabaseParamsInternal<'a>,
 }
 
 impl<'a> CreateDatabase<'a> {
     pub fn new(params: DatabaseParams<'a>) -> Self {
         Self {
-            param_object: Expr::from(params),
+            create_database: params,
         }
     }
-}
-
-#[derive(Debug, Default)]
-pub struct DatabaseParams<'a> {
-    name: &'a str,
-    api_version: f64,
-    data: Option<Object<'a>>,
-    priority: Option<u16>,
 }
 
 impl<'a> DatabaseParams<'a> {
@@ -32,19 +34,21 @@ impl<'a> DatabaseParams<'a> {
         S: Into<&'a str>,
     {
         Self {
-            name: name.into(),
-            api_version: 2.0,
-            ..Default::default()
+            object: DatabaseParamsInternal {
+                name: name.into(),
+                api_version: 2.0,
+                ..Default::default()
+            },
         }
     }
 
     pub fn api_version(&mut self, version: f64) -> &mut Self {
-        self.api_version = version;
+        self.object.api_version = version;
         self
     }
 
     pub fn data(&mut self, data: Object<'a>) -> &mut Self {
-        self.data = Some(data);
+        self.object.data = Some(data);
         self
     }
 
@@ -55,25 +59,8 @@ impl<'a> DatabaseParams<'a> {
             ));
         }
 
-        self.priority = Some(priority);
+        self.object.priority = Some(priority);
+
         Ok(self)
-    }
-}
-
-impl<'a> From<DatabaseParams<'a>> for Object<'a> {
-    fn from(dp: DatabaseParams<'a>) -> Self {
-        let mut obj = Object::default();
-        obj.insert("name", dp.name);
-        obj.insert("api_version", dp.api_version);
-
-        if let Some(data) = dp.data {
-            obj.insert("data", data);
-        }
-
-        if let Some(priority) = dp.priority {
-            obj.insert("priority", priority);
-        }
-
-        obj
     }
 }

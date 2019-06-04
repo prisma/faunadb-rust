@@ -1,19 +1,20 @@
 use crate::expr::{Expr, Ref};
 
 #[derive(Debug, Serialize, Clone)]
+struct CreateInfo<'a>(Expr<'a>);
+
+#[derive(Debug, Serialize, Clone)]
 pub struct Create<'a> {
-    #[serde(flatten)]
-    reference: Expr<'a>,
-    #[serde(skip_serializing)]
-    pub(crate) params: InstanceParams<'a>,
+    create: CreateInfo<'a>,
+    params: InstanceParams<'a>,
 }
 
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct InstanceData<'a> {
     data: Expr<'a>,
 }
 
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct InstanceParams<'a> {
     object: InstanceData<'a>,
 }
@@ -21,7 +22,7 @@ pub struct InstanceParams<'a> {
 impl<'a> Create<'a> {
     pub fn new(class_ref: Ref<'a>, params: InstanceParams<'a>) -> Self {
         Self {
-            reference: Expr::from(class_ref),
+            create: CreateInfo(Expr::from(class_ref)),
             params,
         }
     }

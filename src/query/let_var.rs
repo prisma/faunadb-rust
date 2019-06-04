@@ -14,8 +14,10 @@ use std::{borrow::Cow, collections::BTreeMap};
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/let).
 #[derive(Debug, Clone, Serialize)]
 pub struct Let<'a> {
-    pub(crate) bindings: BTreeMap<Cow<'a, str>, Expr<'a>>,
-    pub(crate) in_expr: Expr<'a>,
+    #[serde(rename = "let")]
+    bindings: BTreeMap<Cow<'a, str>, Expr<'a>>,
+    #[serde(rename = "in")]
+    in_expr: Expr<'a>,
 }
 
 /// A single binding to be used in a `Let` query.
