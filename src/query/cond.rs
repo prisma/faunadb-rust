@@ -1,8 +1,13 @@
 use crate::expr::Expr;
 
 /// The `If` function evaluates and returns `if_true` or `if_false` depending on
-/// the value of the `cond` expression. If the `cond` expression evaluates to
+/// the value of the `cond` expression.
+///
+/// If the `cond` expression evaluates to
 /// anything other than a `Boolean`, `If` returns an `invalid argument` error.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/if);
 #[derive(Debug, Clone)]
 pub struct If<'a> {
     pub(crate) cond: Expr<'a>,

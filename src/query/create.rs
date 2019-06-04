@@ -10,7 +10,7 @@ pub struct Create<'a> {
 
 #[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct InstanceData<'a> {
-    data: Expr<'a>
+    data: Expr<'a>,
 }
 
 #[derive(Debug, Serialize, Clone, Deserialize)]
@@ -33,9 +33,7 @@ impl<'a> InstanceParams<'a> {
         E: Into<Expr<'a>>,
     {
         Self {
-            object: InstanceData {
-                data: data.into(),
-            },
+            object: InstanceData { data: data.into() },
         }
     }
 }

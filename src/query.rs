@@ -6,6 +6,7 @@ mod create_index;
 mod delete;
 mod do_many;
 mod get;
+mod let_var;
 
 pub use cond::*;
 pub use create::*;
@@ -15,6 +16,7 @@ pub use create_index::*;
 pub use delete::*;
 pub use do_many::*;
 pub use get::*;
+pub use let_var::*;
 use serde::{ser::SerializeMap, Serialize, Serializer};
 
 #[derive(Debug)]
@@ -27,9 +29,10 @@ pub enum Query<'a> {
     Get(Get<'a>),
     Do(Do<'a>),
     If(If<'a>),
+    Let(Let<'a>),
 }
 
-query!(Create, CreateDatabase, Get, If, Delete, Do);
+query!(Create, CreateDatabase, Get, If, Delete, Do, Let);
 boxed_query!(CreateClass, CreateIndex);
 
 impl<'a> Serialize for Query<'a> {
@@ -86,6 +89,13 @@ impl<'a> Serialize for Query<'a> {
                 map.serialize_entry("if", &cond.cond)?;
                 map.serialize_entry("then", &cond.if_true)?;
                 map.serialize_entry("else", &cond.if_false)?;
+                map.end()
+            }
+            Query::Let(let_vars) => {
+                let mut map = serializer.serialize_map(Some(2))?;
+
+                map.serialize_entry("let", &let_vars.bindings)?;
+                map.serialize_entry("in", &let_vars.in_expr)?;
                 map.end()
             }
         }
