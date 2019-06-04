@@ -5,7 +5,7 @@ use futures::{lazy, Future};
 fn main() {
     pretty_env_logger::init();
 
-    let matches = App::new("A Simple FaunaDB Client")
+    let matches = App::new("A misc throwaway test client for development")
         .version("1.0")
         .author("Julius de Bruijn <bruijn@prisma.io>")
         .about("For testing faunadb-rust client library")
@@ -23,9 +23,14 @@ fn main() {
     let secret = matches.value_of("secret").unwrap();
     let client = ClientBuilder::new(secret).build().unwrap();
 
+    let map = Map::new(
+        vec!["Musti", "Naukio"],
+        Lambda::new(vec!["cat"], Var::new("cat")),
+    );
+
     tokio::run(lazy(move || {
         client
-            .query(If::cond(true, "is true", "is false"))
+            .query(map)
             .map(|response| {
                 println!("{}", response);
             })

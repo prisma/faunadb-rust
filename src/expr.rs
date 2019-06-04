@@ -61,32 +61,32 @@ pub enum SimpleExpr<'a> {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// A special expression with an annotation marker.
 pub enum AnnotatedExpr<'a> {
-    #[serde(rename = "@bytes", with = "base64_bytes")]
     /// Denotes a base64 encoded string representing a byte array.
+    #[serde(rename = "@bytes", with = "base64_bytes")]
     Bytes(Bytes<'a>),
-    #[serde(rename = "@date")]
     /// Denotes a date, with no associated time zone.
+    #[serde(rename = "@date")]
     Date(NaiveDate),
-    #[serde(rename = "@ref")]
     /// Denotes a resource ref. Refs may be extracted from instances, or
     /// constructed using the ref function.
+    #[serde(rename = "@ref")]
     Ref(Ref<'a>),
-    #[serde(rename = "@set")]
     /// Denotes a set identifier.
+    #[serde(rename = "@set")]
     Set(Box<Set<'a>>),
-    #[serde(rename = "@ts")]
     /// Stores an instant in time expressed as a calendar date and time of
     /// day in UTC. A Timestamp can safely store nanoseconds precision, but be
     /// careful as many operating system clocks provide only microsecond
     /// precision. Timestamps may be inserted with offsets, but are converted to
     /// UTC; the offset component is lost. A time must be within the range
     /// `-999999999-01-01T00:00:00Z` - `9999-12-31T23:59:59.999999999Z`.
+    #[serde(rename = "@ts")]
     Timestamp(DateTime<Utc>),
-    #[serde(rename = "object")]
     /// Object values are a collection of key/value pairs. The keys must be
     /// strings and the values must be valid Fauna data types. The value
     /// expressions are evaluated sequentially in the order that they were
     /// specified, left to right. Objects evaluate to their contents:
+    #[serde(rename = "object")]
     Object(Object<'a>),
 }
 
@@ -101,6 +101,9 @@ pub enum AnnotatedExpr<'a> {
 pub enum Expr<'a> {
     Annotated(AnnotatedExpr<'a>),
     Simple(SimpleExpr<'a>),
+
+    // Server will not return queries, so no need to dance with the borrow
+    // checker and implement Deserialize for all queries.
     #[serde(skip_deserializing)]
     Query(Box<Query<'a>>),
 }
@@ -205,12 +208,18 @@ impl<'a> From<Array<'a>> for Expr<'a> {
     }
 }
 
-impl<'a, O> From<O> for Expr<'a>
+impl<'a, Q> From<Q> for Expr<'a>
 where
-    O: Into<Object<'a>>,
+    Q: Into<Query<'a>>,
 {
-    fn from(o: O) -> Expr<'a> {
-        Expr::Annotated(AnnotatedExpr::Object(o.into()))
+    fn from(q: Q) -> Expr<'a> {
+        Expr::Query(Box::new(q.into()))
+    }
+}
+
+impl<'a> From<Object<'a>> for Expr<'a> {
+    fn from(o: Object<'a>) -> Expr<'a> {
+        Expr::Annotated(AnnotatedExpr::Object(o))
     }
 }
 
@@ -241,12 +250,6 @@ impl<'a> From<Set<'a>> for Expr<'a> {
 impl<'a> From<DateTime<Utc>> for Expr<'a> {
     fn from(dt: DateTime<Utc>) -> Expr<'a> {
         Expr::Annotated(AnnotatedExpr::Timestamp(dt))
-    }
-}
-
-impl<'a> From<Query<'a>> for Expr<'a> {
-    fn from(q: Query<'a>) -> Expr<'a> {
-        Expr::Query(Box::new(q))
     }
 }
 

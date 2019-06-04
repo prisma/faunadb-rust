@@ -6,7 +6,10 @@ mod create_index;
 mod delete;
 mod do_many;
 mod get;
+mod lambda;
 mod let_var;
+mod map;
+mod var;
 
 pub use cond::*;
 pub use create::*;
@@ -16,7 +19,10 @@ pub use create_index::*;
 pub use delete::*;
 pub use do_many::*;
 pub use get::*;
+pub use lambda::*;
 pub use let_var::*;
+pub use map::*;
+pub use var::*;
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(untagged)]
@@ -30,9 +36,24 @@ pub enum Query<'a> {
     Do(Do<'a>),
     If(If<'a>),
     Let(Let<'a>),
+    Var(Var<'a>),
+    Lambda(Lambda<'a>),
+    Map(Map<'a>),
 }
 
-query!(Create, CreateDatabase, Get, If, Delete, Do, Let);
+query!(
+    Create,
+    CreateDatabase,
+    Get,
+    If,
+    Delete,
+    Do,
+    Let,
+    Var,
+    Lambda,
+    Map
+);
+
 boxed_query!(CreateClass, CreateIndex);
 
 #[cfg(test)]
@@ -267,6 +288,59 @@ mod tests {
             "if": true,
             "then": "is true",
             "else": "is false",
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_let_var() {
+        let let_var = Let::bindings(
+            vec![Binding::new("cat", If::cond(true, "Musti", "Naukio"))],
+            Var::new("cat"),
+        );
+
+        let query = Query::from(let_var);
+
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "let": {"cat": {"if": true, "then": "Musti", "else": "Naukio"}},
+            "in": {"var": "cat"},
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_lambda() {
+        let lambda = Lambda::new(vec!["cat"], Var::new("cat"));
+        let query = Query::from(lambda);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "lambda": ["cat"],
+            "expr": {"var": "cat"},
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_map() {
+        let map = Map::new(
+            vec!["Musti", "Naukio"],
+            Lambda::new(vec!["cat"], Var::new("cat")),
+        );
+        let query = Query::from(map);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "collection": ["Musti", "Naukio"],
+            "map": {
+                "lambda": ["cat"],
+                "expr": {"var": "cat"},
+            }
         });
 
         assert_eq!(expected, serialized);

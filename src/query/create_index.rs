@@ -15,17 +15,17 @@ impl<'a> CreateIndex<'a> {
 }
 
 #[derive(Debug, Serialize, Clone)]
-pub struct Field<'a>(Vec<Cow<'a, str>>);
+pub struct IndexField<'a>(Vec<Cow<'a, str>>);
 
 #[derive(Debug, Serialize, Clone)]
-pub struct Binding<'a>(Cow<'a, str>);
+pub struct IndexBinding<'a>(Cow<'a, str>);
 
 #[derive(Debug, Serialize, Clone)]
 pub enum TermObject<'a> {
     #[serde(rename = "field")]
-    Field(Field<'a>),
+    Field(IndexField<'a>),
     #[serde(rename = "binding")]
-    Binding(Binding<'a>),
+    Binding(IndexBinding<'a>),
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -36,9 +36,9 @@ pub struct Term<'a> {
 #[derive(Debug, Serialize, Clone)]
 pub struct ValueObject<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
-    field: Option<Field<'a>>,
+    field: Option<IndexField<'a>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    binding: Option<Binding<'a>>,
+    binding: Option<IndexBinding<'a>>,
     reverse: bool,
 }
 
@@ -76,7 +76,7 @@ impl<'a> Term<'a> {
     where
         T: Into<Cow<'a, str>>,
     {
-        let field = Field(path.into_iter().map(Into::into).collect());
+        let field = IndexField(path.into_iter().map(Into::into).collect());
 
         Self {
             object: TermObject::Field(field),
@@ -87,7 +87,7 @@ impl<'a> Term<'a> {
     where
         T: Into<Cow<'a, str>>,
     {
-        let binding = Binding(name.into());
+        let binding = IndexBinding(name.into());
 
         Self {
             object: TermObject::Binding(binding),
@@ -100,7 +100,7 @@ impl<'a> Value<'a> {
     where
         T: Into<Cow<'a, str>>,
     {
-        let field = Field(path.into_iter().map(Into::into).collect());
+        let field = IndexField(path.into_iter().map(Into::into).collect());
 
         Self {
             object: ValueObject {
@@ -115,7 +115,7 @@ impl<'a> Value<'a> {
     where
         T: Into<Cow<'a, str>>,
     {
-        let binding = Binding(name.into());
+        let binding = IndexBinding(name.into());
 
         Self {
             object: ValueObject {

@@ -24,6 +24,16 @@ pub struct Let<'a> {
 #[derive(Debug, Clone, Serialize)]
 pub struct Binding<'a>(Cow<'a, str>, Expr<'a>);
 
+impl<'a> Binding<'a> {
+    pub fn new<V, E>(variable: V, expr: E) -> Self
+    where
+        V: Into<Cow<'a, str>>,
+        E: Into<Expr<'a>>,
+    {
+        Binding(variable.into(), expr.into())
+    }
+}
+
 impl<'a> Let<'a> {
     /// Set bindings to be available in the given `Expr`.
     pub fn bindings<B, E>(bindings: B, in_expr: E) -> Self
