@@ -4,7 +4,7 @@ mod permission;
 mod reference;
 mod set;
 
-use crate::serde::base64_bytes;
+use crate::{query::Query, serde::base64_bytes};
 use chrono::{DateTime, NaiveDate, Utc};
 use std::{borrow::Cow, fmt};
 
@@ -101,6 +101,8 @@ pub enum AnnotatedExpr<'a> {
 pub enum Expr<'a> {
     Annotated(AnnotatedExpr<'a>),
     Simple(SimpleExpr<'a>),
+    #[serde(skip_deserializing)]
+    Query(Box<Query<'a>>),
 }
 
 impl<'a> fmt::Display for Expr<'a> {
@@ -124,6 +126,7 @@ impl<'a> fmt::Display for Expr<'a> {
             Expr::Annotated(AnnotatedExpr::Ref(r)) => write!(f, "{}", r),
             Expr::Annotated(AnnotatedExpr::Set(s)) => write!(f, "{}", s),
             Expr::Annotated(AnnotatedExpr::Timestamp(ts)) => write!(f, "{}", ts),
+            Expr::Query(query) => write!(f, "Query({:?})", query),
         }
     }
 }
@@ -238,6 +241,12 @@ impl<'a> From<Set<'a>> for Expr<'a> {
 impl<'a> From<DateTime<Utc>> for Expr<'a> {
     fn from(dt: DateTime<Utc>) -> Expr<'a> {
         Expr::Annotated(AnnotatedExpr::Timestamp(dt))
+    }
+}
+
+impl<'a> From<Query<'a>> for Expr<'a> {
+    fn from(q: Query<'a>) -> Expr<'a> {
+        Expr::Query(Box::new(q))
     }
 }
 
