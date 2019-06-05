@@ -30,6 +30,7 @@ impl<'a> Delete<'a> {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::prelude::*;
     use serde_json::{self, json};
 

@@ -1,6 +1,6 @@
 use chrono::Utc;
 use clap::{App, Arg};
-use faunadb::prelude::*;
+use faunadb::{prelude::*, query::read::Get};
 use futures::{future::lazy, Future};
 
 fn main() {

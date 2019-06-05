@@ -185,7 +185,11 @@ impl<'a> Var<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::prelude::*;
+    use super::*;
+    use crate::{
+        prelude::*,
+        query::{read::Get, write::Delete},
+    };
     use serde_json::{self, json};
 
     #[test]

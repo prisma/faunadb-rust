@@ -1,5 +1,5 @@
 use clap::{App, Arg};
-use faunadb::prelude::*;
+use faunadb::{prelude::*, query::write::Delete};
 use futures::{future::lazy, Future};
 
 fn main() {

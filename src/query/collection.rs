@@ -1,6 +1,6 @@
 use crate::{
     expr::Expr,
-    query::{Lambda, Query},
+    query::{basic::Lambda, Query},
 };
 
 query!(Map);
@@ -32,7 +32,8 @@ impl<'a> Map<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::prelude::*;
+    use super::*;
+    use crate::{prelude::*, query::basic::Var};
     use serde_json::{self, json};
 
     #[test]

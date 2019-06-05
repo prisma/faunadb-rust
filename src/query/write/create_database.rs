@@ -69,7 +69,7 @@ impl<'a> DatabaseParams<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::prelude::*;
+    use super::*;
     use serde_json::{self, json};
 
     #[test]

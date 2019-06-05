@@ -15,11 +15,8 @@
 ** TODO ToNumber
 ** TODO ToString
 ** TODO ToTime
-** TODO Contains
-** TODO Equals
-** TODO Exists
 ** DONE Logical (And, Contains ... (10 functions))
-** TODO Math (Abs, Acos, Add, Asin ... (34 functions))
+** DONE Math (Abs, Acos, Add, Asin ... (34 functions))
 ** TODO Abort
 ** TODO Class/Classes
 ** TODO Database/Databases

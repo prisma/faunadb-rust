@@ -230,6 +230,7 @@ impl<'a> Exists<'a> {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::prelude::*;
     use chrono::{offset::TimeZone, Utc};
     use serde_json::{self, json};

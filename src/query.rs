@@ -1,74 +1,71 @@
-mod basic;
-mod collection;
-mod logical;
-mod math;
-mod read;
-mod write;
-
-pub use basic::*;
-pub use collection::*;
-pub use logical::*;
-pub use math::*;
-pub use read::*;
-pub use write::*;
+pub mod basic;
+pub mod collection;
+pub mod logical;
+pub mod math;
+pub mod read;
+pub mod write;
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(untagged)]
 pub enum Query<'a> {
-    Create(Create<'a>),
-    CreateClass(Box<CreateClass<'a>>),
-    CreateDatabase(CreateDatabase<'a>),
-    CreateIndex(Box<CreateIndex<'a>>),
-    Delete(Delete<'a>),
-    Get(Get<'a>),
-    Do(Do<'a>),
-    If(If<'a>),
-    Let(Let<'a>),
-    Var(Var<'a>),
-    Lambda(Lambda<'a>),
-    Map(Map<'a>),
-    And(And<'a>),
-    Or(Or<'a>),
-    Not(Not<'a>),
-    Lt(Lt<'a>),
-    Lte(Lte<'a>),
-    Gt(Gt<'a>),
-    Gte(Gte<'a>),
-    Contains(Contains<'a>),
-    Equals(Equals<'a>),
-    Exists(Exists<'a>),
-    Abs(Abs<'a>),
-    Acos(Acos<'a>),
-    Add(Add<'a>),
-    Asin(Asin<'a>),
-    Atan(Atan<'a>),
-    BitAnd(BitAnd<'a>),
-    BitNot(BitNot<'a>),
-    BitOr(BitOr<'a>),
-    BitXor(BitXor<'a>),
-    Ceil(Ceil<'a>),
-    Cos(Cos<'a>),
-    Cosh(Cosh<'a>),
-    Degrees(Degrees<'a>),
-    Divide(Divide<'a>),
-    Exp(Exp<'a>),
-    Floor(Floor<'a>),
-    Hypot(Hypot<'a>),
-    Ln(Ln<'a>),
-    Log(Log<'a>),
-    Max(Max<'a>),
-    Min(Min<'a>),
-    Modulo(Modulo<'a>),
-    Multiply(Multiply<'a>),
-    Pow(Pow<'a>),
-    Radians(Radians<'a>),
-    Round(Round<'a>),
-    Sign(Sign<'a>),
-    Sin(Sin<'a>),
-    Sinh(Sinh<'a>),
-    Sqrt(Sqrt<'a>),
-    Subtract(Subtract<'a>),
-    Tan(Tan<'a>),
-    Tanh(Tanh<'a>),
-    Trunc(Trunc<'a>),
+    Create(write::Create<'a>),
+    CreateClass(Box<write::CreateClass<'a>>),
+    CreateDatabase(write::CreateDatabase<'a>),
+    CreateIndex(Box<write::CreateIndex<'a>>),
+    Delete(write::Delete<'a>),
+    Get(read::Get<'a>),
+
+    Do(basic::Do<'a>),
+    Let(basic::Let<'a>),
+    Var(basic::Var<'a>),
+    Lambda(basic::Lambda<'a>),
+    If(basic::If<'a>),
+
+    Map(collection::Map<'a>),
+
+    And(logical::And<'a>),
+    Or(logical::Or<'a>),
+    Not(logical::Not<'a>),
+    Lt(logical::Lt<'a>),
+    Lte(logical::Lte<'a>),
+    Gt(logical::Gt<'a>),
+    Gte(logical::Gte<'a>),
+    Contains(logical::Contains<'a>),
+    Equals(logical::Equals<'a>),
+    Exists(logical::Exists<'a>),
+
+    Abs(math::Abs<'a>),
+    Acos(math::Acos<'a>),
+    Add(math::Add<'a>),
+    Asin(math::Asin<'a>),
+    Atan(math::Atan<'a>),
+    BitAnd(math::BitAnd<'a>),
+    BitNot(math::BitNot<'a>),
+    BitOr(math::BitOr<'a>),
+    BitXor(math::BitXor<'a>),
+    Ceil(math::Ceil<'a>),
+    Cos(math::Cos<'a>),
+    Cosh(math::Cosh<'a>),
+    Degrees(math::Degrees<'a>),
+    Divide(math::Divide<'a>),
+    Exp(math::Exp<'a>),
+    Floor(math::Floor<'a>),
+    Hypot(math::Hypot<'a>),
+    Ln(math::Ln<'a>),
+    Log(math::Log<'a>),
+    Max(math::Max<'a>),
+    Min(math::Min<'a>),
+    Modulo(math::Modulo<'a>),
+    Multiply(math::Multiply<'a>),
+    Pow(math::Pow<'a>),
+    Radians(math::Radians<'a>),
+    Round(math::Round<'a>),
+    Sign(math::Sign<'a>),
+    Sin(math::Sin<'a>),
+    Sinh(math::Sinh<'a>),
+    Sqrt(math::Sqrt<'a>),
+    Subtract(math::Subtract<'a>),
+    Tan(math::Tan<'a>),
+    Tanh(math::Tanh<'a>),
+    Trunc(math::Trunc<'a>),
 }

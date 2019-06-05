@@ -1,6 +1,6 @@
 use chrono::{NaiveDate, Utc};
 use clap::{App, Arg};
-use faunadb::prelude::*;
+use faunadb::{prelude::*, query::write::*};
 use futures::{
     Future,
     {future::Either, lazy},

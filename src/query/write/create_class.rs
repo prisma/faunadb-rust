@@ -90,6 +90,7 @@ impl<'a> ClassParams<'a> {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::prelude::*;
     use serde_json::{self, json};
 

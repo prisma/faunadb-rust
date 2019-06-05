@@ -1,5 +1,11 @@
 use clap::{App, Arg};
-use faunadb::prelude::*;
+use faunadb::{
+    prelude::*,
+    query::{
+        basic::{Lambda, Var},
+        collection::Map,
+    },
+};
 use futures::{lazy, Future};
 
 fn main() {
