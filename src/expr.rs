@@ -1,4 +1,5 @@
 mod array;
+mod number;
 mod object;
 mod permission;
 mod reference;
@@ -9,6 +10,7 @@ use chrono::{DateTime, NaiveDate, Utc};
 use std::{borrow::Cow, fmt};
 
 pub use array::{Array, Bytes};
+pub use number::*;
 pub use object::Object;
 pub use permission::*;
 pub use reference::Ref;
@@ -24,19 +26,7 @@ pub enum SimpleExpr<'a> {
     /// Numbers are any real number which are bounded by double precision
     /// (64-bit), such as 3, -27, 3.1415. (Neither infinity nor NaN are
     /// allowed.)
-    UInt(u64),
-    /// Numbers are any real number which are bounded by double precision
-    /// (64-bit), such as 3, -27, 3.1415. (Neither infinity nor NaN are
-    /// allowed.)
-    Int(i64),
-    /// Numbers are any real number which are bounded by double precision
-    /// (64-bit), such as 3, -27, 3.1415. (Neither infinity nor NaN are
-    /// allowed.)
-    Double(f64),
-    /// Numbers are any real number which are bounded by double precision
-    /// (64-bit), such as 3, -27, 3.1415. (Neither infinity nor NaN are
-    /// allowed.)
-    Float(f32),
+    Number(Number),
     /// The boolean data type can only store "true" or "false" values. These can
     /// be directly compared for equality or inequality. They can also be
     /// compared to the Boolean literal values of `true` and `false`.
@@ -112,10 +102,10 @@ impl<'a> fmt::Display for Expr<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Expr::Simple(SimpleExpr::String(s)) => write!(f, "\"{}\"", s),
-            Expr::Simple(SimpleExpr::Double(d)) => write!(f, "{}", d),
-            Expr::Simple(SimpleExpr::Float(flt)) => write!(f, "{}", flt),
-            Expr::Simple(SimpleExpr::Int(i)) => write!(f, "{}", i),
-            Expr::Simple(SimpleExpr::UInt(i)) => write!(f, "{}", i),
+            Expr::Simple(SimpleExpr::Number(Number::Double(d))) => write!(f, "{}", d),
+            Expr::Simple(SimpleExpr::Number(Number::Float(flt))) => write!(f, "{}", flt),
+            Expr::Simple(SimpleExpr::Number(Number::Int(i))) => write!(f, "{}", i),
+            Expr::Simple(SimpleExpr::Number(Number::UInt(i))) => write!(f, "{}", i),
             Expr::Simple(SimpleExpr::Boolean(b)) => write!(f, "{}", b),
             Expr::Simple(SimpleExpr::Null) => write!(f, "null"),
             Expr::Simple(SimpleExpr::Array(v)) => {
@@ -157,9 +147,6 @@ impl<'a> Expr<'a> {
     }
 }
 
-int_expr!(i8, i16, i32, i64);
-uint_expr!(u8, u16, u32, u64);
-
 impl<'a, T> From<Option<T>> for Expr<'a>
 where
     T: Into<Expr<'a>>,
@@ -181,18 +168,6 @@ impl<'a> From<&'a str> for Expr<'a> {
 impl<'a> From<String> for Expr<'a> {
     fn from(s: String) -> Expr<'a> {
         Expr::Simple(SimpleExpr::String(Cow::from(s)))
-    }
-}
-
-impl<'a> From<f64> for Expr<'a> {
-    fn from(f: f64) -> Expr<'a> {
-        Expr::Simple(SimpleExpr::Double(f))
-    }
-}
-
-impl<'a> From<f32> for Expr<'a> {
-    fn from(f: f32) -> Expr<'a> {
-        Expr::Simple(SimpleExpr::Float(f))
     }
 }
 
@@ -250,6 +225,24 @@ impl<'a> From<Set<'a>> for Expr<'a> {
 impl<'a> From<DateTime<Utc>> for Expr<'a> {
     fn from(dt: DateTime<Utc>) -> Expr<'a> {
         Expr::Annotated(AnnotatedExpr::Timestamp(dt))
+    }
+}
+
+impl<'a> From<f64> for Expr<'a> {
+    fn from(f: f64) -> Expr<'a> {
+        Expr::Simple(SimpleExpr::Number(f.into()))
+    }
+}
+
+impl<'a> From<f32> for Expr<'a> {
+    fn from(f: f32) -> Expr<'a> {
+        Expr::Simple(SimpleExpr::Number(f.into()))
+    }
+}
+
+impl<'a> From<Number> for Expr<'a> {
+    fn from(num: Number) -> Expr<'a> {
+        Expr::Simple(SimpleExpr::Number(num))
     }
 }
 

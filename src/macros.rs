@@ -33,9 +33,15 @@ macro_rules! boxed_query {
 macro_rules! int_expr {
     ($($kind:ident),*) => (
         $(
+            impl<'a> From<$kind> for Number {
+                fn from(i: $kind) -> Number {
+                    Number::Int(i64::from(i))
+                }
+            }
+
             impl<'a> From<$kind> for Expr<'a> {
                 fn from(i: $kind) -> Expr<'a> {
-                    Expr::Simple(SimpleExpr::Int(i64::from(i)))
+                    Expr::Simple(SimpleExpr::Number(i.into()))
                 }
             }
         )*
@@ -47,9 +53,15 @@ macro_rules! int_expr {
 macro_rules! uint_expr {
     ($($kind:ident),*) => (
         $(
+            impl<'a> From<$kind> for Number {
+                fn from(i: $kind) -> Number {
+                    Number::UInt(u64::from(i))
+                }
+            }
+
             impl<'a> From<$kind> for Expr<'a> {
-                fn from(u: $kind) -> Expr<'a> {
-                    Expr::Simple(SimpleExpr::UInt(u64::from(u)))
+                fn from(i: $kind) -> Expr<'a> {
+                    Expr::Simple(SimpleExpr::Number(i.into()))
                 }
             }
         )*

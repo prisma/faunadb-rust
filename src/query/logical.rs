@@ -1,4 +1,10 @@
-use crate::expr::{Expr, Ref};
+use crate::{
+    expr::{Expr, Ref},
+    query::Query,
+};
+use chrono::{DateTime, Utc};
+
+query![And, Or, Not, Contains, Exists, Equals, Lt, Lte, Gt, Gte];
 
 /// The `And` function computes the conjunction of a list of boolean values,
 /// returning `true` if all elements are "true", and `false` otherwise.
@@ -214,5 +220,111 @@ impl<'a> Exists<'a> {
             exists: Expr::from(reference),
             timestamp: None,
         }
+    }
+
+    pub fn timestamp(&mut self, ts: DateTime<Utc>) -> &mut Self {
+        self.timestamp = Some(Expr::from(ts));
+        self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::prelude::*;
+    use chrono::{offset::TimeZone, Utc};
+    use serde_json::{self, json};
+
+    #[test]
+    fn test_and() {
+        let aaaand = And::new(vec![true, true, false]);
+        let query = Query::from(aaaand);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"and": [true, true, false]}), serialized);
+    }
+
+    #[test]
+    fn test_or() {
+        let oooor = Or::new(vec![true, true, false]);
+        let query = Query::from(oooor);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"or": [true, true, false]}), serialized);
+    }
+
+    #[test]
+    fn test_not() {
+        let noooot = Not::new(false);
+        let query = Query::from(noooot);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"not": false}), serialized);
+    }
+
+    #[test]
+    fn test_equals() {
+        let equals = Equals::new(vec!["musti", "naukio"]);
+        let query = Query::from(equals);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"equals": ["musti", "naukio"]}), serialized);
+    }
+
+    #[test]
+    fn test_exists() {
+        let mut exists = Exists::new(Ref::instance("Musti"));
+        exists.timestamp(Utc.timestamp(60, 0));
+
+        let query = Query::from(exists);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "exists": {
+                "@ref": {
+                    "id": "Musti"
+                }
+            },
+            "ts": {
+                "@ts": Utc.timestamp(60, 0)
+            }
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_lt() {
+        let lt = Lt::new(vec![1, 2, 3]);
+        let query = Query::from(lt);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"lt": [1, 2, 3]}), serialized);
+    }
+
+    #[test]
+    fn test_lte() {
+        let lte = Lte::new(vec![1, 2, 3]);
+        let query = Query::from(lte);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"lte": [1, 2, 3]}), serialized);
+    }
+
+    #[test]
+    fn test_gt() {
+        let gt = Gt::new(vec![1, 2, 3]);
+        let query = Query::from(gt);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"gt": [1, 2, 3]}), serialized);
+    }
+
+    #[test]
+    fn test_gte() {
+        let gte = Gte::new(vec![1, 2, 3]);
+        let query = Query::from(gte);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"gte": [1, 2, 3]}), serialized);
     }
 }

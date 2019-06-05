@@ -1,4 +1,6 @@
-use crate::{error::Error, expr::Object, FaunaResult};
+use crate::{error::Error, expr::Object, query::Query, FaunaResult};
+
+query!(CreateDatabase);
 
 #[derive(Debug, Serialize, Clone)]
 pub struct CreateDatabase<'a> {
@@ -62,5 +64,32 @@ impl<'a> DatabaseParams<'a> {
         self.object.priority = Some(priority);
 
         Ok(self)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::prelude::*;
+    use serde_json::{self, json};
+
+    #[test]
+    fn test_create_database() {
+        let mut params = DatabaseParams::new("test");
+        params.priority(10).unwrap();
+
+        let query = Query::from(CreateDatabase::new(params));
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "create_database": {
+                "object": {
+                    "name": "test",
+                    "api_version": 2.0,
+                    "priority": 10,
+                }
+            }
+        });
+
+        assert_eq!(expected, serialized);
     }
 }

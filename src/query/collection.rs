@@ -1,4 +1,9 @@
-use crate::{expr::Expr, query::Lambda};
+use crate::{
+    expr::Expr,
+    query::{Lambda, Query},
+};
+
+query!(Map);
 
 /// The `Map` function applies a [Lambda](struct.Lambda.html) serially to each
 /// member of the collection and returns the results of each application in a
@@ -22,5 +27,32 @@ impl<'a> Map<'a> {
             collection: collection.into(),
             map: lambda,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::prelude::*;
+    use serde_json::{self, json};
+
+    #[test]
+    fn test_map() {
+        let map = Map::new(
+            Array::from(vec!["Musti", "Naukio"]),
+            Lambda::new(vec!["cat"], Var::new("cat")),
+        );
+
+        let query = Query::from(map);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "collection": ["Musti", "Naukio"],
+            "map": {
+                "lambda": ["cat"],
+                "expr": {"var": "cat"},
+            }
+        });
+
+        assert_eq!(expected, serialized);
     }
 }

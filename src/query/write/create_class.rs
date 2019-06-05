@@ -1,4 +1,9 @@
-use crate::expr::{ClassPermission, Expr, Object};
+use crate::{
+    expr::{ClassPermission, Expr, Object},
+    query::Query,
+};
+
+boxed_query!(CreateClass);
 
 /// The `CreateClass` function is used to create a class which groups instance
 /// objects.
@@ -80,5 +85,37 @@ impl<'a> ClassParams<'a> {
     pub fn permissions(&mut self, permissions: ClassPermission<'a>) -> &mut Self {
         self.object.permissions = Some(permissions);
         self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::prelude::*;
+    use serde_json::{self, json};
+
+    #[test]
+    fn test_create_class() {
+        let mut permission = ClassPermission::default();
+        permission.read(Level::public());
+
+        let mut params = ClassParams::new("test");
+        params.history_days(10);
+        params.permissions(permission);
+
+        let query = Query::from(CreateClass::new(params));
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "create_class": {
+                "object": {
+                    "history_days": 10,
+                    "name": "test",
+                    "permissions": { "object": { "read": "public" } },
+                    "ttl_days": null,
+                }
+            }
+        });
+
+        assert_eq!(expected, serialized);
     }
 }
