@@ -7,8 +7,18 @@ enum RefLocation<'a> {
         #[serde(rename = "@ref")]
         location: Box<Ref<'a>>,
     },
+    #[serde(rename = "class")]
+    Database {
+        #[serde(rename = "@ref")]
+        location: Box<Ref<'a>>,
+    },
     #[serde(rename = "index")]
     Index {
+        #[serde(rename = "@ref")]
+        location: Box<Ref<'a>>,
+    },
+    #[serde(rename = "class")]
+    Function {
         #[serde(rename = "@ref")]
         location: Box<Ref<'a>>,
     },
@@ -19,6 +29,8 @@ impl<'a> RefLocation<'a> {
         match self {
             RefLocation::Class { location } => location.path(),
             RefLocation::Index { location } => location.path(),
+            RefLocation::Function { location } => location.path(),
+            RefLocation::Database { location } => location.path(),
         }
     }
 }
@@ -39,6 +51,12 @@ impl<'a> fmt::Display for Ref<'a> {
             }
             Some(RefLocation::Index { ref location }) => {
                 write!(f, "Ref(id={},index={})", self.id, location.path())
+            }
+            Some(RefLocation::Function { ref location }) => {
+                write!(f, "Ref(id={},class={})", self.id, location.path())
+            }
+            Some(RefLocation::Database { ref location }) => {
+                write!(f, "Ref(id={},database={})", self.id, location.path())
             }
             None => write!(f, "Ref(id={})", self.id),
         }
@@ -79,6 +97,32 @@ impl<'a> Ref<'a> {
             id: id.into(),
             location: Some(RefLocation::Index {
                 location: Box::new(Self::instance("indexes")),
+            }),
+        }
+    }
+
+    /// A ref to a function.
+    pub fn function<S>(id: S) -> Self
+    where
+        S: Into<Cow<'a, str>>,
+    {
+        Self {
+            id: id.into(),
+            location: Some(RefLocation::Function {
+                location: Box::new(Self::instance("functions")),
+            }),
+        }
+    }
+
+    /// A ref to a database.
+    pub fn database<S>(id: S) -> Self
+    where
+        S: Into<Cow<'a, str>>,
+    {
+        Self {
+            id: id.into(),
+            location: Some(RefLocation::Database {
+                location: Box::new(Self::instance("databases")),
             }),
         }
     }

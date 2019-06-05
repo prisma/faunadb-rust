@@ -2,6 +2,7 @@ pub mod basic;
 pub mod collection;
 pub mod logical;
 pub mod math;
+pub mod misc;
 pub mod read;
 pub mod write;
 
@@ -15,6 +16,7 @@ pub enum Query<'a> {
     Delete(write::Delete<'a>),
     Get(read::Get<'a>),
 
+    At(basic::At<'a>),
     Do(basic::Do<'a>),
     Let(basic::Let<'a>),
     Var(basic::Var<'a>),
@@ -33,6 +35,9 @@ pub enum Query<'a> {
     Contains(logical::Contains<'a>),
     Equals(logical::Equals<'a>),
     Exists(logical::Exists<'a>),
+
+    Classes(misc::Classes<'a>),
+    Databases(misc::Databases<'a>),
 
     Abs(math::Abs<'a>),
     Acos(math::Acos<'a>),

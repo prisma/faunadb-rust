@@ -1,8 +1,38 @@
 use crate::{expr::Expr, query::Query};
+use chrono::{DateTime, Utc};
 use std::{borrow::Cow, collections::BTreeMap};
 
 // Implements From<fun> for Query
-query![If, Do, Let, Var, Lambda];
+query![At, If, Do, Let, Var, Lambda];
+
+/// The At function executes a temporal query, a query which examines the data
+/// in the past.
+///
+/// The `timestamp` parameter determines the data available for viewing by
+/// creating a virtual snapshot of the data which was current at that date and
+/// time. All reads from the associated `expression` is then executed on that
+/// virtual snapshot. In contrast, all write operations must be executed at the
+/// current time. Attempting a write operation at any other time produces an
+/// error.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/at);
+#[derive(Debug, Clone, Serialize)]
+pub struct At<'a> {
+    #[serde(rename = "at")]
+    timestamp: Expr<'a>,
+    #[serde(rename = "expr")]
+    expression: Expr<'a>,
+}
+
+impl<'a> At<'a> {
+    pub fn new(timestamp: DateTime<Utc>, expression: impl Into<Expr<'a>>) -> Self {
+        Self {
+            timestamp: Expr::from(timestamp),
+            expression: expression.into(),
+        }
+    }
+}
 
 /// The `If` function evaluates and returns `if_true` or `if_false` depending on
 /// the value of the `cond` expression.
@@ -188,9 +218,24 @@ mod tests {
     use super::*;
     use crate::{
         prelude::*,
-        query::{read::Get, write::Delete},
+        query::{misc::Classes, read::Get, write::Delete},
     };
+    use chrono::{offset::TimeZone, Utc};
     use serde_json::{self, json};
+
+    #[test]
+    fn test_at() {
+        let fun = At::new(Utc.timestamp(60, 0), Classes::all());
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "at": {"@ts": "1970-01-01T00:01:00Z"},
+            "expr": {"classes": null}
+        });
+
+        assert_eq!(expected, serialized);
+    }
 
     #[test]
     fn test_do() {
