@@ -8,6 +8,7 @@ mod do_many;
 mod get;
 mod lambda;
 mod let_var;
+mod logical;
 mod map;
 mod var;
 
@@ -21,6 +22,7 @@ pub use do_many::*;
 pub use get::*;
 pub use lambda::*;
 pub use let_var::*;
+pub use logical::*;
 pub use map::*;
 pub use var::*;
 
@@ -39,6 +41,16 @@ pub enum Query<'a> {
     Var(Var<'a>),
     Lambda(Lambda<'a>),
     Map(Map<'a>),
+    And(And<'a>),
+    Or(Or<'a>),
+    Not(Not<'a>),
+    Lt(Lt<'a>),
+    Lte(Lte<'a>),
+    Gt(Gt<'a>),
+    Gte(Gte<'a>),
+    Contains(Contains<'a>),
+    Equals(Equals<'a>),
+    Exists(Exists<'a>),
 }
 
 query!(
@@ -51,7 +63,17 @@ query!(
     Let,
     Var,
     Lambda,
-    Map
+    Map,
+    And,
+    Or,
+    Not,
+    Contains,
+    Exists,
+    Equals,
+    Lt,
+    Lte,
+    Gt,
+    Gte
 );
 
 boxed_query!(CreateClass, CreateIndex);
@@ -329,9 +351,10 @@ mod tests {
     #[test]
     fn test_map() {
         let map = Map::new(
-            vec!["Musti", "Naukio"],
+            Array::from(vec!["Musti", "Naukio"]),
             Lambda::new(vec!["cat"], Var::new("cat")),
         );
+
         let query = Query::from(map);
         let serialized = serde_json::to_value(&query).unwrap();
 
@@ -344,5 +367,77 @@ mod tests {
         });
 
         assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_and() {
+        let aaaand = And::new(vec![true, true, false]);
+        let query = Query::from(aaaand);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"and": [true, true, false]}), serialized);
+    }
+
+    #[test]
+    fn test_or() {
+        let oooor = Or::new(vec![true, true, false]);
+        let query = Query::from(oooor);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"or": [true, true, false]}), serialized);
+    }
+
+    #[test]
+    fn test_not() {
+        let noooot = Not::new(false);
+        let query = Query::from(noooot);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"not": false}), serialized);
+    }
+
+    #[test]
+    fn test_equals() {
+        let equals = Equals::new(vec!["musti", "naukio"]);
+        let query = Query::from(equals);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"equals": ["musti", "naukio"]}), serialized);
+    }
+
+    #[test]
+    fn test_lt() {
+        let lt = Lt::new(vec![1, 2, 3]);
+        let query = Query::from(lt);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"lt": [1, 2, 3]}), serialized);
+    }
+
+    #[test]
+    fn test_lte() {
+        let lte = Lte::new(vec![1, 2, 3]);
+        let query = Query::from(lte);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"lte": [1, 2, 3]}), serialized);
+    }
+
+    #[test]
+    fn test_gt() {
+        let gt = Gt::new(vec![1, 2, 3]);
+        let query = Query::from(gt);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"gt": [1, 2, 3]}), serialized);
+    }
+
+    #[test]
+    fn test_gte() {
+        let gte = Gte::new(vec![1, 2, 3]);
+        let query = Query::from(gte);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"gte": [1, 2, 3]}), serialized);
     }
 }

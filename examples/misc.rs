@@ -24,7 +24,10 @@ fn main() {
     let client = ClientBuilder::new(secret).build().unwrap();
 
     let map = Map::new(
-        vec!["Musti", "Naukio"],
+        Map::new(
+            Array::from(vec!["Musti", "Naukio"]),
+            Lambda::new(vec!["cat"], Var::new("cat")),
+        ),
         Lambda::new(vec!["cat"], Var::new("cat")),
     );
 

@@ -5,7 +5,7 @@
 ** TODO At
 ** TODO Append
 ** TODO Drop
-** TODO Filter
+** NEXT Filter
 ** TODO Foreach
 ** TODO IsEmpty
 ** TODO IsNonEmpty
@@ -15,11 +15,10 @@
 ** TODO ToNumber
 ** TODO ToString
 ** TODO ToTime
-** TODO And
 ** TODO Contains
 ** TODO Equals
 ** TODO Exists
-** TODO Logical (And, Contains ... (10 functions))
+** DONE Logical (And, Contains ... (10 functions))
 ** TODO Math (Abs, Acos, Add, Asin ... (34 functions))
 ** TODO Abort
 ** TODO Class/Classes

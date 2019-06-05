@@ -1,4 +1,4 @@
-use crate::{expr::Array, query::Lambda};
+use crate::{expr::Expr, query::Lambda};
 
 /// The `Map` function applies a [Lambda](struct.Lambda.html) serially to each
 /// member of the collection and returns the results of each application in a
@@ -9,14 +9,14 @@ use crate::{expr::Array, query::Lambda};
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/map).
 #[derive(Serialize, Clone, Debug)]
 pub struct Map<'a> {
-    collection: Array<'a>,
+    collection: Expr<'a>,
     map: Lambda<'a>,
 }
 
 impl<'a> Map<'a> {
-    pub fn new<A>(collection: A, lambda: Lambda<'a>) -> Self
+    pub fn new<E>(collection: E, lambda: Lambda<'a>) -> Self
     where
-        A: Into<Array<'a>>,
+        E: Into<Expr<'a>>,
     {
         Self {
             collection: collection.into(),
