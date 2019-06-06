@@ -23,28 +23,17 @@ fn main() {
     let secret = matches.value_of("secret").unwrap();
     let client = ClientBuilder::new(secret).build().unwrap();
 
-    let mut permission = IndexPermission::default();
-    permission.read(Level::public());
-
-    let mut params = IndexParams::new("new_meows", Ref::class("HouseCats"));
-    params.permissions(permission);
-    params.serialized();
-    params.partitions(8);
-
-    let id_term = Term::field(vec!["data", "id"]);
-
-    params.terms(vec![id_term]);
-
-    let ref_value = Value::field(vec!["ref"]);
-    let name_value = Value::field(vec!["data", "name"]);
-    let mut age_value = Value::field(vec!["data", "age"]);
-
-    age_value.reverse();
-    params.values(vec![ref_value, age_value, name_value]);
+    let params = FunctionParams::new(
+        "double",
+        Lambda::new(
+            "x",
+            Add::new(Array::from(vec![Var::new("x"), Var::new("x")])),
+        ),
+    );
 
     tokio::run(lazy(move || {
         client
-            .query(CreateIndex::new(params))
+            .query(CreateFunction::new(params))
             .map(|response| {
                 println!("{}", response);
             })

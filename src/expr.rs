@@ -78,23 +78,23 @@ pub enum AnnotatedExpr<'a> {
     /// specified, left to right. Objects evaluate to their contents:
     #[serde(rename = "object")]
     Object(Object<'a>),
+    /// Quoted expression will not be evaluated in Fauna, good for storing
+    /// functions.
+    #[serde(rename = "@query")]
+    Quote(Box<Expr<'a>>),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(untagged)]
 /// A representation of a FaunaDB Query Expression.
 ///
 /// Expressions should be created using the `From`/`Into` traits.
 ///
 /// See the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/types).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
 pub enum Expr<'a> {
     Annotated(AnnotatedExpr<'a>),
     Simple(SimpleExpr<'a>),
-
-    // Server will not return queries, so no need to dance with the borrow
-    // checker and implement Deserialize for all queries.
-    #[serde(skip_deserializing)]
     Query(Box<Query<'a>>),
 }
 
@@ -119,6 +119,7 @@ impl<'a> fmt::Display for Expr<'a> {
             Expr::Annotated(AnnotatedExpr::Ref(r)) => write!(f, "{}", r),
             Expr::Annotated(AnnotatedExpr::Set(s)) => write!(f, "{}", s),
             Expr::Annotated(AnnotatedExpr::Timestamp(ts)) => write!(f, "{}", ts),
+            Expr::Annotated(AnnotatedExpr::Quote(q)) => write!(f, "Quote({:?})", q),
             Expr::Query(query) => write!(f, "Query({:?})", query),
         }
     }
@@ -144,6 +145,33 @@ impl<'a> Expr<'a> {
     /// A helper to create a null expression.
     pub fn null() -> Self {
         Expr::Simple(SimpleExpr::Null)
+    }
+
+    /// Quote the expression to prevent Fauna evalutating it.
+    pub fn as_quoted(self) -> Self {
+        Expr::Annotated(AnnotatedExpr::Quote(Box::new(self)))
+    }
+
+    /// Quote the expression to prevent Fauna evalutating it. Cloning version of `as_quoted`.
+    pub fn to_quoted(&self) -> Self {
+        Expr::Annotated(AnnotatedExpr::Quote(Box::new(self.clone())))
+    }
+
+    /// Unquote the expression if quoted, allowing Fauna evaluation.
+    pub fn as_unquoted(self) -> Self {
+        match self {
+            Expr::Annotated(AnnotatedExpr::Quote(expr)) => *expr,
+            expr => expr,
+        }
+    }
+
+    /// Unquote the expression if quoted, allowing Fauna evaluation. Cloning
+    /// version of `as_unquoted`.
+    pub fn to_unquoted(&self) -> Self {
+        match self {
+            Expr::Annotated(AnnotatedExpr::Quote(ref expr)) => *expr.clone(),
+            expr => expr.clone(),
+        }
     }
 }
 

@@ -6,13 +6,14 @@ pub mod misc;
 pub mod read;
 pub mod write;
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Query<'a> {
     Create(write::Create<'a>),
     CreateClass(Box<write::CreateClass<'a>>),
     CreateDatabase(write::CreateDatabase<'a>),
     CreateIndex(Box<write::CreateIndex<'a>>),
+    CreateFunction(Box<write::CreateFunction<'a>>),
     Delete(write::Delete<'a>),
     Get(read::Get<'a>),
 

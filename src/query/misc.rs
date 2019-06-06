@@ -5,7 +5,7 @@ use crate::{
 
 query![Classes, Databases];
 
-#[derive(Serialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone, Default, Deserialize)]
 pub struct Classes<'a> {
     classes: Option<Expr<'a>>,
 }
@@ -22,7 +22,7 @@ impl<'a> Classes<'a> {
     }
 }
 
-#[derive(Serialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone, Default, Deserialize)]
 pub struct Databases<'a> {
     databases: Option<Expr<'a>>,
 }

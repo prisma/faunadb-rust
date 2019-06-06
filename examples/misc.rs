@@ -32,9 +32,9 @@ fn main() {
     let map = Map::new(
         Map::new(
             Array::from(vec!["Musti", "Naukio"]),
-            Lambda::new(vec!["cat"], Var::new("cat")),
+            Lambda::new("cat", Var::new("cat")),
         ),
-        Lambda::new(vec!["cat"], Var::new("cat")),
+        Lambda::new("cat", Var::new("cat")),
     );
 
     tokio::run(lazy(move || {

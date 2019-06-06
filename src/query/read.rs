@@ -6,10 +6,10 @@ use chrono::{DateTime, Utc};
 
 query!(Get);
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 struct GetObject<'a>(Expr<'a>);
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct Get<'a> {
     get: GetObject<'a>,
     #[serde(rename = "ts", skip_serializing_if = "Option::is_none")]
@@ -32,7 +32,6 @@ impl<'a> Get<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::prelude::*;
     use chrono::{offset::TimeZone, Utc};
     use serde_json::{self, json};

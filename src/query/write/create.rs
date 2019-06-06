@@ -5,21 +5,21 @@ use crate::{
 
 query!(Create);
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 struct CreateInfo<'a>(Expr<'a>);
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct Create<'a> {
     create: CreateInfo<'a>,
     params: InstanceParams<'a>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct InstanceData<'a> {
     data: Expr<'a>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct InstanceParams<'a> {
     object: InstanceData<'a>,
 }

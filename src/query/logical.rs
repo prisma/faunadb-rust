@@ -11,7 +11,7 @@ query![And, Or, Not, Contains, Exists, Equals, Lt, Lte, Gt, Gte];
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/logical/and)
-#[derive(Serialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone, Default, Deserialize)]
 pub struct And<'a> {
     and: Vec<Expr<'a>>,
 }
@@ -33,7 +33,7 @@ impl<'a> And<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/logical/or)
-#[derive(Serialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone, Default, Deserialize)]
 pub struct Or<'a> {
     or: Vec<Expr<'a>>,
 }
@@ -55,7 +55,7 @@ impl<'a> Or<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/logical/not)
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, Deserialize)]
 pub struct Not<'a> {
     not: Expr<'a>,
 }
@@ -70,7 +70,7 @@ impl<'a> Not<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/logical/equals)
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, Deserialize)]
 pub struct Equals<'a> {
     equals: Vec<Expr<'a>>,
 }
@@ -92,7 +92,7 @@ impl<'a> Equals<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/logical/lt)
-#[derive(Serialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone, Default, Deserialize)]
 pub struct Lt<'a> {
     lt: Vec<Expr<'a>>,
 }
@@ -114,7 +114,7 @@ impl<'a> Lt<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/logical/lte)
-#[derive(Serialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone, Default, Deserialize)]
 pub struct Lte<'a> {
     lte: Vec<Expr<'a>>,
 }
@@ -136,7 +136,7 @@ impl<'a> Lte<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/logical/gt)
-#[derive(Serialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone, Default, Deserialize)]
 pub struct Gt<'a> {
     gt: Vec<Expr<'a>>,
 }
@@ -158,7 +158,7 @@ impl<'a> Gt<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/logical/gte)
-#[derive(Serialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone, Default, Deserialize)]
 pub struct Gte<'a> {
     gte: Vec<Expr<'a>>,
 }
@@ -180,7 +180,7 @@ impl<'a> Gte<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/logical/contains)
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, Deserialize)]
 pub struct Contains<'a> {
     contains: Vec<Expr<'a>>,
     #[serde(rename = "in")]
@@ -207,7 +207,7 @@ impl<'a> Contains<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/logical/exists)
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, Deserialize)]
 pub struct Exists<'a> {
     exists: Expr<'a>,
     #[serde(rename = "ts", skip_serializing_if = "Option::is_none")]
@@ -230,7 +230,6 @@ impl<'a> Exists<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::prelude::*;
     use chrono::{offset::TimeZone, Utc};
     use serde_json::{self, json};

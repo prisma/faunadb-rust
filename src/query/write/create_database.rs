@@ -1,15 +1,16 @@
 use crate::{error::Error, expr::Object, query::Query, FaunaResult};
+use std::borrow::Cow;
 
 query!(CreateDatabase);
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct CreateDatabase<'a> {
     create_database: DatabaseParams<'a>,
 }
 
-#[derive(Debug, Default, Serialize, Clone)]
+#[derive(Debug, Default, Serialize, Clone, Deserialize)]
 pub struct DatabaseParamsInternal<'a> {
-    name: &'a str,
+    name: Cow<'a, str>,
     api_version: f64,
     #[serde(skip_serializing_if = "Option::is_none")]
     data: Option<Object<'a>>,
@@ -17,7 +18,7 @@ pub struct DatabaseParamsInternal<'a> {
     priority: Option<u16>,
 }
 
-#[derive(Debug, Default, Serialize, Clone)]
+#[derive(Debug, Default, Serialize, Clone, Deserialize)]
 pub struct DatabaseParams<'a> {
     object: DatabaseParamsInternal<'a>,
 }
@@ -33,7 +34,7 @@ impl<'a> CreateDatabase<'a> {
 impl<'a> DatabaseParams<'a> {
     pub fn new<S>(name: S) -> Self
     where
-        S: Into<&'a str>,
+        S: Into<Cow<'a, str>>,
     {
         Self {
             object: DatabaseParamsInternal {

@@ -6,7 +6,7 @@ use std::borrow::Cow;
 
 boxed_query!(CreateIndex);
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct CreateIndex<'a> {
     create_index: IndexParams<'a>,
 }
@@ -19,13 +19,13 @@ impl<'a> CreateIndex<'a> {
     }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct IndexField<'a>(Vec<Cow<'a, str>>);
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct IndexBinding<'a>(Cow<'a, str>);
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub enum TermObject<'a> {
     #[serde(rename = "field")]
     Field(IndexField<'a>),
@@ -33,12 +33,12 @@ pub enum TermObject<'a> {
     Binding(IndexBinding<'a>),
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct Term<'a> {
     object: TermObject<'a>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct ValueObject<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     field: Option<IndexField<'a>>,
@@ -47,12 +47,12 @@ pub struct ValueObject<'a> {
     reverse: bool,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct Value<'a> {
     object: ValueObject<'a>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct IndexParamsInternal<'a> {
     name: Cow<'a, str>,
     source: Expr<'a>,
@@ -71,7 +71,7 @@ pub struct IndexParamsInternal<'a> {
     data: Option<Expr<'a>>,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct IndexParams<'a> {
     object: IndexParamsInternal<'a>,
 }
@@ -201,7 +201,6 @@ impl<'a> IndexParams<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::prelude::*;
     use serde_json::{self, json};
 

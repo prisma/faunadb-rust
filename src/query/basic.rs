@@ -17,7 +17,7 @@ query![At, If, Do, Let, Var, Lambda];
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/at);
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct At<'a> {
     #[serde(rename = "at")]
     timestamp: Expr<'a>,
@@ -42,7 +42,7 @@ impl<'a> At<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/if);
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct If<'a> {
     #[serde(rename = "if")]
     cond: Expr<'a>,
@@ -84,22 +84,22 @@ impl<'a> If<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/do).
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, Deserialize)]
 pub struct Do<'a> {
     #[serde(rename = "do")]
-    queries: Vec<Query<'a>>,
+    queries: Vec<Expr<'a>>,
 }
 
 impl<'a> Do<'a> {
     /// Create a new `Do` query.
-    pub fn new(first_query: impl Into<Query<'a>>) -> Self {
+    pub fn new(first_expr: impl Into<Expr<'a>>) -> Self {
         Do {
-            queries: vec![first_query.into()],
+            queries: vec![first_expr.into()],
         }
     }
 
     /// Add a query to the end of the execution pipeline.
-    pub fn push(&mut self, q: impl Into<Query<'a>>) -> &mut Self {
+    pub fn push(&mut self, q: impl Into<Expr<'a>>) -> &mut Self {
         self.queries.push(q.into());
         self
     }
@@ -121,19 +121,15 @@ impl<'a> Do<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/lambda).
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, Deserialize)]
 pub struct Lambda<'a> {
     #[serde(rename = "lambda")]
-    params: Cow<'a, [&'a str]>, // moo
+    params: Expr<'a>,
     expr: Expr<'a>,
 }
 
 impl<'a> Lambda<'a> {
-    pub fn new<P, E>(params: P, expr: E) -> Self
-    where
-        P: Into<Cow<'a, [&'a str]>>,
-        E: Into<Expr<'a>>,
-    {
+    pub fn new(params: impl Into<Expr<'a>>, expr: impl Into<Expr<'a>>) -> Self {
         Self {
             params: params.into(),
             expr: expr.into(),
@@ -152,7 +148,7 @@ impl<'a> Lambda<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/let).
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Let<'a> {
     #[serde(rename = "let")]
     bindings: BTreeMap<Cow<'a, str>, Expr<'a>>,
@@ -161,7 +157,7 @@ pub struct Let<'a> {
 }
 
 /// A single binding to be used in a `Let` query.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Binding<'a>(Cow<'a, str>, Expr<'a>);
 
 impl<'a> Binding<'a> {
@@ -199,7 +195,7 @@ impl<'a> Let<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/var)
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct Var<'a> {
     var: Cow<'a, str>,
 }
@@ -215,7 +211,6 @@ impl<'a> Var<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::{
         prelude::*,
         query::{misc::Classes, read::Get, write::Delete},
@@ -290,12 +285,12 @@ mod tests {
 
     #[test]
     fn test_lambda() {
-        let lambda = Lambda::new(vec!["cat"], Var::new("cat"));
+        let lambda = Lambda::new("cat", Var::new("cat"));
         let query = Query::from(lambda);
         let serialized = serde_json::to_value(&query).unwrap();
 
         let expected = json!({
-            "lambda": ["cat"],
+            "lambda": "cat",
             "expr": {"var": "cat"},
         });
 

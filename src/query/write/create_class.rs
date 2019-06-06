@@ -2,6 +2,7 @@ use crate::{
     expr::{ClassPermission, Expr, Object},
     query::Query,
 };
+use std::borrow::Cow;
 
 boxed_query!(CreateClass);
 
@@ -14,7 +15,7 @@ boxed_query!(CreateClass);
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/createclass).
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct CreateClass<'a> {
     create_class: ClassParams<'a>,
 }
@@ -27,9 +28,9 @@ impl<'a> CreateClass<'a> {
     }
 }
 
-#[derive(Debug, Default, Serialize, Clone)]
+#[derive(Debug, Default, Serialize, Clone, Deserialize)]
 struct ClassParamsInternal<'a> {
-    name: &'a str,
+    name: Cow<'a, str>,
     #[serde(skip_serializing_if = "Option::is_none")]
     data: Option<Expr<'a>>,
     history_days: Option<u64>,
@@ -38,7 +39,7 @@ struct ClassParamsInternal<'a> {
     permissions: Option<ClassPermission<'a>>,
 }
 
-#[derive(Debug, Default, Serialize, Clone)]
+#[derive(Debug, Default, Serialize, Clone, Deserialize)]
 pub struct ClassParams<'a> {
     object: ClassParamsInternal<'a>,
 }
@@ -48,7 +49,7 @@ impl<'a> ClassParams<'a> {
     /// reserved words: `events`, `set`, `self`, `instances`, or `_.`
     pub fn new<S>(name: S) -> Self
     where
-        S: Into<&'a str>,
+        S: Into<Cow<'a, str>>,
     {
         Self {
             object: ClassParamsInternal {

@@ -6,16 +6,18 @@ use crate::{
 mod create;
 mod create_class;
 mod create_database;
+mod create_function;
 mod create_index;
 
 pub use create::*;
 pub use create_class::*;
 pub use create_database::*;
+pub use create_function::*;
 pub use create_index::*;
 
 query!(Delete);
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, Deserialize)]
 pub struct Delete<'a> {
     delete: Expr<'a>,
 }
@@ -30,7 +32,6 @@ impl<'a> Delete<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::prelude::*;
     use serde_json::{self, json};
 

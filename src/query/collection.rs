@@ -12,7 +12,7 @@ query!(Map);
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/map).
-#[derive(Serialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug, Deserialize)]
 pub struct Map<'a> {
     collection: Expr<'a>,
     map: Lambda<'a>,
@@ -32,7 +32,6 @@ impl<'a> Map<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::{prelude::*, query::basic::Var};
     use serde_json::{self, json};
 
@@ -40,7 +39,7 @@ mod tests {
     fn test_map() {
         let map = Map::new(
             Array::from(vec!["Musti", "Naukio"]),
-            Lambda::new(vec!["cat"], Var::new("cat")),
+            Lambda::new("cat", Var::new("cat")),
         );
 
         let query = Query::from(map);
@@ -49,7 +48,7 @@ mod tests {
         let expected = json!({
             "collection": ["Musti", "Naukio"],
             "map": {
-                "lambda": ["cat"],
+                "lambda": "cat",
                 "expr": {"var": "cat"},
             }
         });
