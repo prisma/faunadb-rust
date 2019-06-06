@@ -2,6 +2,7 @@ use crate::{
     expr::{Expr, Ref},
     query::Query,
 };
+use chrono::{DateTime, Utc};
 
 mod create;
 mod create_class;
@@ -19,7 +20,17 @@ pub use create_index::*;
 pub use create_key::*;
 pub use insert::*;
 
-query!(Delete);
+query![Delete, Remove];
+
+#[derive(Serialize, Debug, Clone, Deserialize, Copy)]
+pub enum Action {
+    #[serde(rename = "create")]
+    Create,
+    #[serde(rename = "delete")]
+    Delete,
+    #[serde(rename = "update")]
+    Update,
+}
 
 /// The delete function removes an object. Some of the common objects to delete
 /// are instances, classes, indexes and databases.
@@ -39,9 +50,36 @@ impl<'a> Delete<'a> {
     }
 }
 
+/// The `Remove` function deletes an event from an instance’s history.
+///
+/// The reference must refer to an instance of a user-defined class.
+///
+/// Outstanding references result in an "invalid argument" error.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/remove)
+#[derive(Serialize, Debug, Clone, Deserialize)]
+pub struct Remove<'a> {
+    remove: Expr<'a>,
+    #[serde(rename = "ts")]
+    timestamp: Expr<'a>,
+    action: Action,
+}
+
+impl<'a> Remove<'a> {
+    pub fn new(reference: Ref<'a>, timestamp: DateTime<Utc>, action: Action) -> Self {
+        Self {
+            remove: Expr::from(reference),
+            timestamp: Expr::from(timestamp),
+            action,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::prelude::*;
+    use chrono::{offset::TimeZone, Utc};
     use serde_json::{self, json};
 
     #[test]
@@ -56,6 +94,32 @@ mod tests {
                     "id": "musti"
                 }
             }
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_remove() {
+        let fun = Remove::new(
+            Ref::instance("naukio"),
+            Utc.timestamp(60, 0),
+            Action::Create,
+        );
+
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "remove": {
+                "@ref": {
+                    "id": "naukio"
+                }
+            },
+            "ts": {
+                "@ts": "1970-01-01T00:01:00Z"
+            },
+            "action": "create",
         });
 
         assert_eq!(expected, serialized);

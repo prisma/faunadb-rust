@@ -1,6 +1,6 @@
 use crate::{
     expr::{Expr, Ref},
-    query::Query,
+    query::{write::Action, Query},
 };
 use chrono::{DateTime, Utc};
 
@@ -16,18 +16,8 @@ pub struct Insert<'a> {
     insert: Expr<'a>,
     #[serde(rename = "ts")]
     timestamp: Expr<'a>,
-    action: InsertAction,
+    action: Action,
     params: InsertParams<'a>,
-}
-
-#[derive(Serialize, Debug, Clone, Deserialize, Copy)]
-pub enum InsertAction {
-    #[serde(rename = "create")]
-    Create,
-    #[serde(rename = "delete")]
-    Delete,
-    #[serde(rename = "update")]
-    Update,
 }
 
 #[derive(Serialize, Debug, Clone, Deserialize)]
@@ -46,7 +36,7 @@ impl<'a> Insert<'a> {
     pub fn new(
         reference: Ref<'a>,
         timestamp: DateTime<Utc>,
-        action: InsertAction,
+        action: Action,
         params: InsertParams<'a>,
     ) -> Self {
         Insert {
@@ -96,7 +86,7 @@ mod tests {
         let fun = Insert::new(
             Ref::instance("musti"),
             Utc.timestamp(60, 0),
-            InsertAction::Update,
+            Action::Update,
             params,
         );
 

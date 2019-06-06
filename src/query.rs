@@ -94,6 +94,7 @@ pub enum Query<'a> {
     Create(write::Create<'a>),
     Insert(write::Insert<'a>),
     Delete(write::Delete<'a>),
+    Remove(write::Remove<'a>),
     Get(read::Get<'a>),
 
     Classes(misc::Classes<'a>),
