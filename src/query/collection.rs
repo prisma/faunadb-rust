@@ -3,7 +3,7 @@ use crate::{
     query::{basic::Lambda, Query},
 };
 
-query!(Append, Map);
+query!(Append, Map, Drop);
 
 /// The `Append` function creates a new array that is the result of combining the
 /// base Array followed by the `elems`.
@@ -24,6 +24,40 @@ impl<'a> Append<'a> {
         Self {
             append: base.into(),
             collection: elems.into(),
+        }
+    }
+}
+
+/// The `Drop` function returns a new collection of the same type that contains
+/// the remaining elements, after `num` have been removed from the head of the
+/// collection.
+///
+/// If `num` is zero or negative, all elements of the collection are
+/// returned unmodified.
+///
+/// When applied to a collection of type page, the returned page’s `before` cursor
+/// is adjusted to exclude the dropped elements. As special cases:
+///
+///  * If `num` is negative, `before` does not change.
+///  * Otherwise if all elements from the original page were dropped (including
+///    the case where the page was already empty), `before` is set to same value as
+///    the original page’s `after`.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/drop).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Drop<'a> {
+    drop: Expr<'a>,
+    collection: Expr<'a>,
+}
+
+impl<'a> Drop<'a> {
+    /// The `drop` parameter must evaluate to an integer and `collection` to a
+    /// collection.
+    pub fn new(drop: impl Into<Expr<'a>>, collection: impl Into<Expr<'a>>) -> Self {
+        Self {
+            drop: drop.into(),
+            collection: collection.into(),
         }
     }
 }
@@ -92,6 +126,20 @@ mod tests {
         let expected = json!({
             "append": ["Musti", "Naukio"],
             "collection": ["Musmus", "Naunau"],
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_drop() {
+        let fun = Drop::new(2, Array::from(vec![1, 2, 3]));
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "drop": 2,
+            "collection": [1, 2, 3],
         });
 
         assert_eq!(expected, serialized);

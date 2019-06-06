@@ -11,7 +11,6 @@ pub mod write;
 pub enum Query<'a> {
     At(basic::At<'a>),
     Call(basic::Call<'a>),
-    Drop(basic::Drop<'a>),
     Do(basic::Do<'a>),
     Let(basic::Let<'a>),
     Var(basic::Var<'a>),
@@ -19,6 +18,7 @@ pub enum Query<'a> {
     If(basic::If<'a>),
 
     Append(collection::Append<'a>),
+    Drop(collection::Drop<'a>),
     Map(collection::Map<'a>),
 
     And(logical::And<'a>),
