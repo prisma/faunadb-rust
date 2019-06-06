@@ -82,10 +82,12 @@ mod tests {
             "create_function": {
                 "object": {
                     "body": {
-                        "expr": {
-                            "add": [{"var": "x"}, {"var": "x"}]
-                        },
-                        "lambda": "x"
+                        "@query": {
+                            "expr": {
+                                "add": [{"var": "x"}, {"var": "x"}]
+                            },
+                            "lambda": "x"
+                        }
                     },
                     "name": "double"
                 }

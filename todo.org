@@ -2,8 +2,9 @@
 
 * TODO Functions
 ** DONE Lambda
-** TODO At
-** TODO Append
+** DONE At
+** DONE Call
+** DONE Append
 ** TODO Drop
 ** NEXT Filter
 ** TODO Foreach

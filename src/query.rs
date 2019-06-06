@@ -17,6 +17,7 @@ pub enum Query<'a> {
     Lambda(basic::Lambda<'a>),
     If(basic::If<'a>),
 
+    Append(collection::Append<'a>),
     Map(collection::Map<'a>),
 
     And(logical::And<'a>),

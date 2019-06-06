@@ -43,6 +43,9 @@ impl<'a> At<'a> {
 /// The Call function takes a variable length list of arguments which must match
 /// the type and number of the function being called. These arguments are
 /// provided to the function being executed by `Call`.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/call);
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Call<'a> {
     call: Expr<'a>,
@@ -316,6 +319,29 @@ mod tests {
         let expected = json!({
             "lambda": "cat",
             "expr": {"var": "cat"},
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_call() {
+        let fun = Call::new(Ref::function("double"), 5);
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "call": {
+                "@ref": {
+                    "class": {
+                        "@ref": {
+                            "id": "functions"
+                        }
+                    },
+                    "id": "double"
+                }
+            },
+            "arguments": 5
         });
 
         assert_eq!(expected, serialized);
