@@ -46,9 +46,8 @@
 ** DONE CreateKey
 ** DONE Insert
 ** DONE Remove
-** TODO Replace
-** TODO Update
-
+** DONE Replace
+** DONE Update
 ** DONE HasIdentity
 ** DONE Identify
 ** DONE Identity

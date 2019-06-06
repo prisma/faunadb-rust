@@ -11,6 +11,7 @@ mod create_function;
 mod create_index;
 mod create_key;
 mod insert;
+mod update;
 
 pub use create::*;
 pub use create_class::*;
@@ -19,6 +20,7 @@ pub use create_function::*;
 pub use create_index::*;
 pub use create_key::*;
 pub use insert::*;
+pub use update::*;
 
 query![Delete, Remove, Replace];
 

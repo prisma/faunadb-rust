@@ -1,62 +1,57 @@
 use crate::{
     expr::{Expr, Ref},
-    query::{write::Action, Query},
+    query::Query,
 };
-use chrono::{DateTime, Utc};
 
-query!(Insert);
+query!(Update);
 
-/// The Insert function adds an event to an instance’s history at a specified
-/// timestamp.
+/// The `Update` operation only modifies the specified fields in the instances
+/// pointed to by `ref`.
+///
+/// Updates are partial, and only modify values that are specified in the
+/// param_object. Changes to scalar values and arrays are entirely replaced by
+/// the new data. Modifications to objects are merged. Setting a value to `null`
+/// completely removes the value. Fields in the instance not specified in the
+/// `param_object` are not modified.
 ///
 /// Read the
-/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/insert)
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/update)
 #[derive(Serialize, Debug, Clone, Deserialize)]
-pub struct Insert<'a> {
-    insert: Expr<'a>,
-    #[serde(rename = "ts")]
-    timestamp: Expr<'a>,
-    action: Action,
-    params: InsertParams<'a>,
+pub struct Update<'a> {
+    update: Expr<'a>,
+    params: UpdateParams<'a>,
 }
 
 #[derive(Serialize, Debug, Clone, Deserialize)]
-pub struct InsertParams<'a> {
-    object: InsertObject<'a>,
+pub struct UpdateParams<'a> {
+    object: UpdateObject<'a>,
 }
 
 #[derive(Serialize, Debug, Clone, Deserialize)]
 #[doc(hidden)]
-pub struct InsertObject<'a> {
+pub struct UpdateObject<'a> {
     data: Expr<'a>,
     credentials: Expr<'a>,
     delegates: Expr<'a>,
 }
 
-impl<'a> Insert<'a> {
-    pub fn new(
-        reference: Ref<'a>,
-        timestamp: DateTime<Utc>,
-        action: Action,
-        params: InsertParams<'a>,
-    ) -> Self {
-        Insert {
-            insert: Expr::from(reference),
-            timestamp: Expr::from(timestamp),
-            action,
+impl<'a> Update<'a> {
+    pub fn new(reference: Ref<'a>, params: UpdateParams<'a>) -> Self {
+        Update {
+            update: Expr::from(reference),
             params,
         }
     }
 }
 
-impl<'a> InsertParams<'a> {
+impl<'a> UpdateParams<'a> {
     pub fn new(
         data: impl Into<Expr<'a>>,
         credentials: impl Into<Expr<'a>>,
         delegates: impl Into<Expr<'a>>,
     ) -> Self {
         Self {
-            object: InsertObject {
+            object: UpdateObject {
                 data: data.into(),
                 credentials: credentials.into(),
                 delegates: delegates.into(),
@@ -82,14 +77,9 @@ mod tests {
         let mut delegates = Object::default();
         delegates.insert("pawpaw", "meow");
 
-        let params = InsertParams::new(data, credentials, delegates);
+        let params = UpdateParams::new(data, credentials, delegates);
 
-        let fun = Insert::new(
-            Ref::instance("musti"),
-            Utc.timestamp(60, 0),
-            Action::Update,
-            params,
-        );
+        let fun = Update::new(Ref::instance("musti"), params);
 
         let query = Query::from(fun);
         let serialized = serde_json::to_value(&query).unwrap();
@@ -114,9 +104,7 @@ mod tests {
                     },
                 }
             },
-            "ts": {"@ts": "1970-01-01T00:01:00Z"},
-            "action": "update",
-            "insert": {
+            "update": {
                 "@ref": {
                     "id": "musti"
                 }
