@@ -3,7 +3,7 @@ use crate::{
     query::Query,
 };
 
-query![Abort, Class, Classes, Database, Databases];
+query![Abort, Class, Classes, Database, Databases, Function, Functions];
 
 /// This `Abort` function terminates the current transaction and augments the
 /// returned error with the associated message.
@@ -61,6 +61,48 @@ impl<'a> Classes<'a> {
     pub fn from_database(database: Ref<'a>) -> Self {
         Self {
             classes: Some(Expr::from(database)),
+        }
+    }
+}
+
+/// The `Function` function returns a valid `Ref` for the given function name.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/function)
+#[derive(Serialize, Debug, Clone, Deserialize)]
+pub struct Function<'a> {
+    function: Expr<'a>,
+}
+
+impl<'a> Function<'a> {
+    pub fn find(name: impl Into<Expr<'a>>) -> Self {
+        Self {
+            function: name.into(),
+        }
+    }
+}
+
+/// The `Functions` function when executed with `Paginate` returns an array of Refs
+/// for all functions in the database specified.
+///
+/// If no database is provided, it returns an array of references to all functions
+/// in the current database.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/functions)
+#[derive(Serialize, Debug, Clone, Default, Deserialize)]
+pub struct Functions<'a> {
+    functions: Option<Expr<'a>>,
+}
+
+impl<'a> Functions<'a> {
+    pub fn all() -> Self {
+        Self::default()
+    }
+
+    pub fn from_database(database: Ref<'a>) -> Self {
+        Self {
+            functions: Some(Expr::from(database)),
         }
     }
 }
@@ -212,6 +254,57 @@ mod tests {
 
         let expected = json!({
             "databases": {
+                "@ref": {
+                    "class": {
+                        "@ref": {
+                            "id": "databases"
+                        }
+                    },
+                    "id": "cats"
+                }
+            },
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_function() {
+        let fun = Function::find("meow");
+
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "function": "meow",
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_functions_all() {
+        let fun = Functions::all();
+
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "functions": null,
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_functions_database() {
+        let fun = Functions::from_database(Ref::database("cats"));
+
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "functions": {
                 "@ref": {
                     "class": {
                         "@ref": {

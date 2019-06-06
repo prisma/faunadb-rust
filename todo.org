@@ -23,8 +23,8 @@
 ** DONE Classes
 ** DONE Database
 ** DONE Databases
-** TODO Function
-** TODO Functions
+** DONE Function
+** DONE Functions
 ** TODO Index
 ** TODO Indexes
 ** TODO NewId

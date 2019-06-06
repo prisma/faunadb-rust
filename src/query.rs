@@ -105,4 +105,6 @@ pub enum Query<'a> {
     Classes(misc::Classes<'a>),
     Database(misc::Database<'a>),
     Databases(misc::Databases<'a>),
+    Function(misc::Function<'a>),
+    Functions(misc::Functions<'a>),
 }
