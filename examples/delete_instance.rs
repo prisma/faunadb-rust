@@ -35,7 +35,7 @@ fn main() {
     tokio::run(lazy(move || {
         let instance = Ref::function(matches.value_of("id").unwrap());
 
-        let query = Delete::instance(instance);
+        let query = Delete::new(instance);
 
         client
             .query(query)

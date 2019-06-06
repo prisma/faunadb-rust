@@ -92,6 +92,7 @@ pub enum Query<'a> {
     CreateFunction(Box<write::CreateFunction<'a>>),
     CreateKey(Box<write::CreateKey<'a>>),
     Create(write::Create<'a>),
+    Insert(write::Insert<'a>),
     Delete(write::Delete<'a>),
     Get(read::Get<'a>),
 

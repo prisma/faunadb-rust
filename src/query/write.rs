@@ -9,6 +9,7 @@ mod create_database;
 mod create_function;
 mod create_index;
 mod create_key;
+mod insert;
 
 pub use create::*;
 pub use create_class::*;
@@ -16,16 +17,22 @@ pub use create_database::*;
 pub use create_function::*;
 pub use create_index::*;
 pub use create_key::*;
+pub use insert::*;
 
 query!(Delete);
 
+/// The delete function removes an object. Some of the common objects to delete
+/// are instances, classes, indexes and databases.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/delete)
 #[derive(Serialize, Debug, Clone, Deserialize)]
 pub struct Delete<'a> {
     delete: Expr<'a>,
 }
 
 impl<'a> Delete<'a> {
-    pub fn instance(reference: Ref<'a>) -> Self {
+    pub fn new(reference: Ref<'a>) -> Self {
         Delete {
             delete: Expr::from(reference),
         }
@@ -39,7 +46,7 @@ mod tests {
 
     #[test]
     fn test_delete() {
-        let delete = Delete::instance(Ref::instance("musti"));
+        let delete = Delete::new(Ref::instance("musti"));
         let query = Query::from(delete);
         let serialized = serde_json::to_value(&query).unwrap();
 

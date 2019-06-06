@@ -264,7 +264,7 @@ mod tests {
     #[test]
     fn test_do() {
         let mut do_many = Do::new(Get::instance(Ref::instance("musti")));
-        do_many.push(Delete::instance(Ref::instance("musti")));
+        do_many.push(Delete::new(Ref::instance("musti")));
 
         let query = Query::from(do_many);
         let serialized = serde_json::to_value(&query).unwrap();

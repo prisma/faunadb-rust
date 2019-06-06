@@ -44,7 +44,7 @@
 ** TODO Time
 ** DONE CreateFunction
 ** DONE CreateKey
-** TODO Insert
+** DONE Insert
 ** TODO Remove
 ** TODO Replace
 ** TODO Update
