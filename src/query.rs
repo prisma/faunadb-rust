@@ -9,15 +9,8 @@ pub mod write;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Query<'a> {
-    Create(write::Create<'a>),
-    CreateClass(Box<write::CreateClass<'a>>),
-    CreateDatabase(write::CreateDatabase<'a>),
-    CreateIndex(Box<write::CreateIndex<'a>>),
-    CreateFunction(Box<write::CreateFunction<'a>>),
-    Delete(write::Delete<'a>),
-    Get(read::Get<'a>),
-
     At(basic::At<'a>),
+    Call(basic::Call<'a>),
     Do(basic::Do<'a>),
     Let(basic::Let<'a>),
     Var(basic::Var<'a>),
@@ -36,9 +29,6 @@ pub enum Query<'a> {
     Contains(logical::Contains<'a>),
     Equals(logical::Equals<'a>),
     Exists(logical::Exists<'a>),
-
-    Classes(misc::Classes<'a>),
-    Databases(misc::Databases<'a>),
 
     Abs(math::Abs<'a>),
     Acos(math::Acos<'a>),
@@ -74,4 +64,15 @@ pub enum Query<'a> {
     Tan(math::Tan<'a>),
     Tanh(math::Tanh<'a>),
     Trunc(math::Trunc<'a>),
+
+    CreateClass(Box<write::CreateClass<'a>>),
+    CreateDatabase(write::CreateDatabase<'a>),
+    CreateIndex(Box<write::CreateIndex<'a>>),
+    CreateFunction(Box<write::CreateFunction<'a>>),
+    Create(write::Create<'a>),
+    Delete(write::Delete<'a>),
+    Get(read::Get<'a>),
+
+    Classes(misc::Classes<'a>),
+    Databases(misc::Databases<'a>),
 }

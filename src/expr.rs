@@ -51,6 +51,10 @@ pub enum SimpleExpr<'a> {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// A special expression with an annotation marker.
 pub enum AnnotatedExpr<'a> {
+    /// Quoted expression will not be evaluated in Fauna, good for storing
+    /// functions.
+    #[serde(rename = "@query")]
+    Quote(Box<Expr<'a>>),
     /// Denotes a base64 encoded string representing a byte array.
     #[serde(rename = "@bytes", with = "base64_bytes")]
     Bytes(Bytes<'a>),
@@ -78,10 +82,6 @@ pub enum AnnotatedExpr<'a> {
     /// specified, left to right. Objects evaluate to their contents:
     #[serde(rename = "object")]
     Object(Object<'a>),
-    /// Quoted expression will not be evaluated in Fauna, good for storing
-    /// functions.
-    #[serde(rename = "@query")]
-    Quote(Box<Expr<'a>>),
 }
 
 /// A representation of a FaunaDB Query Expression.
@@ -94,8 +94,8 @@ pub enum AnnotatedExpr<'a> {
 #[serde(untagged)]
 pub enum Expr<'a> {
     Annotated(AnnotatedExpr<'a>),
-    Simple(SimpleExpr<'a>),
     Query(Box<Query<'a>>),
+    Simple(SimpleExpr<'a>),
 }
 
 impl<'a> fmt::Display for Expr<'a> {

@@ -1,11 +1,5 @@
 use clap::{App, Arg};
-use faunadb::{
-    prelude::*,
-    query::{
-        basic::{Lambda, Var},
-        collection::Map,
-    },
-};
+use faunadb::prelude::*;
 use futures::{lazy, Future};
 
 fn main() {
@@ -29,13 +23,7 @@ fn main() {
     let secret = matches.value_of("secret").unwrap();
     let client = ClientBuilder::new(secret).build().unwrap();
 
-    let map = Map::new(
-        Map::new(
-            Array::from(vec!["Musti", "Naukio"]),
-            Lambda::new("cat", Var::new("cat")),
-        ),
-        Lambda::new("cat", Var::new("cat")),
-    );
+    let map = Call::new(Ref::function("double"), 5);
 
     tokio::run(lazy(move || {
         client

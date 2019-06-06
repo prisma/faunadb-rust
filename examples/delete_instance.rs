@@ -33,8 +33,7 @@ fn main() {
     let client = ClientBuilder::new(secret).build().unwrap();
 
     tokio::run(lazy(move || {
-        let mut instance = Ref::instance(matches.value_of("id").unwrap());
-        instance.set_class("HouseCats");
+        let instance = Ref::function(matches.value_of("id").unwrap());
 
         let query = Delete::instance(instance);
 

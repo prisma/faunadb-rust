@@ -1,9 +1,12 @@
-use crate::{expr::Expr, query::Query};
+use crate::{
+    expr::{Expr, Ref},
+    query::Query,
+};
 use chrono::{DateTime, Utc};
 use std::{borrow::Cow, collections::BTreeMap};
 
 // Implements From<fun> for Query
-query![At, If, Do, Let, Var, Lambda];
+query![At, Call, If, Do, Let, Var, Lambda];
 
 /// The At function executes a temporal query, a query which examines the data
 /// in the past.
@@ -30,6 +33,27 @@ impl<'a> At<'a> {
         Self {
             timestamp: Expr::from(timestamp),
             expression: expression.into(),
+        }
+    }
+}
+
+/// The `Call` function executes a user-defined function previously defined with
+/// the CreateFunction function.
+///
+/// The Call function takes a variable length list of arguments which must match
+/// the type and number of the function being called. These arguments are
+/// provided to the function being executed by `Call`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Call<'a> {
+    call: Expr<'a>,
+    arguments: Expr<'a>,
+}
+
+impl<'a> Call<'a> {
+    pub fn new(function: Ref<'a>, arguments: impl Into<Expr<'a>>) -> Self {
+        Self {
+            call: Expr::from(function),
+            arguments: arguments.into(),
         }
     }
 }

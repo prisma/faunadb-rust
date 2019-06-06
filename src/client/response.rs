@@ -61,6 +61,8 @@ pub struct ClassData {
     pub history_days: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ttl_days: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub body: Option<Expr<'static>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -79,11 +81,18 @@ impl fmt::Display for Response {
                 "Instance(ref={},data={},ts={})",
                 res.reference, res.data, res.timestamp,
             ),
-            Response::Resource(Resource::Class(res)) => write!(
-                f,
-                "Class(ref={},name={},history={:?},ttl={:?},ts={})",
-                res.reference, res.name, res.history_days, res.ttl_days, res.timestamp,
-            ),
+            Response::Resource(Resource::Class(res)) => match res.body {
+                Some(ref body) => write!(
+                    f,
+                    "Class(ref={},name={},history={:?},ttl={:?},ts={},body={})",
+                    res.reference, res.name, res.history_days, res.ttl_days, res.timestamp, body
+                ),
+                None => write!(
+                    f,
+                    "Class(ref={},name={},history={:?},ttl={:?},ts={})",
+                    res.reference, res.name, res.history_days, res.ttl_days, res.timestamp
+                ),
+            },
             Response::Resource(Resource::Expr(res)) => write!(f, "Expr({})", res,),
         }
     }
