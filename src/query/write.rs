@@ -1,5 +1,5 @@
 use crate::{
-    expr::{Expr, Ref},
+    expr::{Expr, Object, Ref},
     query::Query,
 };
 use chrono::{DateTime, Utc};
@@ -20,7 +20,7 @@ pub use create_index::*;
 pub use create_key::*;
 pub use insert::*;
 
-query![Delete, Remove];
+query![Delete, Remove, Replace];
 
 #[derive(Serialize, Debug, Clone, Deserialize, Copy)]
 pub enum Action {
@@ -76,6 +76,27 @@ impl<'a> Remove<'a> {
     }
 }
 
+/// The `Replace` operation substitutes the user data pointed to by the reference
+/// with the data contained in the `param_object`. Values not specified in the
+/// `param_object` are removed.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/replace)
+#[derive(Serialize, Debug, Clone, Deserialize)]
+pub struct Replace<'a> {
+    replace: Expr<'a>,
+    params: Expr<'a>,
+}
+
+impl<'a> Replace<'a> {
+    pub fn new(reference: Ref<'a>, params: Object<'a>) -> Self {
+        Self {
+            replace: Expr::from(reference),
+            params: Expr::from(params),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::prelude::*;
@@ -120,6 +141,32 @@ mod tests {
                 "@ts": "1970-01-01T00:01:00Z"
             },
             "action": "create",
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_replace() {
+        let mut data = Object::default();
+        data.insert("pawpaw", "meowmeow");
+
+        let fun = Replace::new(Ref::instance("musti"), data);
+
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "replace": {
+                "@ref": {
+                    "id": "musti"
+                }
+            },
+            "params": {
+                "object": {
+                    "pawpaw": "meowmeow"
+                }
+            }
         });
 
         assert_eq!(expected, serialized);
