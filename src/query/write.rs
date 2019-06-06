@@ -8,12 +8,14 @@ mod create_class;
 mod create_database;
 mod create_function;
 mod create_index;
+mod create_key;
 
 pub use create::*;
 pub use create_class::*;
 pub use create_database::*;
 pub use create_function::*;
 pub use create_index::*;
+pub use create_key::*;
 
 query!(Delete);
 

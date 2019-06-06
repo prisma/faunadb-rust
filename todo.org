@@ -19,10 +19,14 @@
 ** DONE Logical (And, Contains ... (10 functions))
 ** DONE Math (Abs, Acos, Add, Asin ... (34 functions))
 ** TODO Abort
-** TODO Class/Classes
-** TODO Database/Databases
-** TODO Function/Functions
-** TODO Index/Indexes
+** TODO Class
+** TODO Classes
+** TODO Database
+** TODO Databases
+** TODO Function
+** TODO Functions
+** TODO Index
+** TODO Indexes
 ** TODO NewId
 ** TODO KeyFromSecret
 ** TODO Paginate
@@ -38,8 +42,8 @@
 ** TODO Date
 ** TODO Epoch
 ** TODO Time
-** TODO CreateFunction
-** TODO CreateKey
+** DONE CreateFunction
+** DONE CreateKey
 ** TODO Insert
 ** TODO Remove
 ** TODO Replace
