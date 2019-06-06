@@ -3,7 +3,7 @@ use crate::{
     query::{basic::Lambda, Query},
 };
 
-query!(Append, Map, Drop, Filter, Foreach);
+query![Append, Drop, Filter, Foreach, IsEmpty, IsNonEmpty, Map, Prepend, Take];
 
 /// The `Append` function creates a new array that is the result of combining the
 /// base Array followed by the `elems`.
@@ -38,10 +38,10 @@ impl<'a> Append<'a> {
 /// When applied to a collection of type page, the returned page’s `before` cursor
 /// is adjusted to exclude the dropped elements. As special cases:
 ///
-///  * If `num` is negative, `before` does not change.
-///  * Otherwise if all elements from the original page were dropped (including
-///    the case where the page was already empty), `before` is set to same value as
-///    the original page’s `after`.
+/// * If `num` is negative, `before` does not change.
+/// * Otherwise if all elements from the original page were dropped (including
+///   the case where the page was already empty), `before` is set to same value as
+///   the original page’s `after`.
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/drop).
@@ -113,7 +113,43 @@ impl<'a> Foreach<'a> {
     }
 }
 
-/// The `Map` function applies a [Lambda](struct.Lambda.html) serially to each
+/// The `IsEmpty` function returns `true` only if there are no elements in the
+/// collection.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/isempty).
+#[derive(Serialize, Clone, Debug, Deserialize)]
+pub struct IsEmpty<'a> {
+    is_empty: Expr<'a>,
+}
+
+impl<'a> IsEmpty<'a> {
+    pub fn new(collection: impl Into<Expr<'a>>) -> Self {
+        Self {
+            is_empty: collection.into(),
+        }
+    }
+}
+
+/// The `IsNonEmpty` function returns `true` only if there is at least one
+/// element in the collection.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/isnonempty).
+#[derive(Serialize, Clone, Debug, Deserialize)]
+pub struct IsNonEmpty<'a> {
+    is_nonempty: Expr<'a>,
+}
+
+impl<'a> IsNonEmpty<'a> {
+    pub fn new(collection: impl Into<Expr<'a>>) -> Self {
+        Self {
+            is_nonempty: collection.into(),
+        }
+    }
+}
+
+/// The `Map` function applies a [Lambda](../basic/struct.Lambda.html) serially to each
 /// member of the collection and returns the results of each application in a
 /// new collection of the same type. Later invocations of the `Lambda` function
 /// can see the results of earlier invocations.
@@ -134,6 +170,59 @@ impl<'a> Map<'a> {
         Self {
             collection: collection.into(),
             map: lambda,
+        }
+    }
+}
+
+/// The `Prepend` function creates a new `Array` that is the result of combining the
+/// `elems` followed by the `base` Array. This function only works with collections
+/// of type Array.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/prepend).
+#[derive(Serialize, Clone, Debug, Deserialize)]
+pub struct Prepend<'a> {
+    prepend: Expr<'a>,
+    collection: Expr<'a>,
+}
+
+impl<'a> Prepend<'a> {
+    pub fn new(base: impl Into<Expr<'a>>, elems: impl Into<Expr<'a>>) -> Self {
+        Self {
+            prepend: base.into(),
+            collection: elems.into(),
+        }
+    }
+}
+
+/// The `Take` function returns a new collection of the same type that contains
+/// num elements from the head of the collection.
+///
+/// If num is zero or negative, the resulting collection is empty.
+///
+/// When applied to a collection which is of type page, the returned page’s
+/// "after" cursor is adjusted to only cover the taken elements. As special
+/// cases:
+///
+/// * If num is negative, after is set to the same value as the original page’s
+///   "before".
+/// * If all elements from the original page were taken, after does not change.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/take).
+#[derive(Serialize, Clone, Debug, Deserialize)]
+pub struct Take<'a> {
+    take: Expr<'a>,
+    collection: Expr<'a>,
+}
+
+impl<'a> Take<'a> {
+    /// The `take` parameter must evaluate to an integer and `collection` to a
+    /// collection.
+    pub fn new(take: impl Into<Expr<'a>>, collection: impl Into<Expr<'a>>) -> Self {
+        Self {
+            take: take.into(),
+            collection: collection.into(),
         }
     }
 }
@@ -183,6 +272,24 @@ mod tests {
     }
 
     #[test]
+    fn test_prepend() {
+        let fun = Prepend::new(
+            Array::from(vec!["Musti", "Naukio"]),
+            Array::from(vec!["Musmus", "Naunau"]),
+        );
+
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "prepend": ["Musti", "Naukio"],
+            "collection": ["Musmus", "Naunau"],
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
     fn test_drop() {
         let fun = Drop::new(2, Array::from(vec![1, 2, 3]));
         let query = Query::from(fun);
@@ -190,6 +297,20 @@ mod tests {
 
         let expected = json!({
             "drop": 2,
+            "collection": [1, 2, 3],
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_take() {
+        let fun = Take::new(2, Array::from(vec![1, 2, 3]));
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "take": 2,
             "collection": [1, 2, 3],
         });
 
@@ -233,5 +354,25 @@ mod tests {
         });
 
         assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_is_empty() {
+        let fun = IsEmpty::new(Array::from(vec![1, 2, 3]));
+
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"is_empty": [1, 2, 3]}), serialized);
+    }
+
+    #[test]
+    fn test_is_nonempty() {
+        let fun = IsNonEmpty::new(Array::from(vec![1, 2, 3]));
+
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        assert_eq!(json!({"is_nonempty": [1, 2, 3]}), serialized);
     }
 }

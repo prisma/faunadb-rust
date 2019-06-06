@@ -21,7 +21,11 @@ pub enum Query<'a> {
     Drop(collection::Drop<'a>),
     Filter(collection::Filter<'a>),
     Foreach(collection::Foreach<'a>),
+    IsEmpty(collection::IsEmpty<'a>),
+    IsNonEmpty(collection::IsNonEmpty<'a>),
     Map(collection::Map<'a>),
+    Prepend(collection::Prepend<'a>),
+    Take(collection::Take<'a>),
 
     And(logical::And<'a>),
     Or(logical::Or<'a>),
