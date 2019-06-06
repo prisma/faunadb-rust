@@ -1,3 +1,4 @@
+pub mod auth;
 pub mod basic;
 pub mod collection;
 pub mod logical;
@@ -9,6 +10,12 @@ pub mod write;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Query<'a> {
+    HasIdentity(auth::HasIdentity<'a>),
+    Identify(auth::Identify<'a>),
+    Identity(auth::Identity<'a>),
+    Login(auth::Login<'a>),
+    Logout(auth::Logout<'a>),
+
     At(basic::At<'a>),
     Call(basic::Call<'a>),
     Do(basic::Do<'a>),

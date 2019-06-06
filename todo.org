@@ -45,5 +45,10 @@
 ** TODO Replace
 ** TODO Update
 
+** DONE HasIdentity
+** DONE Identify
+** DONE Identity
+** DONE Login
+** DONE Logout
 * TODO Integration tests with dockerized Fauna
 * TODO Massage the documentation
