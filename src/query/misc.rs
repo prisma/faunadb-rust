@@ -3,7 +3,7 @@ use crate::{
     query::Query,
 };
 
-query![Abort, Class, Classes, Database, Databases, Function, Functions];
+query![Abort, Class, Classes, Database, Databases, Function, Functions, Index, Indexes];
 
 /// This `Abort` function terminates the current transaction and augments the
 /// returned error with the associated message.
@@ -143,6 +143,44 @@ impl<'a> Databases<'a> {
     pub fn from_database(database: Ref<'a>) -> Self {
         Self {
             databases: Some(Expr::from(database)),
+        }
+    }
+}
+
+/// The `Index` function returns a valid `Ref` for the given index name.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/index)
+#[derive(Serialize, Debug, Clone, Deserialize)]
+pub struct Index<'a> {
+    index: Expr<'a>,
+}
+
+impl<'a> Index<'a> {
+    pub fn find(name: impl Into<Expr<'a>>) -> Self {
+        Self { index: name.into() }
+    }
+}
+
+/// The `Indexes` function when executed with `Paginate` returns an array of Refs
+/// for indexes in the database specified. If no database is provided, it
+/// returns an array of references to indexes in the current database.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/databases)
+#[derive(Serialize, Debug, Clone, Default, Deserialize)]
+pub struct Indexes<'a> {
+    indexes: Option<Expr<'a>>,
+}
+
+impl<'a> Indexes<'a> {
+    pub fn all() -> Self {
+        Self::default()
+    }
+
+    pub fn from_database(database: Ref<'a>) -> Self {
+        Self {
+            indexes: Some(Expr::from(database)),
         }
     }
 }
@@ -305,6 +343,57 @@ mod tests {
 
         let expected = json!({
             "functions": {
+                "@ref": {
+                    "class": {
+                        "@ref": {
+                            "id": "databases"
+                        }
+                    },
+                    "id": "cats"
+                }
+            },
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_index() {
+        let fun = Index::find("scratches");
+
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "index": "scratches",
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_indexes_all() {
+        let fun = Indexes::all();
+
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "indexes": null,
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_indexes_database() {
+        let fun = Indexes::from_database(Ref::database("cats"));
+
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "indexes": {
                 "@ref": {
                     "class": {
                         "@ref": {

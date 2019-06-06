@@ -25,8 +25,8 @@
 ** DONE Databases
 ** DONE Function
 ** DONE Functions
-** TODO Index
-** TODO Indexes
+** DONE Index
+** DONE Indexes
 ** TODO NewId
 ** TODO KeyFromSecret
 ** TODO Paginate
