@@ -229,7 +229,7 @@ impl<'a> Take<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{prelude::*, query::basic::Var};
+    use crate::prelude::*;
     use serde_json::{self, json};
 
     #[test]

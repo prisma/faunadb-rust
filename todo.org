@@ -12,10 +12,10 @@
 ** DONE IsNonEmpty
 ** DONE Prepend
 ** DONE Take
-** TODO ToDate
-** TODO ToNumber
-** TODO ToString
-** TODO ToTime
+** DONE ToDate
+** DONE ToNumber
+** DONE ToString
+** DONE ToTime
 ** DONE Logical (And, Contains ... (10 functions))
 ** DONE Math (Abs, Acos, Add, Asin ... (34 functions))
 ** TODO Abort

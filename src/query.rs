@@ -1,6 +1,7 @@
 pub mod auth;
 pub mod basic;
 pub mod collection;
+pub mod conversion;
 pub mod logical;
 pub mod math;
 pub mod misc;
@@ -15,6 +16,11 @@ pub enum Query<'a> {
     Identity(auth::Identity<'a>),
     Login(auth::Login<'a>),
     Logout(auth::Logout<'a>),
+
+    ToDate(conversion::ToDate<'a>),
+    ToNumber(conversion::ToNumber<'a>),
+    ToString(conversion::ToString<'a>),
+    ToTime(conversion::ToTime<'a>),
 
     At(basic::At<'a>),
     Call(basic::Call<'a>),
