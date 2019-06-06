@@ -3,7 +3,7 @@ use crate::{
     query::Query,
 };
 
-query![Abort, Class, Classes, Database, Databases, Function, Functions, Index, Indexes];
+query![Abort, Class, Classes, Database, Databases, Function, Functions, Index, Indexes, NewId];
 
 /// This `Abort` function terminates the current transaction and augments the
 /// returned error with the associated message.
@@ -125,8 +125,10 @@ impl<'a> Database<'a> {
 }
 
 /// The `Databases` function when executed with `Paginate` returns an array of Refs
-/// for sub-databases in the database specified. If no database is provided, it
-/// returns an array of references to sub-databases in the current database.
+/// for sub-databases in the database specified.
+///
+/// If no database is provided, it returns an array of references to
+/// sub-databases in the current database.
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/databases)
@@ -163,8 +165,10 @@ impl<'a> Index<'a> {
 }
 
 /// The `Indexes` function when executed with `Paginate` returns an array of Refs
-/// for indexes in the database specified. If no database is provided, it
-/// returns an array of references to indexes in the current database.
+/// for indexes in the database specified.
+///
+/// If no database is provided, it returns an array of references to indexes in
+/// the current database.
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/databases)
@@ -181,6 +185,27 @@ impl<'a> Indexes<'a> {
     pub fn from_database(database: Ref<'a>) -> Self {
         Self {
             indexes: Some(Expr::from(database)),
+        }
+    }
+}
+
+/// This `NewId` function produces a unique number.
+///
+/// This number is guaranteed to be unique across the entire cluster and once
+/// generated is never generated a second time. This identifier is suitable for
+/// constructing the id part of a reference.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/newid)
+#[derive(Serialize, Debug, Clone, Deserialize)]
+pub struct NewId<'a> {
+    new_id: Expr<'a>,
+}
+
+impl<'a> NewId<'a> {
+    pub fn new() -> Self {
+        Self {
+            new_id: Expr::null(),
         }
     }
 }
@@ -403,6 +428,20 @@ mod tests {
                     "id": "cats"
                 }
             },
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_new_id() {
+        let fun = NewId::new();
+
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "new_id": null,
         });
 
         assert_eq!(expected, serialized);

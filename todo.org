@@ -27,7 +27,7 @@
 ** DONE Functions
 ** DONE Index
 ** DONE Indexes
-** TODO NewId
+** DONE NewId
 ** TODO KeyFromSecret
 ** TODO Paginate
 ** TODO Select

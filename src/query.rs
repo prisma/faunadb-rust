@@ -109,4 +109,5 @@ pub enum Query<'a> {
     Functions(misc::Functions<'a>),
     Index(misc::Index<'a>),
     Indexes(misc::Indexes<'a>),
+    NewId(misc::NewId<'a>),
 }
