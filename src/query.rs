@@ -99,6 +99,8 @@ pub enum Query<'a> {
     Update(write::Update<'a>),
 
     Get(read::Get<'a>),
+    KeyFromSecret(read::KeyFromSecret<'a>),
+    Paginate(read::Paginate<'a>),
 
     Abort(misc::Abort<'a>),
     Class(misc::Class<'a>),

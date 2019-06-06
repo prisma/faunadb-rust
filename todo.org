@@ -28,8 +28,8 @@
 ** DONE Index
 ** DONE Indexes
 ** DONE NewId
-** TODO KeyFromSecret
-** TODO Paginate
+** DONE KeyFromSecret
+** DONE Paginate
 ** TODO Select
 ** TODO SelectAll
 ** TODO Difference
