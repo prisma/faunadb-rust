@@ -100,6 +100,9 @@ pub enum Query<'a> {
 
     Get(read::Get<'a>),
 
+    Abort(misc::Abort<'a>),
+    Class(misc::Class<'a>),
     Classes(misc::Classes<'a>),
+    Database(misc::Database<'a>),
     Databases(misc::Databases<'a>),
 }

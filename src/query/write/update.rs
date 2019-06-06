@@ -63,7 +63,6 @@ impl<'a> UpdateParams<'a> {
 #[cfg(test)]
 mod tests {
     use crate::prelude::*;
-    use chrono::{offset::TimeZone, Utc};
     use serde_json::{self, json};
 
     #[test]
