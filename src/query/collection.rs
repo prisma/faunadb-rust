@@ -3,7 +3,7 @@ use crate::{
     query::{basic::Lambda, Query},
 };
 
-query!(Append, Map, Drop, Filter);
+query!(Append, Map, Drop, Filter, Foreach);
 
 /// The `Append` function creates a new array that is the result of combining the
 /// base Array followed by the `elems`.
@@ -62,11 +62,13 @@ impl<'a> Drop<'a> {
     }
 }
 
-/// The Filter function applies the Lambda to each member of the collection and
-/// returns a new collection of the same type containing only those elements for
-/// which the lambda returns true. Providing a lambda function which does not
-/// return a Boolean results in an "invalid argument" error. If a Page is
-/// passed, its decorated fields are preserved in the result.
+/// The `Filter` function applies the [Lambda](../basic/struct.Lambda.html) to
+/// each member of the collection and returns a new collection of the same type
+/// containing only those elements for which the lambda returns `true`.
+///
+/// Providing a lambda function which does not return a `Boolean` results in an
+/// "invalid argument" error. If a `Page` is passed, its decorated fields are
+/// preserved in the result.
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/filter).
@@ -81,6 +83,32 @@ impl<'a> Filter<'a> {
         Self {
             filter: Expr::from(filter),
             collection: collection.into(),
+        }
+    }
+}
+
+/// The `Foreach` function applies the [Lambda](../basic/struct.Lambda.html)
+/// serially to each member of a "collection", and returns the original
+/// collection.
+///
+/// The `Foreach` function is very useful when the original collection does not
+/// need to be modified, but a side effect is required for every value in a
+/// collection. Later invocations of the `Lambda` can see the side effects of
+/// earlier invocations of the `Lambda`.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/foreach).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Foreach<'a> {
+    collection: Expr<'a>,
+    foreach: Expr<'a>,
+}
+
+impl<'a> Foreach<'a> {
+    pub fn new(collection: impl Into<Expr<'a>>, lambda: Lambda<'a>) -> Self {
+        Self {
+            collection: collection.into(),
+            foreach: Expr::from(lambda),
         }
     }
 }
@@ -182,6 +210,24 @@ mod tests {
             "filter": {
                 "lambda": "x",
                 "expr": {"gt": [{ "var": "x" }, 2]}
+            },
+            "collection": [1, 2, 3],
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_foreach() {
+        let fun = Foreach::new(Array::from(vec![1, 2, 3]), Lambda::new("_", Gt::new(1, 2)));
+
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "foreach": {
+                "lambda": "_",
+                "expr": {"gt": [1, 2]}
             },
             "collection": [1, 2, 3],
         });
