@@ -5,7 +5,7 @@
 ** DONE At
 ** DONE Call
 ** DONE Append
-** TODO Drop
+** DONE Drop
 ** NEXT Filter
 ** TODO Foreach
 ** TODO IsEmpty

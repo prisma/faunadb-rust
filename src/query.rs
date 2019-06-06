@@ -11,6 +11,7 @@ pub mod write;
 pub enum Query<'a> {
     At(basic::At<'a>),
     Call(basic::Call<'a>),
+    Drop(basic::Drop<'a>),
     Do(basic::Do<'a>),
     Let(basic::Let<'a>),
     Var(basic::Var<'a>),
