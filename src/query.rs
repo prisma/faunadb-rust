@@ -19,6 +19,7 @@ pub enum Query<'a> {
 
     Append(collection::Append<'a>),
     Drop(collection::Drop<'a>),
+    Filter(collection::Filter<'a>),
     Map(collection::Map<'a>),
 
     And(logical::And<'a>),

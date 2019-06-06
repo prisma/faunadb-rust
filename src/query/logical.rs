@@ -17,12 +17,22 @@ pub struct And<'a> {
 }
 
 impl<'a> And<'a> {
-    pub fn new<I, E>(exprs: I) -> Self
-    where
-        I: IntoIterator<Item = E>,
-        E: Into<Expr<'a>>,
-    {
-        And {
+    /// A simple and with two expressions. For a vector comparison, use the
+    /// `From` trait.
+    pub fn new(left: impl Into<Expr<'a>>, right: impl Into<Expr<'a>>) -> Self {
+        Self {
+            and: vec![left.into(), right.into()],
+        }
+    }
+}
+
+impl<'a, I, E> From<I> for And<'a>
+where
+    I: IntoIterator<Item = E>,
+    E: Into<Expr<'a>>,
+{
+    fn from(exprs: I) -> Self {
+        Self {
             and: exprs.into_iter().map(Into::into).collect(),
         }
     }
@@ -39,12 +49,22 @@ pub struct Or<'a> {
 }
 
 impl<'a> Or<'a> {
-    pub fn new<I, E>(exprs: I) -> Self
-    where
-        I: IntoIterator<Item = E>,
-        E: Into<Expr<'a>>,
-    {
-        Or {
+    /// A simple and with two expressions. For a vector comparison, use the
+    /// `From` trait.
+    pub fn new(left: impl Into<Expr<'a>>, right: impl Into<Expr<'a>>) -> Self {
+        Self {
+            or: vec![left.into(), right.into()],
+        }
+    }
+}
+
+impl<'a, I, E> From<I> for Or<'a>
+where
+    I: IntoIterator<Item = E>,
+    E: Into<Expr<'a>>,
+{
+    fn from(exprs: I) -> Self {
+        Self {
             or: exprs.into_iter().map(Into::into).collect(),
         }
     }
@@ -76,12 +96,22 @@ pub struct Equals<'a> {
 }
 
 impl<'a> Equals<'a> {
-    pub fn new<I, E>(exprs: I) -> Self
-    where
-        I: IntoIterator<Item = E>,
-        E: Into<Expr<'a>>,
-    {
-        Equals {
+    /// A simple and with two expressions. For a vector comparison, use the
+    /// `From` trait.
+    pub fn new(left: impl Into<Expr<'a>>, right: impl Into<Expr<'a>>) -> Self {
+        Self {
+            equals: vec![left.into(), right.into()],
+        }
+    }
+}
+
+impl<'a, I, E> From<I> for Equals<'a>
+where
+    I: IntoIterator<Item = E>,
+    E: Into<Expr<'a>>,
+{
+    fn from(exprs: I) -> Self {
+        Self {
             equals: exprs.into_iter().map(Into::into).collect(),
         }
     }
@@ -98,12 +128,22 @@ pub struct Lt<'a> {
 }
 
 impl<'a> Lt<'a> {
-    pub fn new<I, E>(exprs: I) -> Self
-    where
-        I: IntoIterator<Item = E>,
-        E: Into<Expr<'a>>,
-    {
-        Lt {
+    /// A simple and with two expressions. For a vector comparison, use the
+    /// `From` trait.
+    pub fn new(left: impl Into<Expr<'a>>, right: impl Into<Expr<'a>>) -> Self {
+        Self {
+            lt: vec![left.into(), right.into()],
+        }
+    }
+}
+
+impl<'a, I, E> From<I> for Lt<'a>
+where
+    I: IntoIterator<Item = E>,
+    E: Into<Expr<'a>>,
+{
+    fn from(exprs: I) -> Self {
+        Self {
             lt: exprs.into_iter().map(Into::into).collect(),
         }
     }
@@ -120,12 +160,22 @@ pub struct Lte<'a> {
 }
 
 impl<'a> Lte<'a> {
-    pub fn new<I, E>(exprs: I) -> Self
-    where
-        I: IntoIterator<Item = E>,
-        E: Into<Expr<'a>>,
-    {
-        Lte {
+    /// A simple and with two expressions. For a vector comparison, use the
+    /// `From` trait.
+    pub fn new(left: impl Into<Expr<'a>>, right: impl Into<Expr<'a>>) -> Self {
+        Self {
+            lte: vec![left.into(), right.into()],
+        }
+    }
+}
+
+impl<'a, I, E> From<I> for Lte<'a>
+where
+    I: IntoIterator<Item = E>,
+    E: Into<Expr<'a>>,
+{
+    fn from(exprs: I) -> Self {
+        Self {
             lte: exprs.into_iter().map(Into::into).collect(),
         }
     }
@@ -142,12 +192,22 @@ pub struct Gt<'a> {
 }
 
 impl<'a> Gt<'a> {
-    pub fn new<I, E>(exprs: I) -> Self
-    where
-        I: IntoIterator<Item = E>,
-        E: Into<Expr<'a>>,
-    {
-        Gt {
+    /// A simple and with two expressions. For a vector comparison, use the
+    /// `From` trait.
+    pub fn new(left: impl Into<Expr<'a>>, right: impl Into<Expr<'a>>) -> Self {
+        Self {
+            gt: vec![left.into(), right.into()],
+        }
+    }
+}
+
+impl<'a, I, E> From<I> for Gt<'a>
+where
+    I: IntoIterator<Item = E>,
+    E: Into<Expr<'a>>,
+{
+    fn from(exprs: I) -> Self {
+        Self {
             gt: exprs.into_iter().map(Into::into).collect(),
         }
     }
@@ -164,12 +224,22 @@ pub struct Gte<'a> {
 }
 
 impl<'a> Gte<'a> {
-    pub fn new<I, E>(exprs: I) -> Self
-    where
-        I: IntoIterator<Item = E>,
-        E: Into<Expr<'a>>,
-    {
-        Gte {
+    /// A simple and with two expressions. For a vector comparison, use the
+    /// `From` trait.
+    pub fn new(left: impl Into<Expr<'a>>, right: impl Into<Expr<'a>>) -> Self {
+        Self {
+            gte: vec![left.into(), right.into()],
+        }
+    }
+}
+
+impl<'a, I, E> From<I> for Gte<'a>
+where
+    I: IntoIterator<Item = E>,
+    E: Into<Expr<'a>>,
+{
+    fn from(exprs: I) -> Self {
+        Self {
             gte: exprs.into_iter().map(Into::into).collect(),
         }
     }
@@ -236,7 +306,7 @@ mod tests {
 
     #[test]
     fn test_and() {
-        let aaaand = And::new(vec![true, true, false]);
+        let aaaand = And::from(vec![true, true, false]);
         let query = Query::from(aaaand);
         let serialized = serde_json::to_value(&query).unwrap();
 
@@ -245,11 +315,11 @@ mod tests {
 
     #[test]
     fn test_or() {
-        let oooor = Or::new(vec![true, true, false]);
+        let oooor = Or::new(Var::new("x"), false);
         let query = Query::from(oooor);
         let serialized = serde_json::to_value(&query).unwrap();
 
-        assert_eq!(json!({"or": [true, true, false]}), serialized);
+        assert_eq!(json!({"or": [{"var": "x"}, false]}), serialized);
     }
 
     #[test]
@@ -263,7 +333,7 @@ mod tests {
 
     #[test]
     fn test_equals() {
-        let equals = Equals::new(vec!["musti", "naukio"]);
+        let equals = Equals::new("musti", "naukio");
         let query = Query::from(equals);
         let serialized = serde_json::to_value(&query).unwrap();
 
@@ -294,34 +364,34 @@ mod tests {
 
     #[test]
     fn test_lt() {
-        let lt = Lt::new(vec![1, 2, 3]);
+        let lt = Lt::new(1, 2);
         let query = Query::from(lt);
         let serialized = serde_json::to_value(&query).unwrap();
 
-        assert_eq!(json!({"lt": [1, 2, 3]}), serialized);
+        assert_eq!(json!({"lt": [1, 2]}), serialized);
     }
 
     #[test]
     fn test_lte() {
-        let lte = Lte::new(vec![1, 2, 3]);
+        let lte = Lte::new(2, 3);
         let query = Query::from(lte);
         let serialized = serde_json::to_value(&query).unwrap();
 
-        assert_eq!(json!({"lte": [1, 2, 3]}), serialized);
+        assert_eq!(json!({"lte": [2, 3]}), serialized);
     }
 
     #[test]
     fn test_gt() {
-        let gt = Gt::new(vec![1, 2, 3]);
+        let gt = Gt::new(1, 2);
         let query = Query::from(gt);
         let serialized = serde_json::to_value(&query).unwrap();
 
-        assert_eq!(json!({"gt": [1, 2, 3]}), serialized);
+        assert_eq!(json!({"gt": [1, 2]}), serialized);
     }
 
     #[test]
     fn test_gte() {
-        let gte = Gte::new(vec![1, 2, 3]);
+        let gte = Gte::from(vec![1, 2, 3]);
         let query = Query::from(gte);
         let serialized = serde_json::to_value(&query).unwrap();
 

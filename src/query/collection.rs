@@ -3,7 +3,7 @@ use crate::{
     query::{basic::Lambda, Query},
 };
 
-query!(Append, Map, Drop);
+query!(Append, Map, Drop, Filter);
 
 /// The `Append` function creates a new array that is the result of combining the
 /// base Array followed by the `elems`.
@@ -57,6 +57,29 @@ impl<'a> Drop<'a> {
     pub fn new(drop: impl Into<Expr<'a>>, collection: impl Into<Expr<'a>>) -> Self {
         Self {
             drop: drop.into(),
+            collection: collection.into(),
+        }
+    }
+}
+
+/// The Filter function applies the Lambda to each member of the collection and
+/// returns a new collection of the same type containing only those elements for
+/// which the lambda returns true. Providing a lambda function which does not
+/// return a Boolean results in an "invalid argument" error. If a Page is
+/// passed, its decorated fields are preserved in the result.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/filter).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Filter<'a> {
+    filter: Expr<'a>,
+    collection: Expr<'a>,
+}
+
+impl<'a> Filter<'a> {
+    pub fn new(filter: Lambda<'a>, collection: impl Into<Expr<'a>>) -> Self {
+        Self {
+            filter: Expr::from(filter),
             collection: collection.into(),
         }
     }
@@ -139,6 +162,27 @@ mod tests {
 
         let expected = json!({
             "drop": 2,
+            "collection": [1, 2, 3],
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_filter() {
+        let fun = Filter::new(
+            Lambda::new("x", Gt::new(Var::new("x"), 2)),
+            Array::from(vec![1, 2, 3]),
+        );
+
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "filter": {
+                "lambda": "x",
+                "expr": {"gt": [{ "var": "x" }, 2]}
+            },
             "collection": [1, 2, 3],
         });
 

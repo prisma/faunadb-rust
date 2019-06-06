@@ -70,6 +70,7 @@ pub struct ClassData {
 pub enum Resource {
     Instance(InstanceData),
     Class(ClassData),
+    Array(Vec<Expr<'static>>),
     Expr(Expr<'static>),
 }
 
@@ -81,6 +82,7 @@ impl fmt::Display for Response {
                 "Instance(ref={},data={},ts={})",
                 res.reference, res.data, res.timestamp,
             ),
+            Response::Resource(Resource::Array(v)) => write!(f, "Array({:?})", v),
             Response::Resource(Resource::Class(res)) => match res.body {
                 Some(ref body) => write!(
                     f,

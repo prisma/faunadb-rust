@@ -23,11 +23,14 @@ fn main() {
     let secret = matches.value_of("secret").unwrap();
     let client = ClientBuilder::new(secret).build().unwrap();
 
-    let map = Call::new(Ref::function("double"), 5);
+    let fun = Filter::new(
+        Lambda::new("x", Gt::new(Var::new("x"), 2)),
+        Array::from(vec![1, 2, 3]),
+    );
 
     tokio::run(lazy(move || {
         client
-            .query(map)
+            .query(fun)
             .map(|response| {
                 println!("{}", response);
             })
