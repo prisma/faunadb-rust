@@ -1,4 +1,4 @@
-//! An asynchronous client for communicating with Fauna.
+//! Tools for communicating with Fauna.
 
 mod response;
 
@@ -12,7 +12,7 @@ pub use sync::*;
 
 use crate::{
     error::{Error, FaunaErrors},
-    query::Query,
+    expr::Expr,
     FaunaResult,
 };
 use futures::{future, stream::Stream, Future};
@@ -93,7 +93,7 @@ impl Client {
     /// Send a query to Fauna servers and parsing the response.
     pub fn query<'a, Q>(&self, query: Q) -> FutureResponse<Response>
     where
-        Q: Into<Query<'a>>,
+        Q: Into<Expr<'a>>,
     {
         let query = query.into();
         let payload_json = serde_json::to_string(&query).unwrap();

@@ -1,3 +1,4 @@
+//! Math functions
 use crate::{expr::Expr, query::Query};
 
 // Implements From<fun> for Query

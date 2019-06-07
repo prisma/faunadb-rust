@@ -1,3 +1,4 @@
+//! Collection functions
 use crate::{
     expr::Expr,
     query::{basic::Lambda, Query},

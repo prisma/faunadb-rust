@@ -1,3 +1,4 @@
+//! A Fauna expression that is either a value or a function that evaluates to a value.
 mod array;
 mod number;
 mod object;

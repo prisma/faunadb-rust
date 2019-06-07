@@ -3,12 +3,20 @@ use std::borrow::Cow;
 
 query!(CreateDatabase);
 
+/// The `CreateDatabase` function adds a new database to the cluster with the
+/// specified parameters.
+///
+/// It requires an admin key for authentication.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/createdatabase)
 #[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct CreateDatabase<'a> {
     create_database: DatabaseParams<'a>,
 }
 
 #[derive(Debug, Default, Serialize, Clone, Deserialize)]
+#[doc(hidden)]
 pub struct DatabaseParamsInternal<'a> {
     name: Cow<'a, str>,
     api_version: f64,

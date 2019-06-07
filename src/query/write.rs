@@ -1,3 +1,4 @@
+//! Write functions
 use crate::{
     expr::{Expr, Object, Ref},
     query::Query,

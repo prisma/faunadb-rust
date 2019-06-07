@@ -6,6 +6,19 @@ use std::borrow::Cow;
 
 boxed_query!(CreateIndex);
 
+/// The `CreateIndex` function adds a new index to the cluster with the specified
+/// parameters.
+///
+/// After the transaction containing the `CreateIndex` is completed,
+/// the index is immediately available for reads. (The index may not be used in
+/// the transaction it was created, and it may not be created in the same
+/// transaction as its source class(es).) The index may return incomplete
+/// results until it is fully built and marked as active. FaunaDB builds the
+/// index asynchronously by scanning over relevant instance objects of the
+/// source class(es).
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/createindex)
 #[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct CreateIndex<'a> {
     create_index: IndexParams<'a>,
@@ -20,12 +33,15 @@ impl<'a> CreateIndex<'a> {
 }
 
 #[derive(Debug, Serialize, Clone, Deserialize)]
+#[doc(hidden)]
 pub struct IndexField<'a>(Vec<Cow<'a, str>>);
 
 #[derive(Debug, Serialize, Clone, Deserialize)]
+#[doc(hidden)]
 pub struct IndexBinding<'a>(Cow<'a, str>);
 
 #[derive(Debug, Serialize, Clone, Deserialize)]
+#[doc(hidden)]
 pub enum TermObject<'a> {
     #[serde(rename = "field")]
     Field(IndexField<'a>),
@@ -33,12 +49,20 @@ pub enum TermObject<'a> {
     Binding(IndexBinding<'a>),
 }
 
+/// Term objects describe the fields used to locate entries in the index.
+///
+/// If multiple terms are provided, instances missing a value will emit a Null
+/// term in the index for that field.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/indexconfig#term-objects)
 #[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct Term<'a> {
     object: TermObject<'a>,
 }
 
 #[derive(Debug, Serialize, Clone, Deserialize)]
+#[doc(hidden)]
 pub struct ValueObject<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     field: Option<IndexField<'a>>,
@@ -47,12 +71,21 @@ pub struct ValueObject<'a> {
     reverse: bool,
 }
 
+/// Value objects describe the data covered by the index, which are included in
+/// query results on the index and control ordering of entries having the same
+/// terms.
+///
+/// By default, indexes cover only the refs of included instances.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/indexconfig#value-objects)
 #[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct Value<'a> {
     object: ValueObject<'a>,
 }
 
 #[derive(Debug, Serialize, Clone, Deserialize)]
+#[doc(hidden)]
 pub struct IndexParamsInternal<'a> {
     name: Cow<'a, str>,
     source: Expr<'a>,

@@ -5,16 +5,21 @@ use crate::{
 
 query!(Create);
 
-#[derive(Debug, Serialize, Clone, Deserialize)]
-struct CreateInfo<'a>(Expr<'a>);
-
+/// The `Create` function adds a new instance to a class.
+///
+/// The `class_ref` parameter indicates what class of instance should be
+/// created, while `params` contains the instance data and optional metadata.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/create)
 #[derive(Debug, Serialize, Clone, Deserialize)]
 pub struct Create<'a> {
-    create: CreateInfo<'a>,
+    create: Expr<'a>,
     params: InstanceParams<'a>,
 }
 
 #[derive(Debug, Serialize, Clone, Deserialize)]
+#[doc(hidden)]
 pub struct InstanceData<'a> {
     data: Expr<'a>,
 }

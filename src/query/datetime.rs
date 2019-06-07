@@ -1,7 +1,12 @@
+//! Time and date functions
 use crate::{expr::Expr, query::Query};
 
 query![Date, Epoch, Time];
 
+/// The `Date` function constructs a Date from an ISO 8601 formatted string.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/time_date/date)
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Date<'a> {
     date: Expr<'a>,
@@ -27,6 +32,14 @@ pub enum EpochUnit {
     Nanosecond,
 }
 
+/// The `Epoch` function constructs a Timestamp relative to the epoch
+/// (1970-01-01T00:00:00Z).
+///
+/// The num argument must be an integer value. Epoch adds num to offset defined
+/// in units and returns a timestamp.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/time_date/epoch)
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Epoch<'a> {
     epoch: Expr<'a>,
@@ -42,6 +55,16 @@ impl<'a> Epoch<'a> {
     }
 }
 
+/// The `Time` function constructs a Timestamp from an ISO 8601 string.
+///
+/// The special string now may be used to construct a time from the current
+/// request’s transaction time. Multiple references to now within the same
+/// transaction produce the same timestamp. The current transaction time is the
+/// same on all nodes that participate in the transaction. When doing a temporal
+/// query, now means the current time of the query, not the current time.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/time_date/time)
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Time<'a> {
     time: Expr<'a>,

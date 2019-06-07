@@ -1,3 +1,4 @@
+//! A special case of an expression that needs to be evaluated to a value.
 pub mod auth;
 pub mod basic;
 pub mod collection;

@@ -1,3 +1,4 @@
+//! Read functions
 use crate::{
     expr::{Array, Expr, Ref},
     query::Query,

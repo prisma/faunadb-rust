@@ -1,3 +1,4 @@
+//! Conversion functions
 use crate::{expr::Expr, query::Query};
 
 query![ToDate, ToNumber, ToString, ToTime];

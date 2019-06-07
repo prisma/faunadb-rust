@@ -1,3 +1,4 @@
+//! Miscellaneous functions
 use crate::{
     expr::{Expr, Ref},
     query::Query,

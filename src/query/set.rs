@@ -1,3 +1,4 @@
+//! Set functions
 use crate::{
     expr::{Array, Expr},
     query::Query,

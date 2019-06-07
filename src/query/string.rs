@@ -1,3 +1,4 @@
+//! String functions
 use crate::{expr::Expr, query::Query};
 
 query![
