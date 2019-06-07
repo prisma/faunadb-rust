@@ -1,6 +1,5 @@
 use clap::{App, Arg};
 use faunadb::prelude::*;
-use futures::{lazy, Future};
 
 fn main() {
     pretty_env_logger::init();

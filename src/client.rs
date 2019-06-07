@@ -2,7 +2,13 @@
 
 mod response;
 
+#[cfg(feature = "sync_client")]
+mod sync;
+
 pub use response::*;
+
+#[cfg(feature = "sync_client")]
+pub use sync::*;
 
 use crate::{
     error::{Error, FaunaErrors},
@@ -63,6 +69,11 @@ impl<'a> ClientBuilder<'a> {
             timeout: self.timeout,
             authorization: format!("Basic {}", secret_b64),
         })
+    }
+
+    #[cfg(feature = "sync_client")]
+    pub fn build_sync(self) -> FaunaResult<SyncClient> {
+        Ok(SyncClient::new(self.build()?)?)
     }
 }
 

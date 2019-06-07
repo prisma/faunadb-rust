@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["Julius de Bruijn <bruijn@prisma.io>"]
 edition = "2018"
 
+[features]
+sync_client = ["tokio"]
+
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
 serde = "1.0"
@@ -21,6 +24,7 @@ native-tls = "0.2"
 log = "0.4"
 http = "0.1"
 lazy_static = "1.3"
+tokio = { version = "0.1", optional = true }
 
 [dev-dependencies]
 clap = "2"

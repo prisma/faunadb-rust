@@ -23,6 +23,9 @@ pub enum Error {
     RequestDataFailure(&'static str),
     #[fail(display = "Temporary error wrapper for development, original: {}", _0)]
     TemporaryFailure(String),
+    #[cfg(feature = "sync_client")]
+    #[fail(display = "IO Error: {}", _0)]
+    IoError(failure::Error),
 }
 
 #[derive(Debug, Deserialize, Fail)]
@@ -51,5 +54,12 @@ impl From<native_tls::Error> for Error {
 impl From<http::uri::InvalidUri> for Error {
     fn from(e: http::uri::InvalidUri) -> Self {
         Error::ConfigurationError(e.into())
+    }
+}
+
+#[cfg(feature = "sync_client")]
+impl From<std::io::Error> for Error {
+    fn from(e: std::io::Error) -> Self {
+        Error::IoError(e.into())
     }
 }
