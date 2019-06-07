@@ -32,7 +32,7 @@ pub struct InstanceParams<'a> {
 impl<'a> Create<'a> {
     pub fn new(class_ref: Ref<'a>, params: InstanceParams<'a>) -> Self {
         Self {
-            create: CreateInfo(Expr::from(class_ref)),
+            create: Expr::from(class_ref),
             params,
         }
     }
