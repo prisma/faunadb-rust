@@ -101,6 +101,8 @@ pub enum Query<'a> {
     Get(read::Get<'a>),
     KeyFromSecret(read::KeyFromSecret<'a>),
     Paginate(read::Paginate<'a>),
+    Select(read::Select<'a>),
+    SelectAll(read::SelectAll<'a>),
 
     Abort(misc::Abort<'a>),
     Class(misc::Class<'a>),

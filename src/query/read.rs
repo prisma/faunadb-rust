@@ -1,10 +1,10 @@
 use crate::{
-    expr::{Expr, Ref},
+    expr::{Array, Expr, Ref},
     query::Query,
 };
 use chrono::{DateTime, Utc};
 
-query![Get, KeyFromSecret, Paginate];
+query![Get, KeyFromSecret, Paginate, Select, SelectAll];
 
 /// The `Get` function retrieves a single instance identified by `ref`.
 ///
@@ -144,6 +144,64 @@ impl<'a> Paginate<'a> {
     }
 }
 
+/// The `Select` function extracts a single value from a document.
+///
+/// It extracts the value specified by the `path` parameter out of the `from`
+/// parameter and returns the value.
+///
+/// If the path does not exist, the optional default object is returned. If the
+/// default object is not provided, an error is returned.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/read/select)
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Select<'a> {
+    select: Array<'a>,
+    from: Expr<'a>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    default: Option<Expr<'a>>,
+}
+
+impl<'a> Select<'a> {
+    pub fn new(select: impl Into<Array<'a>>, from: impl Into<Expr<'a>>) -> Self {
+        Self {
+            select: select.into(),
+            from: from.into(),
+            default: None,
+        }
+    }
+
+    /// The value to be returned if the path does not exists.
+    pub fn default(&mut self, default: impl Into<Expr<'a>>) -> &mut Self {
+        self.default = Some(default.into());
+        self
+    }
+}
+
+/// The `SelectAll` function extracts one or more values from a document.
+///
+/// It is very useful when extracting multiple values in an array. It extracts
+/// all of the values specified by the `path` parameter out of the `from` parameter
+/// and returns the values as an Array. If the path does not exist an empty
+/// array is returned.
+///
+/// Read the
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/read/selectall)
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SelectAll<'a> {
+    select_all: Array<'a>,
+    from: Expr<'a>,
+}
+
+impl<'a> SelectAll<'a> {
+    pub fn new(select: impl Into<Array<'a>>, from: impl Into<Expr<'a>>) -> Self {
+        Self {
+            select_all: select.into(),
+            from: from.into(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::prelude::*;
@@ -201,6 +259,55 @@ mod tests {
             "size": 64,
             "sources": false,
             "events": false,
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_select() {
+        let mut path = Array::from(vec!["favorites", "foods"]);
+        path.push(1);
+
+        let mut fun = Select::new(path, Get::instance(Ref::instance("musti")));
+        fun.default("Chicken hearts");
+
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "select": ["favorites", "foods", 1],
+            "from": {
+                "get": {
+                    "@ref": {
+                        "id": "musti"
+                    }
+                },
+            },
+            "default": "Chicken hearts"
+        });
+
+        assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_select_all() {
+        let mut path = Array::from(vec!["favorites", "foods"]);
+        path.push(1);
+
+        let fun = SelectAll::new(path, Get::instance(Ref::instance("naukio")));
+        let query = Query::from(fun);
+        let serialized = serde_json::to_value(&query).unwrap();
+
+        let expected = json!({
+            "select_all": ["favorites", "foods", 1],
+            "from": {
+                "get": {
+                    "@ref": {
+                        "id": "naukio"
+                    }
+                },
+            }
         });
 
         assert_eq!(expected, serialized);

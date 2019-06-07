@@ -30,8 +30,8 @@
 ** DONE NewId
 ** DONE KeyFromSecret
 ** DONE Paginate
-** TODO Select
-** TODO SelectAll
+** DONE Select
+** DONE SelectAll
 ** TODO Difference
 ** TODO Distinct
 ** TODO Intersection

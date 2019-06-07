@@ -12,6 +12,11 @@ impl<'a> Array<'a> {
         let reused = self.0.into_iter().map(|e| e.reuse()).collect();
         Array(reused)
     }
+
+    pub fn push(&mut self, e: impl Into<Expr<'a>>) -> &mut Self {
+        self.0.push(e.into());
+        self
+    }
 }
 
 impl<'a, E> From<Vec<E>> for Array<'a>
