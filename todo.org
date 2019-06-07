@@ -38,7 +38,7 @@
 ** DONE Join
 ** DONE Match
 ** DONE Union
-** TODO String (CaseFold, Concat, FindStr ... (16 functions))
+** DONE String (CaseFold, Concat, FindStr ... (16 functions))
 ** TODO Date
 ** TODO Epoch
 ** TODO Time

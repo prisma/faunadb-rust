@@ -7,6 +7,7 @@ pub mod math;
 pub mod misc;
 pub mod read;
 pub mod set;
+pub mod string;
 pub mod write;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -18,6 +19,23 @@ pub enum Query<'a> {
     Join(set::Join<'a>),
     Match(set::Match<'a>),
     Union(set::Union<'a>),
+
+    CaseFold(string::CaseFold<'a>),
+    Concat(string::Concat<'a>),
+    FindStr(string::FindStr<'a>),
+    FindStrRegex(string::FindStrRegex<'a>),
+    LTrim(string::LTrim<'a>),
+    Length(string::Length<'a>),
+    LowerCase(string::LowerCase<'a>),
+    RTrim(string::RTrim<'a>),
+    Repeat(string::Repeat<'a>),
+    ReplaceStr(string::ReplaceStr<'a>),
+    ReplaceStrRegex(string::ReplaceStrRegex<'a>),
+    Space(string::Space<'a>),
+    SubString(string::SubString<'a>),
+    TitleCase(string::TitleCase<'a>),
+    Trim(string::Trim<'a>),
+    UpperCase(string::UpperCase<'a>),
 
     HasIdentity(auth::HasIdentity<'a>),
     Identify(auth::Identify<'a>),
