@@ -489,13 +489,13 @@ mod tests {
 
     #[test]
     fn test_lowercase() {
-        let fun = LowerCase::new("I'M BIG");
+        let fun = LowerCase::new("I SCREAM AND I YELL AND YOU CAN'T STOP ME");
 
         let query = Query::from(fun);
         let serialized = serde_json::to_value(&query).unwrap();
 
         let expected = json!({
-            "lowercase": "I'M BIG",
+            "lowercase": "I SCREAM AND I YELL AND YOU CAN'T STOP ME",
         });
 
         assert_eq!(expected, serialized);
