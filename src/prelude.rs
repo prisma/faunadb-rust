@@ -3,6 +3,6 @@ pub use crate::{
     expr::*,
     query::{
         auth::*, basic::*, collection::*, conversion::*, logical::*, math::*, misc::*, read::*,
-        write::*, Query,
+        set::*, write::*, Query,
     },
 };

@@ -32,12 +32,12 @@
 ** DONE Paginate
 ** DONE Select
 ** DONE SelectAll
-** TODO Difference
-** TODO Distinct
-** TODO Intersection
-** TODO Join
-** TODO Match
-** TODO Union
+** DONE Difference
+** DONE Distinct
+** DONE Intersection
+** DONE Join
+** DONE Match
+** DONE Union
 ** TODO String (CaseFold, Concat, FindStr ... (16 functions))
 ** TODO Date
 ** TODO Epoch

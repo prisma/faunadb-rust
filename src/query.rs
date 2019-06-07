@@ -6,11 +6,19 @@ pub mod logical;
 pub mod math;
 pub mod misc;
 pub mod read;
+pub mod set;
 pub mod write;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Query<'a> {
+    Difference(set::Difference<'a>),
+    Distinct(set::Distinct<'a>),
+    Intersection(set::Intersection<'a>),
+    Join(set::Join<'a>),
+    Match(set::Match<'a>),
+    Union(set::Union<'a>),
+
     HasIdentity(auth::HasIdentity<'a>),
     Identify(auth::Identify<'a>),
     Identity(auth::Identity<'a>),
