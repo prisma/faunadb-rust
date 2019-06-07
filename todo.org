@@ -1,6 +1,6 @@
 #+TITLE: Todo
 
-* TODO Functions
+* DONE Functions
 ** DONE Lambda
 ** DONE At
 ** DONE Call
@@ -39,9 +39,9 @@
 ** DONE Match
 ** DONE Union
 ** DONE String (CaseFold, Concat, FindStr ... (16 functions))
-** TODO Date
-** TODO Epoch
-** TODO Time
+** DONE Date
+** DONE Epoch
+** DONE Time
 ** DONE CreateFunction
 ** DONE CreateKey
 ** DONE Insert

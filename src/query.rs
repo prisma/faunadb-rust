@@ -2,6 +2,7 @@ pub mod auth;
 pub mod basic;
 pub mod collection;
 pub mod conversion;
+pub mod datetime;
 pub mod logical;
 pub mod math;
 pub mod misc;
@@ -19,6 +20,10 @@ pub enum Query<'a> {
     Join(set::Join<'a>),
     Match(set::Match<'a>),
     Union(set::Union<'a>),
+
+    Date(datetime::Date<'a>),
+    Epoch(datetime::Epoch<'a>),
+    Time(datetime::Time<'a>),
 
     CaseFold(string::CaseFold<'a>),
     Concat(string::Concat<'a>),
