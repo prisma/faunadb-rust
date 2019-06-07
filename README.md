@@ -1,9 +1,12 @@
 # FaunaDB Rust Client
 
+FaunaDB offers an asynchronous (and synchronous) client for communicating with
+the [Fauna](https://fauna.com) database.
+
 Goals:
 
 - Typesafe
 - Allocating only when really needed
-- Asynchronous using futures
+- Asynchronous using futures (and [Tokio](https://tokio.rs))
 
-Is not done yet so do not use anywhere.
+The crate is not yet tested on production so use at your own risk.
