@@ -3,6 +3,13 @@ name = "faunadb"
 version = "0.0.1"
 authors = ["Julius de Bruijn <bruijn@prisma.io>"]
 edition = "2018"
+readme  = "README.md"
+license = "Apache-2.0"
+description = "A Client for Fauna Database"
+repository  = "https://github.com/prisma/faunadb-rust/"
+homepage    = "https://github.com/prisma/faunadb-rust/"
+keywords    = ["fauna", "faunadb", "database", "async"]
+documentation = "https://docs.rs/faunadb/"
 
 [features]
 default = ["sync_client"]
