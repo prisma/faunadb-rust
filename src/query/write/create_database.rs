@@ -19,7 +19,7 @@ pub struct CreateDatabase<'a> {
 #[doc(hidden)]
 pub struct DatabaseParamsInternal<'a> {
     name: Cow<'a, str>,
-    api_version: f64,
+    api_version: Cow<'a, str>,
     #[serde(skip_serializing_if = "Option::is_none")]
     data: Option<Object<'a>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -47,14 +47,14 @@ impl<'a> DatabaseParams<'a> {
         Self {
             object: DatabaseParamsInternal {
                 name: name.into(),
-                api_version: 2.0,
+                api_version: Cow::from("2.0"),
                 ..Default::default()
             },
         }
     }
 
-    pub fn api_version(&mut self, version: f64) -> &mut Self {
-        self.object.api_version = version;
+    pub fn api_version(&mut self, version: impl Into<Cow<'a, str>>) -> &mut Self {
+        self.object.api_version = version.into();
         self
     }
 
@@ -93,7 +93,7 @@ mod tests {
             "create_database": {
                 "object": {
                     "name": "test",
-                    "api_version": 2.0,
+                    "api_version": "2.0",
                     "priority": 10,
                 }
             }
