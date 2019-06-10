@@ -15,7 +15,7 @@ boxed_query!(CreateClass);
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/createclass).
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct CreateClass<'a> {
     create_class: ClassParams<'a>,
 }
@@ -28,7 +28,7 @@ impl<'a> CreateClass<'a> {
     }
 }
 
-#[derive(Debug, Default, Serialize, Clone, Deserialize)]
+#[derive(Debug, Default, Serialize, Clone)]
 struct ClassParamsInternal<'a> {
     name: Cow<'a, str>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -39,7 +39,7 @@ struct ClassParamsInternal<'a> {
     permissions: Option<ClassPermission<'a>>,
 }
 
-#[derive(Debug, Default, Serialize, Clone, Deserialize)]
+#[derive(Debug, Default, Serialize, Clone)]
 pub struct ClassParams<'a> {
     object: ClassParamsInternal<'a>,
 }

@@ -1,4 +1,4 @@
-use crate::expr::Expr;
+use crate::client::Resource;
 use failure::{self, Fail};
 
 #[derive(Debug, Fail)]
@@ -21,6 +21,8 @@ pub enum Error {
     NotFound(FaunaErrors),
     #[fail(display = "Request data failure: {}", _0)]
     RequestDataFailure(&'static str),
+    #[fail(display = "Response data failure: {}", _0)]
+    ResponseDataFailure(&'static str),
     #[fail(display = "Temporary error wrapper for development, original: {}", _0)]
     TemporaryFailure(String),
     #[cfg(feature = "sync_client")]
@@ -40,7 +42,7 @@ pub struct FaunaErrors {
     position, code, description
 )]
 pub struct FaunaError {
-    pub position: Vec<Expr<'static>>,
+    pub position: Vec<Resource>,
     pub code: String,
     pub description: String,
 }

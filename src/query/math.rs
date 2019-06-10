@@ -12,7 +12,7 @@ query![
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/abs)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Abs<'a> {
     abs: Expr<'a>,
 }
@@ -29,16 +29,14 @@ impl<'a> Abs<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/acos)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Acos<'a> {
     acos: Expr<'a>,
 }
 
 impl<'a> Acos<'a> {
     pub fn new(acos: impl Into<Expr<'a>>) -> Self {
-        Self {
-            acos: Expr::from(acos.into()),
-        }
+        Self { acos: acos.into() }
     }
 }
 
@@ -46,7 +44,7 @@ impl<'a> Acos<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/add)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Add<'a> {
     add: Expr<'a>,
 }
@@ -63,7 +61,7 @@ impl<'a> Add<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/asin)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Asin<'a> {
     asin: Expr<'a>,
 }
@@ -80,7 +78,7 @@ impl<'a> Asin<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/atan)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Atan<'a> {
     atan: Expr<'a>,
 }
@@ -98,7 +96,7 @@ impl<'a> Atan<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/bitand)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct BitAnd<'a> {
     bitand: Expr<'a>,
 }
@@ -117,7 +115,7 @@ impl<'a> BitAnd<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/bitnot)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct BitNot<'a> {
     bitnot: Expr<'a>,
 }
@@ -137,7 +135,7 @@ impl<'a> BitNot<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/bitor)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct BitOr<'a> {
     bitor: Expr<'a>,
 }
@@ -157,7 +155,7 @@ impl<'a> BitOr<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/bitxor)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct BitXor<'a> {
     bitxor: Expr<'a>,
 }
@@ -175,7 +173,7 @@ impl<'a> BitXor<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/ceil)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Ceil<'a> {
     ceil: Expr<'a>,
 }
@@ -192,7 +190,7 @@ impl<'a> Ceil<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/cos)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Cos<'a> {
     cos: Expr<'a>,
 }
@@ -209,7 +207,7 @@ impl<'a> Cos<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/cosh)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Cosh<'a> {
     cosh: Expr<'a>,
 }
@@ -226,7 +224,7 @@ impl<'a> Cosh<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/degrees)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Degrees<'a> {
     degrees: Expr<'a>,
 }
@@ -248,7 +246,7 @@ impl<'a> Degrees<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/divide)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Divide<'a> {
     divide: Expr<'a>,
 }
@@ -266,7 +264,7 @@ impl<'a> Divide<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/exp)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Exp<'a> {
     exp: Expr<'a>,
 }
@@ -282,7 +280,7 @@ impl<'a> Exp<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/floor)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Floor<'a> {
     floor: Expr<'a>,
 }
@@ -300,7 +298,7 @@ impl<'a> Floor<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/hypot)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Hypot<'a> {
     hypot: Expr<'a>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -328,7 +326,7 @@ impl<'a> Hypot<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/ln)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Ln<'a> {
     ln: Expr<'a>,
 }
@@ -343,7 +341,7 @@ impl<'a> Ln<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/log)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Log<'a> {
     log: Expr<'a>,
 }
@@ -358,7 +356,7 @@ impl<'a> Log<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/max)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Max<'a> {
     max: Expr<'a>,
 }
@@ -373,7 +371,7 @@ impl<'a> Max<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/min)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Min<'a> {
     min: Expr<'a>,
 }
@@ -396,7 +394,7 @@ impl<'a> Min<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/modulo)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Modulo<'a> {
     modulo: Expr<'a>,
 }
@@ -418,7 +416,7 @@ impl<'a> Modulo<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/multiply)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Multiply<'a> {
     multiply: Expr<'a>,
 }
@@ -436,7 +434,7 @@ impl<'a> Multiply<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/pow)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Pow<'a> {
     pow: Expr<'a>,
     exp: Expr<'a>,
@@ -459,7 +457,7 @@ impl<'a> Pow<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/radians)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Radians<'a> {
     radians: Expr<'a>,
 }
@@ -477,7 +475,7 @@ impl<'a> Radians<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/round)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Round<'a> {
     round: Expr<'a>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -508,7 +506,7 @@ impl<'a> Round<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/sign)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Sign<'a> {
     sign: Expr<'a>,
 }
@@ -526,7 +524,7 @@ impl<'a> Sign<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/sin)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Sin<'a> {
     sin: Expr<'a>,
 }
@@ -541,7 +539,7 @@ impl<'a> Sin<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/sinh)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Sinh<'a> {
     sinh: Expr<'a>,
 }
@@ -556,7 +554,7 @@ impl<'a> Sinh<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/sqrt)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Sqrt<'a> {
     sqrt: Expr<'a>,
 }
@@ -571,7 +569,7 @@ impl<'a> Sqrt<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/subtract)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Subtract<'a> {
     subtract: Expr<'a>,
 }
@@ -590,7 +588,7 @@ impl<'a> Subtract<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/tan)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Tan<'a> {
     tan: Expr<'a>,
 }
@@ -605,7 +603,7 @@ impl<'a> Tan<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/tanh)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Tanh<'a> {
     tanh: Expr<'a>,
 }
@@ -622,7 +620,7 @@ impl<'a> Tanh<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/math/round)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Trunc<'a> {
     trunc: Expr<'a>,
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -11,7 +11,7 @@ boxed_query!(CreateFunction);
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/createfunction).
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct CreateFunction<'a> {
     create_function: FunctionParams<'a>,
 }
@@ -24,7 +24,7 @@ impl<'a> CreateFunction<'a> {
     }
 }
 
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 struct FunctionParamsInternal<'a> {
     name: Cow<'a, str>,
     body: Expr<'a>,
@@ -32,7 +32,7 @@ struct FunctionParamsInternal<'a> {
     data: Option<Expr<'a>>,
 }
 
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct FunctionParams<'a> {
     object: FunctionParamsInternal<'a>,
 }

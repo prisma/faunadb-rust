@@ -12,16 +12,14 @@ query![HasIdentity, Identify, Identity, Login, Logout];
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/authentication/hasidentity).
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug, Default)]
 pub struct HasIdentity<'a> {
     has_identity: Expr<'a>,
 }
 
 impl<'a> HasIdentity<'a> {
     pub fn new() -> Self {
-        Self {
-            has_identity: Expr::null(),
-        }
+        Self::default()
     }
 }
 
@@ -31,7 +29,7 @@ impl<'a> HasIdentity<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/authentication/identify).
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct Identify<'a> {
     identify: Expr<'a>,
     password: Expr<'a>,
@@ -52,16 +50,14 @@ impl<'a> Identify<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/authentication/identity).
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug, Default)]
 pub struct Identity<'a> {
     identity: Expr<'a>,
 }
 
 impl<'a> Identity<'a> {
     pub fn new() -> Self {
-        Self {
-            identity: Expr::null(),
-        }
+        Self::default()
     }
 }
 
@@ -70,19 +66,19 @@ impl<'a> Identity<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/authentication/login).
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct Login<'a> {
     login: Expr<'a>,
     params: LoginParams<'a>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 #[doc(hidden)]
 pub struct LoginObject<'a> {
     password: Expr<'a>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 #[doc(hidden)]
 pub struct LoginParams<'a> {
     object: LoginObject<'a>,
@@ -106,7 +102,7 @@ impl<'a> Login<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/authentication/logout).
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct Logout<'a> {
     logout: Expr<'a>,
 }

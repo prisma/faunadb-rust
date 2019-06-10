@@ -1,7 +1,7 @@
 use crate::expr::{Expr, Ref};
 use std::fmt;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Set<'a> {
     #[serde(rename = "match")]
     matching: Expr<'a>,

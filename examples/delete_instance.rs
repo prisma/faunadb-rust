@@ -30,17 +30,20 @@ fn main() {
         .get_matches();
 
     let secret = matches.value_of("secret").unwrap();
-    let client = ClientBuilder::new(secret).build().unwrap();
+
+    let mut builder = ClientBuilder::new(secret);
+    builder.uri("http://localhost:8443");
+    let client = builder.build().unwrap();
 
     tokio::run(lazy(move || {
-        let instance = Ref::function(matches.value_of("id").unwrap());
+        let instance = Ref::database(matches.value_of("id").unwrap());
 
         let query = Delete::new(instance);
 
         client
             .query(query)
             .map(|response| {
-                println!("{}", response);
+                println!("{:?}", response);
             })
             .map_err(|error: faunadb::error::Error| {
                 println!("Error: {:?}", error);

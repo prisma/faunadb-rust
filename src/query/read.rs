@@ -15,7 +15,7 @@ query![Get, KeyFromSecret, Paginate, Select, SelectAll];
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/read/get)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Get<'a> {
     get: Expr<'a>,
     #[serde(rename = "ts", skip_serializing_if = "Option::is_none")]
@@ -40,7 +40,7 @@ impl<'a> Get<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/read/keyfromsecret)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct KeyFromSecret<'a> {
     key_from_secret: Expr<'a>,
 }
@@ -62,7 +62,7 @@ impl<'a> KeyFromSecret<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/read/paginate)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Paginate<'a> {
     paginate: Expr<'a>,
     size: u32,
@@ -155,7 +155,7 @@ impl<'a> Paginate<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/read/select)
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Select<'a> {
     select: Array<'a>,
     from: Expr<'a>,
@@ -188,7 +188,7 @@ impl<'a> Select<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/read/selectall)
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct SelectAll<'a> {
     select_all: Array<'a>,
     from: Expr<'a>,

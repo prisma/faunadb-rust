@@ -1,11 +1,11 @@
 use crate::{
     error::Error,
-    expr::{Expr, Object},
-    serde::ts_microseconds,
+    expr::{Bytes, Ref},
+    serde::base64_bytes,
 };
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
 use futures::{Future, Poll};
-use std::fmt;
+use std::collections::BTreeMap;
 
 pub struct FutureResponse<T>(pub Box<Future<Item = T, Error = Error> + Send + 'static>);
 
@@ -18,84 +18,43 @@ impl<T> Future for FutureResponse<T> {
     }
 }
 
-#[derive(Deserialize, Debug)]
-pub enum Response {
-    #[serde(rename = "resource")]
-    Resource(Resource),
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum SimpleValue {
+    String(String),
+    UInt(u64),
+    Int(i64),
+    Double(f64),
+    Boolean(bool),
+    Array(Vec<SimpleValue>),
+    Object(BTreeMap<String, Resource>),
+    Null,
 }
 
-impl Response {
-    /// Take the data object if exists from the response.
-    pub fn take_data(self) -> Option<Object<'static>> {
-        match self {
-            Response::Resource(Resource::Instance(inst)) => Some(inst.data.reuse()),
-            _ => None,
-        }
-    }
-
-    pub fn clone_data(&self) -> Option<Object<'static>> {
-        match self {
-            Response::Resource(Resource::Instance(ref inst)) => Some(inst.data.clone().reuse()),
-            _ => None,
-        }
-    }
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub enum AnnotatedValue {
+    #[serde(rename = "@ref")]
+    Ref(Box<Ref<'static>>),
+    #[serde(rename = "@query")]
+    Query(Box<Resource>),
+    #[serde(rename = "@bytes", with = "base64_bytes")]
+    Bytes(Bytes<'static>),
+    #[serde(rename = "@date")]
+    Date(NaiveDate),
+    #[serde(rename = "@set")]
+    Set(Box<Resource>),
+    #[serde(rename = "@ts")]
+    Timestamp(DateTime<Utc>),
 }
 
-#[derive(Deserialize, Debug)]
-pub struct InstanceData {
-    #[serde(rename = "ref")]
-    pub reference: Expr<'static>,
-    #[serde(with = "ts_microseconds", rename = "ts")]
-    pub timestamp: DateTime<Utc>,
-    data: Object<'static>,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct ClassData {
-    #[serde(rename = "ref")]
-    pub reference: Expr<'static>,
-    #[serde(with = "ts_microseconds", rename = "ts")]
-    pub timestamp: DateTime<Utc>,
-    pub name: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub history_days: Option<u64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ttl_days: Option<u64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub body: Option<Expr<'static>>,
-}
-
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum Resource {
-    Instance(InstanceData),
-    Class(ClassData),
-    Array(Vec<Expr<'static>>),
-    Expr(Expr<'static>),
+    Annotated(AnnotatedValue),
+    Simple(SimpleValue),
 }
 
-impl fmt::Display for Response {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Response::Resource(Resource::Instance(res)) => write!(
-                f,
-                "Instance(ref={},data={},ts={})",
-                res.reference, res.data, res.timestamp,
-            ),
-            Response::Resource(Resource::Array(v)) => write!(f, "Array({:?})", v),
-            Response::Resource(Resource::Class(res)) => match res.body {
-                Some(ref body) => write!(
-                    f,
-                    "Class(ref={},name={},history={:?},ttl={:?},ts={},body={})",
-                    res.reference, res.name, res.history_days, res.ttl_days, res.timestamp, body
-                ),
-                None => write!(
-                    f,
-                    "Class(ref={},name={},history={:?},ttl={:?},ts={})",
-                    res.reference, res.name, res.history_days, res.ttl_days, res.timestamp
-                ),
-            },
-            Response::Resource(Resource::Expr(res)) => write!(f, "Expr({})", res,),
-        }
-    }
+#[derive(Deserialize, Debug)]
+pub struct Response {
+    pub resource: Resource,
 }

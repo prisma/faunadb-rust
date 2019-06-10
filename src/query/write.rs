@@ -25,7 +25,7 @@ pub use update::*;
 
 query![Delete, Remove, Replace];
 
-#[derive(Serialize, Debug, Clone, Deserialize, Copy)]
+#[derive(Serialize, Debug, Clone, Copy)]
 pub enum Action {
     #[serde(rename = "create")]
     Create,
@@ -40,7 +40,7 @@ pub enum Action {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/delete)
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Delete<'a> {
     delete: Expr<'a>,
 }
@@ -61,7 +61,7 @@ impl<'a> Delete<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/remove)
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Remove<'a> {
     remove: Expr<'a>,
     #[serde(rename = "ts")]
@@ -85,7 +85,7 @@ impl<'a> Remove<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/replace)
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Replace<'a> {
     replace: Expr<'a>,
     params: Expr<'a>,

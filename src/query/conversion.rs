@@ -10,7 +10,7 @@ query![ToDate, ToNumber, ToString, ToTime];
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/conversion/todate).
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct ToDate<'a> {
     to_date: Expr<'a>,
 }
@@ -30,7 +30,7 @@ impl<'a> ToDate<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/conversion/tonumber).
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct ToNumber<'a> {
     to_number: Expr<'a>,
 }
@@ -50,7 +50,7 @@ impl<'a> ToNumber<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/conversion/tostring).
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct ToString<'a> {
     to_string: Expr<'a>,
 }
@@ -70,7 +70,7 @@ impl<'a> ToString<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/conversion/totime).
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct ToTime<'a> {
     to_time: Expr<'a>,
 }

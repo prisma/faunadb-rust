@@ -28,7 +28,7 @@
 //!         client
 //!             .query(query)
 //!             .map(|response| {
-//!                 println!("{}", response);
+//!                 println!("{:#?}", response);
 //!             })
 //!             .map_err(|error: faunadb::error::Error| {
 //!                 println!("Error: {:#?}", error);
@@ -51,7 +51,7 @@
 //!     );
 //!
 //!     match client.query(query) {
-//!         Ok(response) => println!("{}", response),
+//!         Ok(response) => println!("{:#?}", response),
 //!         Err(error) => println!("Error: {:#?}", error),
 //!     }
 //! }

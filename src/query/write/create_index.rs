@@ -19,7 +19,7 @@ boxed_query!(CreateIndex);
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/createindex)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct CreateIndex<'a> {
     create_index: IndexParams<'a>,
 }
@@ -32,15 +32,15 @@ impl<'a> CreateIndex<'a> {
     }
 }
 
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 #[doc(hidden)]
 pub struct IndexField<'a>(Vec<Cow<'a, str>>);
 
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 #[doc(hidden)]
 pub struct IndexBinding<'a>(Cow<'a, str>);
 
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 #[doc(hidden)]
 pub enum TermObject<'a> {
     #[serde(rename = "field")]
@@ -56,12 +56,12 @@ pub enum TermObject<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/indexconfig#term-objects)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Term<'a> {
     object: TermObject<'a>,
 }
 
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 #[doc(hidden)]
 pub struct ValueObject<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -79,12 +79,12 @@ pub struct ValueObject<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/indexconfig#value-objects)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Value<'a> {
     object: ValueObject<'a>,
 }
 
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 #[doc(hidden)]
 pub struct IndexParamsInternal<'a> {
     name: Cow<'a, str>,
@@ -104,7 +104,7 @@ pub struct IndexParamsInternal<'a> {
     data: Option<Expr<'a>>,
 }
 
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct IndexParams<'a> {
     object: IndexParamsInternal<'a>,
 }

@@ -15,7 +15,7 @@ query![Abort, Class, Classes, Database, Databases, Function, Functions, Index, I
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/abort)
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Abort<'a> {
     abort: Expr<'a>,
 }
@@ -30,7 +30,7 @@ impl<'a> Abort<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/class)
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Class<'a> {
     class: Expr<'a>,
 }
@@ -49,7 +49,7 @@ impl<'a> Class<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/classes)
-#[derive(Serialize, Debug, Clone, Default, Deserialize)]
+#[derive(Serialize, Debug, Clone, Default)]
 pub struct Classes<'a> {
     classes: Option<Expr<'a>>,
 }
@@ -70,7 +70,7 @@ impl<'a> Classes<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/function)
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Function<'a> {
     function: Expr<'a>,
 }
@@ -91,7 +91,7 @@ impl<'a> Function<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/functions)
-#[derive(Serialize, Debug, Clone, Default, Deserialize)]
+#[derive(Serialize, Debug, Clone, Default)]
 pub struct Functions<'a> {
     functions: Option<Expr<'a>>,
 }
@@ -112,7 +112,7 @@ impl<'a> Functions<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/database)
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Database<'a> {
     database: Expr<'a>,
 }
@@ -133,7 +133,7 @@ impl<'a> Database<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/databases)
-#[derive(Serialize, Debug, Clone, Default, Deserialize)]
+#[derive(Serialize, Debug, Clone, Default)]
 pub struct Databases<'a> {
     databases: Option<Expr<'a>>,
 }
@@ -154,7 +154,7 @@ impl<'a> Databases<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/index)
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Index<'a> {
     index: Expr<'a>,
 }
@@ -173,7 +173,7 @@ impl<'a> Index<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/databases)
-#[derive(Serialize, Debug, Clone, Default, Deserialize)]
+#[derive(Serialize, Debug, Clone, Default)]
 pub struct Indexes<'a> {
     indexes: Option<Expr<'a>>,
 }
@@ -198,16 +198,14 @@ impl<'a> Indexes<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/misc/newid)
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone, Default)]
 pub struct NewId<'a> {
     new_id: Expr<'a>,
 }
 
 impl<'a> NewId<'a> {
     pub fn new() -> Self {
-        Self {
-            new_id: Expr::null(),
-        }
+        Self::default()
     }
 }
 

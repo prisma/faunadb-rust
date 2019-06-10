@@ -16,18 +16,18 @@ query!(Update);
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/update)
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Update<'a> {
     update: Expr<'a>,
     params: UpdateParams<'a>,
 }
 
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone)]
 pub struct UpdateParams<'a> {
     object: UpdateObject<'a>,
 }
 
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone)]
 #[doc(hidden)]
 pub struct UpdateObject<'a> {
     data: Expr<'a>,

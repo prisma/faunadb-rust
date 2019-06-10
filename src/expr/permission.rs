@@ -1,20 +1,20 @@
 use crate::expr::{Expr, Ref};
 
-#[derive(Serialize, Deserialize, Clone, Copy, Debug)]
+#[derive(Serialize, Clone, Copy, Debug)]
 #[doc(hidden)]
 pub enum SimpleLevel {
     #[serde(rename = "public")]
     Public,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 #[serde(untagged)]
 #[doc(hidden)]
 pub enum AnnotatedLevel<'a> {
     Reference(Expr<'a>),
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 #[serde(untagged)]
 /// Permission level definition.
 pub enum Level<'a> {
@@ -39,7 +39,7 @@ impl<'a> Level<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+#[derive(Serialize, Clone, Debug, Default)]
 #[doc(hidden)]
 pub struct ClassPermissionObject<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -50,7 +50,7 @@ pub struct ClassPermissionObject<'a> {
     write: Option<Level<'a>>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+#[derive(Serialize, Clone, Debug, Default)]
 /// Creating, reading, and modifying an instance in a class is controlled by the
 /// class’s permissions.
 ///
@@ -79,7 +79,7 @@ impl<'a> ClassPermission<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone, Default)]
 #[doc(hidden)]
 pub struct InstancePermissionObject<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -90,7 +90,7 @@ pub struct InstancePermissionObject<'a> {
     write: Option<Level<'a>>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone, Default)]
 /// An instance also has permissions, which are applied in addition to
 /// permissions defined on its class.
 ///
@@ -113,7 +113,7 @@ impl<'a> InstancePermission<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone, Default)]
 #[doc(hidden)]
 pub struct FunctionPermissionObject<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -121,7 +121,7 @@ pub struct FunctionPermissionObject<'a> {
     call: Option<Level<'a>>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone, Default)]
 /// Calling a function is controlled by its permissions.
 ///
 /// See the [docs](https://docs.fauna.com/fauna/current/reference/security#instance-permissions)
@@ -137,7 +137,7 @@ impl<'a> FunctionPermission<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone, Default)]
 #[doc(hidden)]
 pub struct IndexPermissionObject<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -145,7 +145,7 @@ pub struct IndexPermissionObject<'a> {
     read: Option<Level<'a>>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Debug, Clone, Default)]
 /// Query access to an index is controlled by its permissions.
 ///
 /// See the [docs](https://docs.fauna.com/fauna/current/reference/security#instance-permissions)

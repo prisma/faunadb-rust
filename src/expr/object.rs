@@ -1,7 +1,7 @@
 use crate::expr::Expr;
 use std::{borrow::Cow, collections::BTreeMap, fmt};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Clone, Default)]
 pub struct Object<'a>(pub(crate) BTreeMap<Cow<'a, str>, Expr<'a>>);
 
 impl<'a> From<BTreeMap<Cow<'a, str>, Expr<'a>>> for Object<'a> {

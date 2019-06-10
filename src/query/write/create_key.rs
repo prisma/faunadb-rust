@@ -5,7 +5,7 @@ use crate::{
 
 boxed_query!(CreateKey);
 
-#[derive(Debug, Serialize, Clone, Deserialize, Copy)]
+#[derive(Debug, Serialize, Clone, Copy)]
 pub enum Role {
     #[serde(rename = "admin")]
     Admin,
@@ -22,7 +22,7 @@ pub enum Role {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/createkey)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct CreateKey<'a> {
     create_key: KeyParams<'a>,
 }
@@ -33,7 +33,7 @@ impl<'a> CreateKey<'a> {
     }
 }
 
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 #[doc(hidden)]
 pub struct KeyParamsInternal<'a> {
     database: Expr<'a>,
@@ -43,7 +43,7 @@ pub struct KeyParamsInternal<'a> {
     data: Option<Expr<'a>>,
 }
 
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct KeyParams<'a> {
     object: KeyParamsInternal<'a>,
 }

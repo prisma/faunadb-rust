@@ -4,14 +4,14 @@ use crate::{
 };
 use chrono::{DateTime, Utc};
 
-query!(Insert);
+boxed_query!(Insert);
 
 /// The Insert function adds an event to an instance’s history at a specified
 /// timestamp.
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/insert)
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Insert<'a> {
     insert: Expr<'a>,
     #[serde(rename = "ts")]
@@ -20,12 +20,12 @@ pub struct Insert<'a> {
     params: InsertParams<'a>,
 }
 
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone)]
 pub struct InsertParams<'a> {
     object: InsertObject<'a>,
 }
 
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone)]
 #[doc(hidden)]
 pub struct InsertObject<'a> {
     data: Expr<'a>,

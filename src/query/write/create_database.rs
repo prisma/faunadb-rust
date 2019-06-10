@@ -10,12 +10,12 @@ query!(CreateDatabase);
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/createdatabase)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct CreateDatabase<'a> {
     create_database: DatabaseParams<'a>,
 }
 
-#[derive(Debug, Default, Serialize, Clone, Deserialize)]
+#[derive(Debug, Default, Serialize, Clone)]
 #[doc(hidden)]
 pub struct DatabaseParamsInternal<'a> {
     name: Cow<'a, str>,
@@ -26,7 +26,7 @@ pub struct DatabaseParamsInternal<'a> {
     priority: Option<u16>,
 }
 
-#[derive(Debug, Default, Serialize, Clone, Deserialize)]
+#[derive(Debug, Default, Serialize, Clone)]
 pub struct DatabaseParams<'a> {
     object: DatabaseParamsInternal<'a>,
 }
@@ -78,11 +78,11 @@ impl<'a> DatabaseParams<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::prelude::*;
     use serde_json::{self, json};
 
     #[test]
-    fn test_create_database() {
+    fn test_create_database_expr() {
         let mut params = DatabaseParams::new("test");
         params.priority(10).unwrap();
 

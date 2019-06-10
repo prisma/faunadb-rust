@@ -1,7 +1,7 @@
 use super::Expr;
 use std::borrow::Cow;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Array<'a>(pub Vec<Expr<'a>>);
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

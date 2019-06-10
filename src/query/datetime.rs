@@ -7,7 +7,7 @@ query![Date, Epoch, Time];
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/time_date/date)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct Date<'a> {
     date: Expr<'a>,
 }
@@ -20,7 +20,7 @@ impl<'a> Date<'a> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, Copy)]
+#[derive(Serialize, Clone, Debug, Copy)]
 pub enum EpochUnit {
     #[serde(rename = "second")]
     Second,
@@ -40,7 +40,7 @@ pub enum EpochUnit {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/time_date/epoch)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct Epoch<'a> {
     epoch: Expr<'a>,
     unit: EpochUnit,
@@ -65,7 +65,7 @@ impl<'a> Epoch<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/time_date/time)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct Time<'a> {
     time: Expr<'a>,
 }

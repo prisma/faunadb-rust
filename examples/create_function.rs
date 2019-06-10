@@ -35,7 +35,7 @@ fn main() {
         client
             .query(CreateFunction::new(params))
             .map(|response| {
-                println!("{}", response);
+                println!("{:?}", response);
             })
             .map_err(|error: faunadb::error::Error| {
                 println!("Error: {:#?}", error);

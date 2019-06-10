@@ -12,7 +12,7 @@ pub mod set;
 pub mod string;
 pub mod write;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(untagged)]
 pub enum Query<'a> {
     Difference(set::Difference<'a>),
@@ -124,7 +124,7 @@ pub enum Query<'a> {
     CreateFunction(Box<write::CreateFunction<'a>>),
     CreateKey(Box<write::CreateKey<'a>>),
     Create(write::Create<'a>),
-    Insert(write::Insert<'a>),
+    Insert(Box<write::Insert<'a>>),
     Delete(write::Delete<'a>),
     Remove(write::Remove<'a>),
     Replace(write::Replace<'a>),

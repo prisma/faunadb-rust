@@ -76,7 +76,7 @@ fn main() {
         let class_query = client.query(CreateClass::new(params));
 
         let query = class_query.and_then(|res| {
-            println!("{}", res);
+            println!("{:?}", res);
             instance_query
         });
 
@@ -88,7 +88,7 @@ fn main() {
     tokio::run(lazy(move || {
         query
             .map(|response| {
-                println!("{}", response);
+                println!("{:?}", response);
             })
             .map_err(|error: faunadb::error::Error| {
                 println!("Error: {:#?}", error);

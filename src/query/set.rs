@@ -11,7 +11,7 @@ query![Difference, Distinct, Intersection, Join, Match, Union];
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/set/difference)
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Difference<'a> {
     difference: Array<'a>,
 }
@@ -48,7 +48,7 @@ where
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/set/distinct)
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Distinct<'a> {
     distinct: Expr<'a>,
 }
@@ -64,7 +64,7 @@ impl<'a> Distinct<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/set/intersection)
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Intersection<'a> {
     intersection: Array<'a>,
 }
@@ -101,7 +101,7 @@ where
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/set/intersection)
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Join<'a> {
     join: Expr<'a>,
     with: Expr<'a>,
@@ -131,7 +131,7 @@ impl<'a> Join<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/set/match)
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Match<'a> {
     #[serde(rename = "match")]
     match_: Expr<'a>,
@@ -151,7 +151,7 @@ impl<'a> Match<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/set/union)
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Union<'a> {
     union: Array<'a>,
 }

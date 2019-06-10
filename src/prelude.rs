@@ -1,5 +1,5 @@
 pub use crate::{
-    client::{Client, ClientBuilder, FutureResponse},
+    client::*,
     expr::*,
     query::{
         auth::*, basic::*, collection::*, conversion::*, datetime::*, logical::*, math::*, misc::*,

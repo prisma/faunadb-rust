@@ -21,7 +21,7 @@ query![At, Call, If, Do, Let, Var, Lambda];
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/at);
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct At<'a> {
     #[serde(rename = "at")]
     timestamp: Expr<'a>,
@@ -47,7 +47,7 @@ impl<'a> At<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/call);
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Call<'a> {
     call: Expr<'a>,
     arguments: Expr<'a>,
@@ -72,7 +72,7 @@ impl<'a> Call<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/if);
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct If<'a> {
     #[serde(rename = "if")]
     cond: Expr<'a>,
@@ -114,7 +114,7 @@ impl<'a> If<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/do).
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Do<'a> {
     #[serde(rename = "do")]
     queries: Vec<Expr<'a>>,
@@ -151,7 +151,7 @@ impl<'a> Do<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/lambda).
-#[derive(Serialize, Debug, Clone, Deserialize)]
+#[derive(Serialize, Debug, Clone)]
 pub struct Lambda<'a> {
     #[serde(rename = "lambda")]
     params: Expr<'a>,
@@ -178,7 +178,7 @@ impl<'a> Lambda<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/let).
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Let<'a> {
     #[serde(rename = "let")]
     bindings: BTreeMap<Cow<'a, str>, Expr<'a>>,
@@ -187,7 +187,7 @@ pub struct Let<'a> {
 }
 
 /// A single binding to be used in a `Let` query.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Binding<'a>(Cow<'a, str>, Expr<'a>);
 
 impl<'a> Binding<'a> {
@@ -225,7 +225,7 @@ impl<'a> Let<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/basic/var)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Var<'a> {
     var: Cow<'a, str>,
 }

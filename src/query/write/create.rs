@@ -12,19 +12,19 @@ query!(Create);
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/write/create)
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct Create<'a> {
     create: Expr<'a>,
     params: InstanceParams<'a>,
 }
 
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 #[doc(hidden)]
 pub struct InstanceData<'a> {
     data: Expr<'a>,
 }
 
-#[derive(Debug, Serialize, Clone, Deserialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct InstanceParams<'a> {
     object: InstanceData<'a>,
 }

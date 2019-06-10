@@ -14,7 +14,7 @@ query![Append, Drop, Filter, Foreach, IsEmpty, IsNonEmpty, Map, Prepend, Take];
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/append).
-#[derive(Serialize, Clone, Debug, Deserialize)]
+#[derive(Serialize, Clone, Debug)]
 pub struct Append<'a> {
     append: Expr<'a>,
     collection: Expr<'a>,
@@ -46,7 +46,7 @@ impl<'a> Append<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/drop).
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Drop<'a> {
     drop: Expr<'a>,
     collection: Expr<'a>,
@@ -73,7 +73,7 @@ impl<'a> Drop<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/filter).
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Filter<'a> {
     filter: Expr<'a>,
     collection: Expr<'a>,
@@ -99,7 +99,7 @@ impl<'a> Filter<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/foreach).
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Foreach<'a> {
     collection: Expr<'a>,
     foreach: Expr<'a>,
@@ -119,7 +119,7 @@ impl<'a> Foreach<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/isempty).
-#[derive(Serialize, Clone, Debug, Deserialize)]
+#[derive(Serialize, Clone, Debug)]
 pub struct IsEmpty<'a> {
     is_empty: Expr<'a>,
 }
@@ -137,7 +137,7 @@ impl<'a> IsEmpty<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/isnonempty).
-#[derive(Serialize, Clone, Debug, Deserialize)]
+#[derive(Serialize, Clone, Debug)]
 pub struct IsNonEmpty<'a> {
     is_nonempty: Expr<'a>,
 }
@@ -157,7 +157,7 @@ impl<'a> IsNonEmpty<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/map).
-#[derive(Serialize, Clone, Debug, Deserialize)]
+#[derive(Serialize, Clone, Debug)]
 pub struct Map<'a> {
     collection: Expr<'a>,
     map: Lambda<'a>,
@@ -181,7 +181,7 @@ impl<'a> Map<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/prepend).
-#[derive(Serialize, Clone, Debug, Deserialize)]
+#[derive(Serialize, Clone, Debug)]
 pub struct Prepend<'a> {
     prepend: Expr<'a>,
     collection: Expr<'a>,
@@ -211,7 +211,7 @@ impl<'a> Prepend<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/collection/take).
-#[derive(Serialize, Clone, Debug, Deserialize)]
+#[derive(Serialize, Clone, Debug)]
 pub struct Take<'a> {
     take: Expr<'a>,
     collection: Expr<'a>,

@@ -17,7 +17,7 @@ pub use permission::*;
 pub use reference::Ref;
 pub use set::Set;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(untagged)]
 /// A simple expression with no annotation.
 pub enum SimpleExpr<'a> {
@@ -35,10 +35,10 @@ pub enum SimpleExpr<'a> {
     /// An array is a data structure that contains a group of elements.
     /// Typically the elements of an array are of the same or related type. When
     /// an array is used in FQL it evaluates to its contents.
-    Array(Array<'a>),
+    Array(Box<Array<'a>>),
     /// For reading a value from a Fauna response. Due to a bug, Fauna sends
     /// objects back with no annotation.
-    Object(Object<'a>),
+    Object(Box<Object<'a>>),
     /// Null is a special marker used to indicate that a data value does not
     /// exist. It is a representation of missing information. A null value
     /// indicates a lack of a value. A lack of a value is not the same thing as
@@ -49,7 +49,7 @@ pub enum SimpleExpr<'a> {
     Null,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 /// A special expression with an annotation marker.
 pub enum AnnotatedExpr<'a> {
     /// Quoted expression will not be evaluated in Fauna, good for storing
@@ -65,7 +65,7 @@ pub enum AnnotatedExpr<'a> {
     /// Denotes a resource ref. Refs may be extracted from instances, or
     /// constructed using the ref function.
     #[serde(rename = "@ref")]
-    Ref(Ref<'a>),
+    Ref(Box<Ref<'a>>),
     /// Denotes a set identifier.
     #[serde(rename = "@set")]
     Set(Box<Set<'a>>),
@@ -82,7 +82,7 @@ pub enum AnnotatedExpr<'a> {
     /// expressions are evaluated sequentially in the order that they were
     /// specified, left to right. Objects evaluate to their contents:
     #[serde(rename = "object")]
-    Object(Object<'a>),
+    Object(Box<Object<'a>>),
 }
 
 /// A representation of a FaunaDB Query Expression.
@@ -91,12 +91,18 @@ pub enum AnnotatedExpr<'a> {
 ///
 /// See the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/types).
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(untagged)]
 pub enum Expr<'a> {
     Annotated(AnnotatedExpr<'a>),
     Query(Box<Query<'a>>),
     Simple(SimpleExpr<'a>),
+}
+
+impl<'a> std::default::Default for Expr<'a> {
+    fn default() -> Self {
+        Expr::null()
+    }
 }
 
 impl<'a> fmt::Display for Expr<'a> {
@@ -133,12 +139,14 @@ impl<'a> Expr<'a> {
     pub(crate) fn reuse(self) -> Self {
         match self {
             Expr::Simple(SimpleExpr::Object(o)) => {
-                Expr::Annotated(AnnotatedExpr::Object(o.reuse()))
+                Expr::Annotated(AnnotatedExpr::Object(Box::new(o.reuse())))
             }
             Expr::Annotated(AnnotatedExpr::Object(o)) => {
-                Expr::Annotated(AnnotatedExpr::Object(o.reuse()))
+                Expr::Annotated(AnnotatedExpr::Object(Box::new(o.reuse())))
             }
-            Expr::Simple(SimpleExpr::Array(v)) => Expr::Simple(SimpleExpr::Array(v.reuse())),
+            Expr::Simple(SimpleExpr::Array(v)) => {
+                Expr::Simple(SimpleExpr::Array(Box::new(v.reuse())))
+            }
             expr => expr,
         }
     }
@@ -149,30 +157,13 @@ impl<'a> Expr<'a> {
     }
 
     /// Quote the expression to prevent Fauna evalutating it.
-    pub fn as_quoted(self) -> Self {
+    pub fn into_quoted(self) -> Self {
         Expr::Annotated(AnnotatedExpr::Quote(Box::new(self)))
     }
 
-    /// Quote the expression to prevent Fauna evalutating it. Cloning version of `as_quoted`.
-    pub fn to_quoted(&self) -> Self {
-        Expr::Annotated(AnnotatedExpr::Quote(Box::new(self.clone())))
-    }
-
-    /// Unquote the expression if quoted, allowing Fauna evaluation.
-    pub fn as_unquoted(self) -> Self {
-        match self {
-            Expr::Annotated(AnnotatedExpr::Quote(expr)) => *expr,
-            expr => expr,
-        }
-    }
-
-    /// Unquote the expression if quoted, allowing Fauna evaluation. Cloning
-    /// version of `as_unquoted`.
-    pub fn to_unquoted(&self) -> Self {
-        match self {
-            Expr::Annotated(AnnotatedExpr::Quote(ref expr)) => *expr.clone(),
-            expr => expr.clone(),
-        }
+    /// Quote the expression to prevent Fauna evalutating it.
+    pub fn as_quoted(&self) -> Self {
+        self.clone().into_quoted()
     }
 }
 
@@ -208,7 +199,7 @@ impl<'a> From<bool> for Expr<'a> {
 
 impl<'a> From<Array<'a>> for Expr<'a> {
     fn from(a: Array<'a>) -> Expr<'a> {
-        Expr::Simple(SimpleExpr::Array(a))
+        Expr::Simple(SimpleExpr::Array(Box::new(a)))
     }
 }
 
@@ -223,7 +214,7 @@ where
 
 impl<'a> From<Object<'a>> for Expr<'a> {
     fn from(o: Object<'a>) -> Expr<'a> {
-        Expr::Annotated(AnnotatedExpr::Object(o))
+        Expr::Annotated(AnnotatedExpr::Object(Box::new(o)))
     }
 }
 
@@ -235,7 +226,7 @@ impl<'a> From<Bytes<'a>> for Expr<'a> {
 
 impl<'a> From<Ref<'a>> for Expr<'a> {
     fn from(r: Ref<'a>) -> Expr<'a> {
-        Expr::Annotated(AnnotatedExpr::Ref(r))
+        Expr::Annotated(AnnotatedExpr::Ref(Box::new(r)))
     }
 }
 
@@ -375,16 +366,6 @@ mod tests {
         let serialized = serde_json::to_string(&expr).unwrap();
 
         assert_eq!("{\"@bytes\":\"AQIDBA==\"}", serialized)
-    }
-
-    #[test]
-    fn test_bytes_deserialize() {
-        match serde_json::from_str("{\"@bytes\":\"AQIDBA==\"}") {
-            Ok(Expr::Annotated(AnnotatedExpr::Bytes(bytes))) => {
-                assert_eq!(Bytes::from(vec![0x1, 0x2, 0x3, 0x4]), bytes)
-            }
-            expr => panic!("{:?} was not bytes", expr),
-        }
     }
 
     #[test]

@@ -29,14 +29,14 @@ query![
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/string/casefold)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct CaseFold<'a> {
     casefold: Expr<'a>,
     #[serde(skip_serializing_if = "Option::is_none")]
     normalizer: Option<Normalizer>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy, Debug)]
+#[derive(Serialize, Clone, Copy, Debug)]
 pub enum Normalizer {
     NFKCCaseFold,
     NFC,
@@ -64,7 +64,7 @@ impl<'a> CaseFold<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/string/concat)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct Concat<'a> {
     concat: Expr<'a>,
     separator: Expr<'a>,
@@ -84,7 +84,7 @@ impl<'a> Concat<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/string/findstr)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct FindStr<'a> {
     findstr: Expr<'a>,
     find: Expr<'a>,
@@ -111,7 +111,7 @@ impl<'a> FindStr<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/string/findstrregex)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct FindStrRegex<'a> {
     findstrregex: Expr<'a>,
     pattern: Expr<'a>,
@@ -145,7 +145,7 @@ impl<'a> FindStrRegex<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/string/ltrim)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct LTrim<'a> {
     ltrim: Expr<'a>,
 }
@@ -163,7 +163,7 @@ impl<'a> LTrim<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/string/rtrim)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct RTrim<'a> {
     rtrim: Expr<'a>,
 }
@@ -180,7 +180,7 @@ impl<'a> RTrim<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/string/length)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct Length<'a> {
     length: Expr<'a>,
 }
@@ -198,7 +198,7 @@ impl<'a> Length<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/string/lowercase)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct LowerCase<'a> {
     lowercase: Expr<'a>,
 }
@@ -216,7 +216,7 @@ impl<'a> LowerCase<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/string/repeat)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct Repeat<'a> {
     repeat: Expr<'a>,
     number: Expr<'a>,
@@ -237,7 +237,7 @@ impl<'a> Repeat<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/string/replacestr)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct ReplaceStr<'a> {
     replacestr: Expr<'a>,
     find: Expr<'a>,
@@ -265,7 +265,7 @@ impl<'a> ReplaceStr<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/string/replacestrregex)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct ReplaceStrRegex<'a> {
     replacestrregex: Expr<'a>,
     pattern: Expr<'a>,
@@ -293,7 +293,7 @@ impl<'a> ReplaceStrRegex<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/string/space)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct Space<'a> {
     space: Expr<'a>,
 }
@@ -311,7 +311,7 @@ impl<'a> Space<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/string/substring)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct SubString<'a> {
     substring: Expr<'a>,
     start: Expr<'a>,
@@ -339,7 +339,7 @@ impl<'a> SubString<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/string/titlecase)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct TitleCase<'a> {
     titlecase: Expr<'a>,
 }
@@ -357,7 +357,7 @@ impl<'a> TitleCase<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/string/trim)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct Trim<'a> {
     trim: Expr<'a>,
 }
@@ -375,7 +375,7 @@ impl<'a> Trim<'a> {
 ///
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/string/uppercase)
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug)]
 pub struct UpperCase<'a> {
     uppercase: Expr<'a>,
 }

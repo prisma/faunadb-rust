@@ -1,6 +1,6 @@
 use crate::expr::{Expr, SimpleExpr};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 #[serde(untagged)]
 pub enum Number {
     UInt(u64),
