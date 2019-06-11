@@ -1,8 +1,4 @@
-use crate::{
-    client::{ClientBuilder, SyncClient},
-    expr::Ref,
-    query::write::{CreateDatabase, DatabaseParams, Delete},
-};
+use crate::prelude::*;
 use lazy_static::lazy_static;
 use rand::distributions::Alphanumeric;
 use rand::Rng;
@@ -40,4 +36,34 @@ where
     CLIENT.query(Delete::new(Ref::database(&db_name))).unwrap();
 
     result.unwrap();
+}
+
+pub fn with_class<F>(f: F)
+where
+    F: FnOnce(&str) -> () + panic::UnwindSafe,
+{
+    let mut permission = ClassPermission::default();
+    permission.read(Level::public());
+    permission.write(Level::public());
+
+    let mut data = Object::default();
+    data.insert("meow", true);
+
+    let class_name = gen_db_name();
+
+    let mut params = ClassParams::new(&class_name);
+    params.history_days(10);
+    params.ttl_days(3);
+    params.permissions(permission);
+    params.data(data);
+
+    with_database(|_| {
+        trace!("Creating a test class {}", &class_name);
+        CLIENT.query(CreateClass::new(params)).unwrap();
+
+        f(class_name.as_str());
+
+        trace!("Creating the test class {}", &class_name);
+        CLIENT.query(Delete::new(Ref::class(&class_name))).unwrap();
+    })
 }

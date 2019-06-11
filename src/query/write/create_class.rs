@@ -126,6 +126,7 @@ mod tests {
     fn test_create_class_eval() {
         let mut permission = ClassPermission::default();
         permission.read(Level::public());
+        permission.write(Level::public());
 
         let mut data = Object::default();
         data.insert("meow", true);

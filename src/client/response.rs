@@ -57,6 +57,30 @@ pub enum Value {
     Simple(SimpleValue),
 }
 
+impl<'a> From<&'a str> for Value {
+    fn from(s: &'a str) -> Self {
+        Value::Simple(SimpleValue::String(s.to_string()))
+    }
+}
+
+impl<T> From<T> for Value
+where
+    T: Into<Number>,
+{
+    fn from(t: T) -> Self {
+        Value::Simple(SimpleValue::Number(t.into()))
+    }
+}
+
+impl<V> From<Vec<V>> for Value
+where
+    V: Into<Value>,
+{
+    fn from(t: Vec<V>) -> Self {
+        Value::Simple(SimpleValue::Array(t.into_iter().map(Into::into).collect()))
+    }
+}
+
 impl Value {
     pub fn is_string(&self) -> bool {
         match self {
