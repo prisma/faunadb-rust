@@ -35,6 +35,18 @@ fn main() {
 }
 ```
 
+## Testing
+
+For tests to be successful, one must have the [default Fauna Docker
+image](https://github.com/fauna/faunadb-docker), using the default password
+`secret`.
+
+Run the tests with:
+
+``` bash
+cargo test
+```
+
 ## License
 
 The faunadb-rust crate is licensed under the [Apache 2.0](./LICENSE)

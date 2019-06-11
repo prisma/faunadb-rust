@@ -1,6 +1,6 @@
 use std::{borrow::Cow, fmt};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 enum RefLocation<'a> {
     #[serde(rename = "class")]
     Class {
@@ -35,7 +35,7 @@ impl<'a> RefLocation<'a> {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 /// Denotes a resource ref.
 pub struct Ref<'a> {
     id: Cow<'a, str>,

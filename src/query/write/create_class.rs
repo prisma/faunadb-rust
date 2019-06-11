@@ -33,7 +33,9 @@ struct ClassParamsInternal<'a> {
     name: Cow<'a, str>,
     #[serde(skip_serializing_if = "Option::is_none")]
     data: Option<Expr<'a>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     history_days: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     ttl_days: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     permissions: Option<ClassPermission<'a>>,
@@ -92,11 +94,11 @@ impl<'a> ClassParams<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::prelude::*;
+    use crate::{prelude::*, test_utils::*};
     use serde_json::{self, json};
 
     #[test]
-    fn test_create_class() {
+    fn test_create_class_expr() {
         let mut permission = ClassPermission::default();
         permission.read(Level::public());
 
@@ -113,11 +115,54 @@ mod tests {
                     "history_days": 10,
                     "name": "test",
                     "permissions": { "object": { "read": "public" } },
-                    "ttl_days": null,
                 }
             }
         });
 
         assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_create_class_eval() {
+        let mut permission = ClassPermission::default();
+        permission.read(Level::public());
+
+        let mut data = Object::default();
+        data.insert("meow", true);
+
+        let class_name = gen_db_name();
+
+        let mut params = ClassParams::new(&class_name);
+        params.history_days(10);
+        params.ttl_days(3);
+        params.permissions(permission);
+        params.data(data);
+
+        with_database(|_| {
+            let response = CLIENT.query(CreateClass::new(params)).unwrap();
+            let res = response.resource.as_object().unwrap();
+
+            let history_days = res.get("history_days").and_then(|res| res.as_u64());
+            let ttl_days = res.get("ttl_days").and_then(|res| res.as_u64());
+            let name = res.get("name").and_then(|res| res.as_str());
+
+            let permissions = res
+                .get("permissions")
+                .and_then(|res| res.as_object())
+                .unwrap();
+
+            let data = res.get("data").and_then(|res| res.as_object()).unwrap();
+
+            assert_eq!(history_days, Some(10));
+            assert_eq!(ttl_days, Some(3));
+            assert_eq!(name, Some(class_name.as_str()));
+
+            assert_eq!(data.get("meow").and_then(|res| res.as_bool()), Some(true));
+
+            assert_eq!(
+                permissions.get("read").and_then(|res| res.as_str()),
+                Some("public")
+            );
+        });
     }
 }

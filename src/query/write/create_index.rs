@@ -80,7 +80,7 @@ pub struct ValueObject<'a> {
 /// Read the
 /// [docs](https://docs.fauna.com/fauna/current/reference/indexconfig#value-objects)
 #[derive(Debug, Serialize, Clone)]
-pub struct Value<'a> {
+pub struct IndexValue<'a> {
     object: ValueObject<'a>,
 }
 
@@ -95,7 +95,7 @@ pub struct IndexParamsInternal<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     terms: Option<Vec<Term<'a>>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    values: Option<Vec<Value<'a>>>,
+    values: Option<Vec<IndexValue<'a>>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     partitions: Option<u16>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -133,7 +133,7 @@ impl<'a> Term<'a> {
     }
 }
 
-impl<'a> Value<'a> {
+impl<'a> IndexValue<'a> {
     pub fn field<T>(path: Vec<T>) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -211,7 +211,7 @@ impl<'a> IndexParams<'a> {
         self
     }
 
-    pub fn values(&mut self, values: Vec<Value<'a>>) -> &mut Self {
+    pub fn values(&mut self, values: Vec<IndexValue<'a>>) -> &mut Self {
         self.object.values = Some(values);
         self
     }
@@ -250,9 +250,9 @@ mod tests {
 
         params.terms(vec![age_term, name_term]);
 
-        let name_value = Value::field(vec!["data", "name"]);
+        let name_value = IndexValue::field(vec!["data", "name"]);
 
-        let mut age_value = Value::binding("cats_age");
+        let mut age_value = IndexValue::binding("cats_age");
         age_value.reverse();
 
         params.values(vec![age_value, name_value]);

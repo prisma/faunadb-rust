@@ -1,6 +1,6 @@
 use crate::{
     error::Error,
-    expr::{Bytes, Ref},
+    expr::{Bytes, Number, Ref},
     serde::base64_bytes,
 };
 use chrono::{DateTime, NaiveDate, Utc};
@@ -18,43 +18,274 @@ impl<T> Future for FutureResponse<T> {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Deserialize, Debug, PartialEq)]
+pub struct Response {
+    pub resource: Value,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(untagged)]
 pub enum SimpleValue {
     String(String),
-    UInt(u64),
-    Int(i64),
-    Double(f64),
+    Number(Number),
     Boolean(bool),
-    Array(Vec<SimpleValue>),
-    Object(BTreeMap<String, Resource>),
+    Array(Vec<Value>),
+    Object(BTreeMap<String, Value>),
     Null,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub enum AnnotatedValue {
     #[serde(rename = "@ref")]
     Ref(Box<Ref<'static>>),
     #[serde(rename = "@query")]
-    Query(Box<Resource>),
+    Query(Box<Value>),
     #[serde(rename = "@bytes", with = "base64_bytes")]
     Bytes(Bytes<'static>),
     #[serde(rename = "@date")]
     Date(NaiveDate),
     #[serde(rename = "@set")]
-    Set(Box<Resource>),
+    Set(Box<Value>),
     #[serde(rename = "@ts")]
     Timestamp(DateTime<Utc>),
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(untagged)]
-pub enum Resource {
+pub enum Value {
     Annotated(AnnotatedValue),
     Simple(SimpleValue),
 }
 
-#[derive(Deserialize, Debug)]
-pub struct Response {
-    pub resource: Resource,
+impl Value {
+    pub fn is_string(&self) -> bool {
+        match self {
+            Value::Simple(SimpleValue::String(_)) => true,
+            _ => false,
+        }
+    }
+
+    pub fn as_str(&self) -> Option<&str> {
+        match self {
+            Value::Simple(SimpleValue::String(string)) => Some(string.as_str()),
+            _ => None,
+        }
+    }
+
+    pub fn is_number(&self) -> bool {
+        match self {
+            Value::Simple(SimpleValue::Number(_)) => true,
+            _ => false,
+        }
+    }
+
+    pub fn as_number(&self) -> Option<Number> {
+        match self {
+            Value::Simple(SimpleValue::Number(num)) => Some(*num),
+            _ => None,
+        }
+    }
+
+    pub fn is_u64(&self) -> bool {
+        match self {
+            Value::Simple(SimpleValue::Number(num)) => num.is_u64(),
+            _ => false,
+        }
+    }
+
+    pub fn as_u64(&self) -> Option<u64> {
+        match self {
+            Value::Simple(SimpleValue::Number(num)) => num.as_u64(),
+            _ => None,
+        }
+    }
+
+    pub fn is_i64(&self) -> bool {
+        match self {
+            Value::Simple(SimpleValue::Number(num)) => num.is_i64(),
+            _ => false,
+        }
+    }
+
+    pub fn as_i64(&self) -> Option<i64> {
+        match self {
+            Value::Simple(SimpleValue::Number(num)) => num.as_i64(),
+            _ => None,
+        }
+    }
+
+    pub fn is_f64(&self) -> bool {
+        match self {
+            Value::Simple(SimpleValue::Number(num)) => num.is_f64(),
+            _ => false,
+        }
+    }
+
+    pub fn as_f64(&self) -> Option<f64> {
+        match self {
+            Value::Simple(SimpleValue::Number(num)) => num.as_f64(),
+            _ => None,
+        }
+    }
+
+    pub fn is_f32(&self) -> bool {
+        match self {
+            Value::Simple(SimpleValue::Number(num)) => num.is_f32(),
+            _ => false,
+        }
+    }
+
+    pub fn as_f32(&self) -> Option<f32> {
+        match self {
+            Value::Simple(SimpleValue::Number(num)) => num.as_f32(),
+            _ => None,
+        }
+    }
+
+    pub fn is_bool(&self) -> bool {
+        match self {
+            Value::Simple(SimpleValue::Boolean(_)) => true,
+            _ => false,
+        }
+    }
+
+    pub fn as_bool(&self) -> Option<bool> {
+        match self {
+            Value::Simple(SimpleValue::Boolean(b)) => Some(*b),
+            _ => None,
+        }
+    }
+
+    pub fn is_array(&self) -> bool {
+        match self {
+            Value::Simple(SimpleValue::Array(_)) => true,
+            _ => false,
+        }
+    }
+
+    pub fn as_array(&self) -> Option<&Vec<Value>> {
+        match self {
+            Value::Simple(SimpleValue::Array(v)) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub fn as_array_mut(&mut self) -> Option<&Vec<Value>> {
+        match self {
+            Value::Simple(SimpleValue::Array(ref mut v)) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub fn is_object(&self) -> bool {
+        match self {
+            Value::Simple(SimpleValue::Object(_)) => true,
+            _ => false,
+        }
+    }
+
+    pub fn as_object(&self) -> Option<&BTreeMap<String, Value>> {
+        match self {
+            Value::Simple(SimpleValue::Object(obj)) => Some(obj),
+            _ => None,
+        }
+    }
+
+    pub fn as_object_mut(&mut self) -> Option<&mut BTreeMap<String, Value>> {
+        match *self {
+            Value::Simple(SimpleValue::Object(ref mut obj)) => Some(obj),
+            _ => None,
+        }
+    }
+
+    pub fn is_null(&self) -> bool {
+        match self {
+            Value::Simple(SimpleValue::Null) => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_reference(&self) -> bool {
+        match self {
+            Value::Annotated(AnnotatedValue::Ref(_)) => true,
+            _ => false,
+        }
+    }
+
+    pub fn as_reference(&self) -> Option<&Ref<'static>> {
+        match self {
+            Value::Annotated(AnnotatedValue::Ref(reference)) => Some(&*reference),
+            _ => None,
+        }
+    }
+
+    pub fn is_query(&self) -> bool {
+        match self {
+            Value::Annotated(AnnotatedValue::Query(_)) => true,
+            _ => false,
+        }
+    }
+
+    pub fn as_query(&self) -> Option<&Value> {
+        match self {
+            Value::Annotated(AnnotatedValue::Query(q)) => Some(&*q),
+            _ => None,
+        }
+    }
+
+    pub fn is_bytes(&self) -> bool {
+        match self {
+            Value::Annotated(AnnotatedValue::Bytes(_)) => true,
+            _ => false,
+        }
+    }
+
+    pub fn as_bytes(&self) -> Option<&Bytes<'static>> {
+        match self {
+            Value::Annotated(AnnotatedValue::Bytes(byt)) => Some(byt),
+            _ => None,
+        }
+    }
+
+    pub fn is_date(&self) -> bool {
+        match self {
+            Value::Annotated(AnnotatedValue::Date(_)) => true,
+            _ => false,
+        }
+    }
+
+    pub fn as_date(&self) -> Option<NaiveDate> {
+        match self {
+            Value::Annotated(AnnotatedValue::Date(dat)) => Some(*dat),
+            _ => None,
+        }
+    }
+
+    pub fn is_set(&self) -> bool {
+        match self {
+            Value::Annotated(AnnotatedValue::Set(_)) => true,
+            _ => false,
+        }
+    }
+
+    pub fn as_set(&self) -> Option<&Value> {
+        match self {
+            Value::Annotated(AnnotatedValue::Set(set)) => Some(&*set),
+            _ => None,
+        }
+    }
+
+    pub fn is_timestamp(&self) -> bool {
+        match self {
+            Value::Annotated(AnnotatedValue::Timestamp(_)) => true,
+            _ => false,
+        }
+    }
+
+    pub fn as_timestamp(&self) -> Option<DateTime<Utc>> {
+        match self {
+            Value::Annotated(AnnotatedValue::Timestamp(ts)) => Some(*ts),
+            _ => None,
+        }
+    }
 }

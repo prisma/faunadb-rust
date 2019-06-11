@@ -21,16 +21,21 @@ fn main() {
         .get_matches();
 
     let secret = matches.value_of("secret").unwrap();
-    let client = ClientBuilder::new(secret).build().unwrap();
 
-    let fun = Filter::new(
-        Lambda::new("x", Gt::new(Var::new("x"), 2)),
-        Array::from(vec![1, 2, 3]),
-    );
+    let mut builder = ClientBuilder::new(secret);
+    builder.uri("http://localhost:8443");
+
+    let client = builder.build().unwrap();
+    let mut data = Object::default();
+    data.insert("foo", "bar");
+
+    let mut params = DatabaseParams::new("test");
+    params.priority(10).unwrap();
+    params.data(data);
 
     tokio::run(lazy(move || {
         client
-            .query(fun)
+            .query(CreateDatabase::new(params))
             .map(|response| {
                 println!("{:#?}", response);
             })

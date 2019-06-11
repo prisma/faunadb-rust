@@ -1,4 +1,4 @@
-use crate::client::Resource;
+use crate::client::Value;
 use failure::{self, Fail};
 
 #[derive(Debug, Fail)]
@@ -42,7 +42,7 @@ pub struct FaunaErrors {
     position, code, description
 )]
 pub struct FaunaError {
-    pub position: Vec<Resource>,
+    pub position: Vec<Value>,
     pub code: String,
     pub description: String,
 }

@@ -1,4 +1,9 @@
-use crate::{error::Error, expr::Object, query::Query, FaunaResult};
+use crate::{
+    error::Error,
+    expr::{Expr, Object},
+    query::Query,
+    FaunaResult,
+};
 use std::borrow::Cow;
 
 query!(CreateDatabase);
@@ -21,7 +26,7 @@ pub struct DatabaseParamsInternal<'a> {
     name: Cow<'a, str>,
     api_version: Cow<'a, str>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    data: Option<Object<'a>>,
+    data: Option<Expr<'a>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     priority: Option<u16>,
 }
@@ -59,7 +64,7 @@ impl<'a> DatabaseParams<'a> {
     }
 
     pub fn data(&mut self, data: Object<'a>) -> &mut Self {
-        self.object.data = Some(data);
+        self.object.data = Some(Expr::from(data));
         self
     }
 
@@ -78,8 +83,9 @@ impl<'a> DatabaseParams<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::prelude::*;
+    use crate::{prelude::*, test_utils::CLIENT};
     use serde_json::{self, json};
+    use std::panic;
 
     #[test]
     fn test_create_database_expr() {
@@ -100,5 +106,45 @@ mod tests {
         });
 
         assert_eq!(expected, serialized);
+    }
+
+    #[test]
+    fn test_create_database_eval() {
+        let mut data = Object::default();
+        data.insert("foo", "bar");
+
+        let db_name = "test";
+        let mut params = DatabaseParams::new(db_name);
+        params.priority(10).unwrap();
+        params.data(data);
+
+        let result = panic::catch_unwind(|| {
+            let response = CLIENT.query(CreateDatabase::new(params)).unwrap();
+            let res = response.resource.as_object().unwrap();
+
+            let api_version = res.get("api_version").unwrap();
+            let data = res.get("data").unwrap().as_object().unwrap();
+            let name = res.get("name").unwrap();
+            let priority = res.get("priority").unwrap();
+            let reference = res.get("ref").unwrap();
+            let ts = res.get("ts").unwrap();
+
+            assert_eq!(api_version.as_str(), Some("2.0"));
+            assert_eq!(name.as_str(), Some(db_name));
+            assert_eq!(priority.as_u64(), Some(10));
+
+            assert_eq!(
+                reference.as_reference().unwrap().path(),
+                Ref::database(db_name).path()
+            );
+
+            assert_eq!(data.get("foo").and_then(|foo| foo.as_str()), Some("bar"));
+
+            assert!(ts.is_number());
+        });
+
+        CLIENT.query(Delete::new(Ref::database(db_name))).unwrap();
+
+        result.unwrap();
     }
 }

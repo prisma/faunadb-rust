@@ -73,4 +73,7 @@ pub mod query;
 
 mod serde;
 
+#[cfg(test)]
+mod test_utils;
+
 pub type FaunaResult<T> = Result<T, error::Error>;

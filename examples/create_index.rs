@@ -35,9 +35,9 @@ fn main() {
 
     params.terms(vec![id_term]);
 
-    let ref_value = Value::field(vec!["ref"]);
-    let name_value = Value::field(vec!["data", "name"]);
-    let mut age_value = Value::field(vec!["data", "age"]);
+    let ref_value = IndexValue::field(vec!["ref"]);
+    let name_value = IndexValue::field(vec!["data", "name"]);
+    let mut age_value = IndexValue::field(vec!["data", "age"]);
 
     age_value.reverse();
     params.values(vec![ref_value, age_value, name_value]);
