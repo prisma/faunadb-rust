@@ -1,5 +1,5 @@
 use crate::{
-    expr::{Expr, IndexPermission, Object, Ref},
+    expr::{Expr, IndexPermission, Object},
     query::Query,
 };
 use std::borrow::Cow;
@@ -110,6 +110,7 @@ pub struct IndexParams<'a> {
 }
 
 impl<'a> Term<'a> {
+    /// The path of the field within an instance to be indexed.
     pub fn field<T>(path: Vec<T>) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -121,6 +122,7 @@ impl<'a> Term<'a> {
         }
     }
 
+    /// The name of a binding from a source object.
     pub fn binding<T>(name: T) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -134,6 +136,7 @@ impl<'a> Term<'a> {
 }
 
 impl<'a> IndexValue<'a> {
+    /// The path of the field within an instance to be indexed.
     pub fn field<T>(path: Vec<T>) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -149,6 +152,7 @@ impl<'a> IndexValue<'a> {
         }
     }
 
+    /// The name of a binding from a source object.
     pub fn binding<T>(name: T) -> Self
     where
         T: Into<Cow<'a, str>>,
@@ -164,6 +168,7 @@ impl<'a> IndexValue<'a> {
         }
     }
 
+    /// If set, the sort of the field's value is reversed.
     pub fn reverse(&mut self) -> &mut Self {
         self.object.reverse = true;
         self
@@ -171,14 +176,17 @@ impl<'a> IndexValue<'a> {
 }
 
 impl<'a> IndexParams<'a> {
-    pub fn new<S>(name: S, source: Ref<'a>) -> Self
+    /// The name cannot be `events`, `sets`, `self`, `instances` or `_`.
+    ///
+    /// The source must evaluate to a class `Ref`.
+    pub fn new<S>(name: S, source: impl Into<Expr<'a>>) -> Self
     where
         S: Into<Cow<'a, str>>,
     {
         Self {
             object: IndexParamsInternal {
                 name: name.into(),
-                source: Expr::from(source),
+                source: source.into(),
                 active: false,
                 unique: false,
                 serialized: false,
@@ -191,41 +199,53 @@ impl<'a> IndexParams<'a> {
         }
     }
 
+    /// If set, avoids building the index from relevant instances.
     pub fn active(&mut self) -> &mut Self {
         self.object.active = true;
         self
     }
 
+    /// If set, maintains a unique constraint on combined `terms` and `values`.
     pub fn unique(&mut self) -> &mut Self {
         self.object.unique = true;
         self
     }
 
+    /// If set, writes to the index are serialized with concurrent reads and
+    /// writes.
     pub fn serialized(&mut self) -> &mut Self {
         self.object.serialized = true;
         self
     }
 
+    /// An array of [Term objects](struct.Term.html) describing the fields to be
+    /// indexed.
     pub fn terms(&mut self, terms: Vec<Term<'a>>) -> &mut Self {
         self.object.terms = Some(terms);
         self
     }
 
+    /// An array of [Value objects](struct.IndexValue.html) describing the fields to be
+    /// covered.
     pub fn values(&mut self, values: Vec<IndexValue<'a>>) -> &mut Self {
         self.object.values = Some(values);
         self
     }
 
+    /// The number of sub-partitions within each term.
     pub fn partitions(&mut self, partitions: u16) -> &mut Self {
         self.object.partitions = Some(partitions);
         self
     }
 
+    /// Indicates who is allowed to read the index.
     pub fn permissions(&mut self, permissions: IndexPermission<'a>) -> &mut Self {
         self.object.permissions = Some(permissions);
         self
     }
 
+    /// The user-defined metadata for the index. It is provided for the
+    /// developer to store information at the index level.
     pub fn data(&mut self, data: Object<'a>) -> &mut Self {
         self.object.data = Some(Expr::from(data));
         self

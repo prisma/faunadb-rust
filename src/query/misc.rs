@@ -1,8 +1,5 @@
 //! Miscellaneous functions
-use crate::{
-    expr::{Expr, Ref},
-    query::Query,
-};
+use crate::{expr::Expr, query::Query};
 
 query![Abort, Class, Classes, Database, Databases, Function, Functions, Index, Indexes, NewId];
 
@@ -59,9 +56,9 @@ impl<'a> Classes<'a> {
         Self::default()
     }
 
-    pub fn from_database(database: Ref<'a>) -> Self {
+    pub fn from_database(database: impl Into<Expr<'a>>) -> Self {
         Self {
-            classes: Some(Expr::from(database)),
+            classes: Some(database.into()),
         }
     }
 }
@@ -101,9 +98,9 @@ impl<'a> Functions<'a> {
         Self::default()
     }
 
-    pub fn from_database(database: Ref<'a>) -> Self {
+    pub fn from_database(database: impl Into<Expr<'a>>) -> Self {
         Self {
-            functions: Some(Expr::from(database)),
+            functions: Some(database.into()),
         }
     }
 }
@@ -143,9 +140,9 @@ impl<'a> Databases<'a> {
         Self::default()
     }
 
-    pub fn from_database(database: Ref<'a>) -> Self {
+    pub fn from_database(database: impl Into<Expr<'a>>) -> Self {
         Self {
-            databases: Some(Expr::from(database)),
+            databases: Some(database.into()),
         }
     }
 }
@@ -183,9 +180,9 @@ impl<'a> Indexes<'a> {
         Self::default()
     }
 
-    pub fn from_database(database: Ref<'a>) -> Self {
+    pub fn from_database(database: impl Into<Expr<'a>>) -> Self {
         Self {
-            indexes: Some(Expr::from(database)),
+            indexes: Some(database.into()),
         }
     }
 }

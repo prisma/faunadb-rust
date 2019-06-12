@@ -1,8 +1,5 @@
 //! Write functions
-use crate::{
-    expr::{Expr, Object, Ref},
-    query::Query,
-};
+use crate::{expr::Expr, query::Query};
 use chrono::{DateTime, Utc};
 
 mod create;
@@ -46,9 +43,9 @@ pub struct Delete<'a> {
 }
 
 impl<'a> Delete<'a> {
-    pub fn new(reference: Ref<'a>) -> Self {
+    pub fn new(reference: impl Into<Expr<'a>>) -> Self {
         Delete {
-            delete: Expr::from(reference),
+            delete: reference.into(),
         }
     }
 }
@@ -70,9 +67,9 @@ pub struct Remove<'a> {
 }
 
 impl<'a> Remove<'a> {
-    pub fn new(reference: Ref<'a>, timestamp: DateTime<Utc>, action: Action) -> Self {
+    pub fn new(reference: impl Into<Expr<'a>>, timestamp: DateTime<Utc>, action: Action) -> Self {
         Self {
-            remove: Expr::from(reference),
+            remove: reference.into(),
             timestamp: Expr::from(timestamp),
             action,
         }
@@ -92,10 +89,10 @@ pub struct Replace<'a> {
 }
 
 impl<'a> Replace<'a> {
-    pub fn new(reference: Ref<'a>, params: Object<'a>) -> Self {
+    pub fn new(reference: impl Into<Expr<'a>>, params: impl Into<Expr<'a>>) -> Self {
         Self {
-            replace: Expr::from(reference),
-            params: Expr::from(params),
+            replace: reference.into(),
+            params: params.into(),
         }
     }
 }

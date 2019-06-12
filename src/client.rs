@@ -20,33 +20,33 @@ use http::header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE};
 use hyper::{client::HttpConnector, Body, StatusCode, Uri};
 use hyper_tls::HttpsConnector;
 use serde_json;
-use std::time::Duration;
+use std::{borrow::Cow, time::Duration};
 use tokio_timer::Timeout;
 
 type Transport = hyper::Client<HttpsConnector<HttpConnector>>;
 
 /// For building a new Fauna client.
 pub struct ClientBuilder<'a> {
-    uri: &'a str,
-    secret: &'a str,
+    uri: Cow<'a, str>,
+    secret: Cow<'a, str>,
     timeout: Duration,
 }
 
 impl<'a> ClientBuilder<'a> {
     /// Create a new client builder. Secret can be generated in [Fauna Cloud
     /// Console](https://dashboard.fauna.com/keys-new/@db/).
-    pub fn new(secret: &'a str) -> Self {
+    pub fn new(secret: impl Into<Cow<'a, str>>) -> Self {
         Self {
-            uri: "https://db.fauna.com",
-            secret,
+            uri: Cow::from("https://db.fauna.com"),
+            secret: secret.into(),
             timeout: Duration::new(60, 0),
         }
     }
 
     /// Change the uri if using dedicated Fauna servers. Default:
     /// `https://db.fauna.com`.
-    pub fn uri(&mut self, uri: &'a str) -> &mut Self {
-        self.uri = uri;
+    pub fn uri(&mut self, uri: impl Into<Cow<'a, str>>) -> &mut Self {
+        self.uri = uri.into();
         self
     }
 
