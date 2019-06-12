@@ -22,21 +22,21 @@ pub struct InstanceData<'a> {
 }
 
 #[derive(Debug, Serialize, Clone)]
-pub struct InstanceParams<'a> {
+struct InstanceParams<'a> {
     object: InstanceData<'a>,
 }
 
 impl<'a> Create<'a> {
-    pub fn new(class_ref: impl Into<Expr<'a>>, params: InstanceParams<'a>) -> Self {
+    pub fn new(class_ref: impl Into<Expr<'a>>, data: impl Into<Expr<'a>>) -> Self {
         Self {
             create: class_ref.into(),
-            params,
+            params: InstanceParams::new(data)
         }
     }
 }
 
 impl<'a> InstanceParams<'a> {
-    pub fn new<E>(data: E) -> Self
+    fn new<E>(data: E) -> Self
     where
         E: Into<Expr<'a>>,
     {
@@ -58,9 +58,7 @@ mod tests {
         let mut obj = Object::default();
         obj.insert("test_field", "test_value");
 
-        let params = InstanceParams::new(obj);
-
-        let query = Query::from(Create::new(Ref::class("test"), params));
+        let query = Query::from(Create::new(Ref::class("test"), obj));
         let serialized = serde_json::to_value(&query).unwrap();
 
         let expected = json!({
@@ -102,11 +100,9 @@ mod tests {
         obj.insert("created_at", Utc.timestamp(60, 0));
         obj.insert("birthday", NaiveDate::from_ymd(2011, 7, 7));
 
-        let params = InstanceParams::new(obj);
-
         with_class(|class_name| {
             let response = CLIENT
-                .query(Create::new(Class::find(class_name), params))
+                .query(Create::new(Class::find(class_name), obj))
                 .unwrap();
             let res = response.resource.as_object().unwrap();
 

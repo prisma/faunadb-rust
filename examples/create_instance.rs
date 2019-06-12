@@ -57,9 +57,7 @@ fn main() {
             obj.insert("objective", obj2);
         }
 
-        let params = InstanceParams::new(obj);
-
-        Create::new(Ref::class("HouseCats"), params)
+        Create::new(Ref::class("HouseCats"), obj)
     };
 
     let instance_query = client.query(create_instance);

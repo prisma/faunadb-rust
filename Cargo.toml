@@ -1,6 +1,6 @@
 [package]
 name = "faunadb"
-version = "0.0.4"
+version = "0.0.5"
 authors = ["Julius de Bruijn <bruijn@prisma.io>"]
 edition = "2018"
 readme  = "README.md"
