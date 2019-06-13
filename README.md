@@ -26,7 +26,8 @@ fn main() {
         client
             .query(CreateDatabase::new(params))
             .map(|response| {
-                println!("{}", response);
+                let res = response.resource;
+                assert_eq!(Some("my-first-database"), res["name"].as_str())
             })
             .map_err(|error: faunadb::error::Error| {
                 println!("Error: {:?}", error);
