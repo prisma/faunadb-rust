@@ -398,6 +398,12 @@ impl Value {
         }
     }
 
+    /// Finds a nearest `Ref` if found and if taken from an `Object`, otherwise
+    /// `None`.
+    pub fn get_reference(&self) -> Option<&Ref<'static>> {
+        self["ref"].as_reference()
+    }
+
     /// `true` if the `Value` is a `Query`.
     pub fn is_query(&self) -> bool {
         match self {
