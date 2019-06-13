@@ -93,6 +93,17 @@ impl TryFrom<Value> for String {
     }
 }
 
+impl TryFrom<Value> for BTreeMap<String, Value> {
+    type Error = Error;
+
+    fn try_from(val: Value) -> FaunaResult<BTreeMap<String, Value>> {
+        match val {
+            Value::Simple(SimpleValue::Object(obj)) => Ok(obj),
+            _ => Err(Error::ConversionError("Value is not an Object")),
+        }
+    }
+}
+
 impl Value {
     pub fn is_string(&self) -> bool {
         match self {
