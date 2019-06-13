@@ -2,10 +2,11 @@ use crate::{
     error::Error,
     expr::{Bytes, Number, Ref},
     serde::base64_bytes,
+    FaunaResult,
 };
 use chrono::{DateTime, NaiveDate, Utc};
 use futures::{Future, Poll};
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, convert::TryFrom};
 
 pub struct FutureResponse<T>(pub Box<Future<Item = T, Error = Error> + Send + 'static>);
 
@@ -78,6 +79,17 @@ where
 {
     fn from(t: Vec<V>) -> Self {
         Value::Simple(SimpleValue::Array(t.into_iter().map(Into::into).collect()))
+    }
+}
+
+impl TryFrom<Value> for String {
+    type Error = Error;
+
+    fn try_from(val: Value) -> FaunaResult<String> {
+        match val {
+            Value::Simple(SimpleValue::String(str)) => Ok(str),
+            _ => Err(Error::ConversionError("Value is not a String")),
+        }
     }
 }
 

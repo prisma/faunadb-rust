@@ -139,7 +139,7 @@ impl Client {
                             let errors: FaunaErrors = serde_json::from_str(&body).unwrap();
                             future::err(Error::NotFound(errors))
                         }
-                        _ => future::err(Error::TemporaryFailure(body)),
+                        _ => future::err(Error::DatabaseError(body)),
                     }
                 } else {
                     future::err(Error::EmptyResponse)

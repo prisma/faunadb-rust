@@ -23,8 +23,10 @@ pub enum Error {
     RequestDataFailure(&'static str),
     #[fail(display = "Response data failure: {}", _0)]
     ResponseDataFailure(&'static str),
-    #[fail(display = "Temporary error wrapper for development, original: {}", _0)]
-    TemporaryFailure(String),
+    #[fail(display = "Fauna error: {}", _0)]
+    DatabaseError(String),
+    #[fail(display = "Couldn't convert data: {}", _0)]
+    ConversionError(&'static str),
     #[cfg(feature = "sync_client")]
     #[fail(display = "IO Error: {}", _0)]
     IoError(failure::Error),
