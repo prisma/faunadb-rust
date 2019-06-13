@@ -38,7 +38,7 @@ impl<'a> RefLocation<'a> {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 /// Denotes a resource ref.
 pub struct Ref<'a> {
-    id: Cow<'a, str>,
+    pub id: Cow<'a, str>,
     #[serde(skip_serializing_if = "Option::is_none", flatten)]
     location: Option<RefLocation<'a>>,
 }

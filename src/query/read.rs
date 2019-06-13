@@ -1,6 +1,6 @@
 //! Read functions
 use crate::{
-    expr::{Array, Expr, Ref},
+    expr::{Array, Expr},
     query::Query,
 };
 use chrono::{DateTime, Utc};
@@ -23,9 +23,9 @@ pub struct Get<'a> {
 }
 
 impl<'a> Get<'a> {
-    pub fn instance(reference: Ref<'a>) -> Self {
+    pub fn instance(reference: impl Into<Expr<'a>>) -> Self {
         Self {
-            get: Expr::from(reference),
+            get: reference.into(),
             timestamp: None,
         }
     }
