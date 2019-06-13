@@ -49,7 +49,7 @@ pub enum AnnotatedValue {
     /// Denotes a resource ref. Refs may be extracted from instances, or
     /// constructed using the ref function.
     #[serde(rename = "@ref")]
-    Ref(Box<Ref<'static>>),
+    Ref(Ref<'static>),
     /// Denotes a query expression object.
     #[serde(rename = "@query")]
     Query(Box<Value>),
@@ -87,6 +87,24 @@ where
 {
     fn from(t: T) -> Self {
         Value::Simple(SimpleValue::Number(t.into()))
+    }
+}
+
+impl From<Ref<'static>> for Value {
+    fn from(t: Ref<'static>) -> Self {
+        Value::Annotated(AnnotatedValue::Ref(t))
+    }
+}
+
+impl From<NaiveDate> for Value {
+    fn from(t: NaiveDate) -> Self {
+        Value::Annotated(AnnotatedValue::Date(t))
+    }
+}
+
+impl From<DateTime<Utc>> for Value {
+    fn from(t: DateTime<Utc>) -> Self {
+        Value::Annotated(AnnotatedValue::Timestamp(t))
     }
 }
 
