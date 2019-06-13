@@ -1,12 +1,10 @@
 use super::ValueIndex;
 use crate::{
-    error::Error,
     expr::{Bytes, Number, Ref},
     serde::base64_bytes,
-    FaunaResult,
 };
 use chrono::{DateTime, NaiveDate, Utc};
-use std::{collections::BTreeMap, convert::TryFrom};
+use std::collections::BTreeMap;
 
 /// Represents any value returned from Fauna.
 ///
@@ -128,39 +126,6 @@ where
     }
 }
 
-impl TryFrom<Value> for String {
-    type Error = Error;
-
-    fn try_from(val: Value) -> FaunaResult<String> {
-        match val {
-            Value::Simple(SimpleValue::String(str)) => Ok(str),
-            _ => Err(Error::ConversionError("Value is not a String")),
-        }
-    }
-}
-
-impl TryFrom<Value> for BTreeMap<String, Value> {
-    type Error = Error;
-
-    fn try_from(val: Value) -> FaunaResult<BTreeMap<String, Value>> {
-        match val {
-            Value::Simple(SimpleValue::Object(obj)) => Ok(obj),
-            _ => Err(Error::ConversionError("Value is not an Object")),
-        }
-    }
-}
-
-impl TryFrom<Value> for Vec<Value> {
-    type Error = Error;
-
-    fn try_from(val: Value) -> FaunaResult<Vec<Value>> {
-        match val {
-            Value::Simple(SimpleValue::Array(ary)) => Ok(ary),
-            _ => Err(Error::ConversionError("Value is not an Array")),
-        }
-    }
-}
-
 impl Value {
     /// A helper to get a `Null` value.
     pub const fn null() -> Value {
@@ -226,6 +191,14 @@ impl Value {
     pub fn as_str(&self) -> Option<&str> {
         match self {
             Value::Simple(SimpleValue::String(string)) => Some(string.as_str()),
+            _ => None,
+        }
+    }
+
+    /// Transforms the `Value` to a `String` if it's a string, otherwise `None`.
+    pub fn into_string(self) -> Option<String> {
+        match self {
+            Value::Simple(SimpleValue::String(string)) => Some(string),
             _ => None,
         }
     }
@@ -342,6 +315,14 @@ impl Value {
         }
     }
 
+    /// Transforms the `Value` into an `Array` if an array, otherwise `None`.
+    pub fn into_array(self) -> Option<Vec<Value>> {
+        match self {
+            Value::Simple(SimpleValue::Array(v)) => Some(v),
+            _ => None,
+        }
+    }
+
     /// Returns a mutable `Array` for `Array` values, otherwise `None`.
     pub fn as_array_mut(&mut self) -> Option<&Vec<Value>> {
         match self {
@@ -370,6 +351,14 @@ impl Value {
     pub fn as_object_mut(&mut self) -> Option<&mut BTreeMap<String, Value>> {
         match *self {
             Value::Simple(SimpleValue::Object(ref mut obj)) => Some(obj),
+            _ => None,
+        }
+    }
+
+    /// Transforms the `Value` into an `Object` if an object, otherwise `None`.
+    pub fn into_object(self) -> Option<BTreeMap<String, Value>> {
+        match self {
+            Value::Simple(SimpleValue::Object(obj)) => Some(obj),
             _ => None,
         }
     }
