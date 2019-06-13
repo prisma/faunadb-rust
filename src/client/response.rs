@@ -104,6 +104,17 @@ impl TryFrom<Value> for BTreeMap<String, Value> {
     }
 }
 
+impl TryFrom<Value> for Vec<Value> {
+    type Error = Error;
+
+    fn try_from(val: Value) -> FaunaResult<Vec<Value>> {
+        match val {
+            Value::Simple(SimpleValue::Array(ary)) => Ok(ary),
+            _ => Err(Error::ConversionError("Value is not an Array")),
+        }
+    }
+}
+
 impl Value {
     pub fn is_string(&self) -> bool {
         match self {
