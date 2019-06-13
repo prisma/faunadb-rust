@@ -30,7 +30,7 @@ impl<'a> Create<'a> {
     pub fn new(class_ref: impl Into<Expr<'a>>, data: impl Into<Expr<'a>>) -> Self {
         Self {
             create: class_ref.into(),
-            params: InstanceParams::new(data)
+            params: InstanceParams::new(data),
         }
     }
 }
@@ -104,31 +104,32 @@ mod tests {
             let response = CLIENT
                 .query(Create::new(Class::find(class_name), obj))
                 .unwrap();
-            let res = response.resource.as_object().unwrap();
 
-            let data = res.get("data").and_then(|res| res.as_object()).unwrap();
-            let name = data.get("name").and_then(|res| res.as_str());
-            let id = data.get("id").and_then(|res| res.as_u64());
-            let age = data.get("age").and_then(|res| res.as_u64());
-            let bytes = data.get("byte_data").and_then(|res| res.as_bytes());
-            let nicknames = data.get("nicknames").and_then(|res| res.as_array());
-            let bool_val = data.get("am_i_cute").and_then(|res| res.as_bool());
-            let ts_val = data.get("created_at").and_then(|res| res.as_timestamp());
-            let date_val = data.get("birthday").and_then(|res| res.as_date());
+            let res = response.resource;
 
-            assert_eq!(name, Some("Musti"));
-            assert_eq!(id, Some(1));
-            assert_eq!(age, Some(7));
-            assert_eq!(bytes, Some(&Bytes::from(vec![0x1, 0x2, 0x3])));
+            assert_eq!(res["data"]["name"].as_str(), Some("Musti"));
+            assert_eq!(res["data"]["id"].as_u64(), Some(1));
+            assert_eq!(res["data"]["age"].as_u64(), Some(7));
+            assert_eq!(res["data"]["am_i_cute"].as_bool(), Some(true));
 
             assert_eq!(
-                nicknames,
-                Some(&nickname_vals.into_iter().map(Value::from).collect())
+                res["data"]["byte_data"].as_bytes(),
+                Some(&Bytes::from(vec![0x1, 0x2, 0x3]))
             );
 
-            assert_eq!(ts_val, Some(Utc.timestamp(60, 0)));
-            assert_eq!(date_val, Some(NaiveDate::from_ymd(2011, 7, 7)));
-            assert_eq!(bool_val, Some(true));
+            assert_eq!(
+                res["data"]["created_at"].as_timestamp(),
+                Some(Utc.timestamp(60, 0))
+            );
+
+            assert_eq!(
+                res["data"]["birthday"].as_date(),
+                Some(NaiveDate::from_ymd(2011, 7, 7))
+            );
+
+            assert_eq!(res["data"]["nicknames"][0].as_str(), Some("mustu"));
+            assert_eq!(res["data"]["nicknames"][1].as_str(), Some("muspus"));
+            assert_eq!(res["data"]["nicknames"][2].as_str(), Some("mustikka"));
         });
     }
 }

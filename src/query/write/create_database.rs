@@ -120,27 +120,20 @@ mod tests {
 
         let result = panic::catch_unwind(|| {
             let response = CLIENT.query(CreateDatabase::new(params)).unwrap();
-            let res = response.resource.as_object().unwrap();
+            let res = response.resource;
 
-            let api_version = res.get("api_version").unwrap();
-            let data = res.get("data").unwrap().as_object().unwrap();
-            let name = res.get("name").unwrap();
-            let priority = res.get("priority").unwrap();
-            let reference = res.get("ref").unwrap();
-            let ts = res.get("ts").unwrap();
-
-            assert_eq!(api_version.as_str(), Some("2.0"));
-            assert_eq!(name.as_str(), Some(db_name));
-            assert_eq!(priority.as_u64(), Some(10));
+            assert_eq!(res["api_version"].as_str(), Some("2.0"));
+            assert_eq!(res["name"].as_str(), Some(db_name));
+            assert_eq!(res["priority"].as_u64(), Some(10));
 
             assert_eq!(
-                reference.as_reference().unwrap().path(),
+                res["ref"].as_reference().unwrap().path(),
                 Ref::database(db_name).path()
             );
 
-            assert_eq!(data.get("foo").and_then(|foo| foo.as_str()), Some("bar"));
+            assert_eq!(res["data"]["foo"].as_str(), Some("bar"));
 
-            assert!(ts.is_number());
+            assert!(res["ts"].is_number());
         });
 
         CLIENT.query(Delete::new(Ref::database(db_name))).unwrap();

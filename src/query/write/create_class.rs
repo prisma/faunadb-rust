@@ -141,29 +141,13 @@ mod tests {
 
         with_database(|_| {
             let response = CLIENT.query(CreateClass::new(params)).unwrap();
-            let res = response.resource.as_object().unwrap();
+            let res = response.resource;
 
-            let history_days = res.get("history_days").and_then(|res| res.as_u64());
-            let ttl_days = res.get("ttl_days").and_then(|res| res.as_u64());
-            let name = res.get("name").and_then(|res| res.as_str());
-
-            let permissions = res
-                .get("permissions")
-                .and_then(|res| res.as_object())
-                .unwrap();
-
-            let data = res.get("data").and_then(|res| res.as_object()).unwrap();
-
-            assert_eq!(history_days, Some(10));
-            assert_eq!(ttl_days, Some(3));
-            assert_eq!(name, Some(class_name.as_str()));
-
-            assert_eq!(data.get("meow").and_then(|res| res.as_bool()), Some(true));
-
-            assert_eq!(
-                permissions.get("read").and_then(|res| res.as_str()),
-                Some("public")
-            );
+            assert_eq!(res["history_days"].as_u64(), Some(10));
+            assert_eq!(res["ttl_days"].as_u64(), Some(3));
+            assert_eq!(res["name"].as_str(), Some(class_name.as_str()));
+            assert_eq!(res["data"]["meow"].as_bool(), Some(true));
+            assert_eq!(res["permissions"]["read"].as_str(), Some("public"));
         });
     }
 }
