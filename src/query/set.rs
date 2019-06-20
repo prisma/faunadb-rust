@@ -135,15 +135,21 @@ impl<'a> Join<'a> {
 pub struct Match<'a> {
     #[serde(rename = "match")]
     match_: Expr<'a>,
-    terms: Expr<'a>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    terms: Option<Expr<'a>>,
 }
 
 impl<'a> Match<'a> {
-    pub fn new(match_: impl Into<Expr<'a>>, terms: impl Into<Expr<'a>>) -> Self {
+    pub fn new(match_: impl Into<Expr<'a>>) -> Self {
         Self {
             match_: match_.into(),
-            terms: terms.into(),
+            terms: None,
         }
+    }
+
+    pub fn with_terms(mut self, terms: impl Into<Expr<'a>>) -> Self {
+        self.terms = Some(terms.into());
+        self
     }
 }
 
@@ -189,8 +195,8 @@ mod tests {
     #[test]
     fn test_difference() {
         let fun = Difference::new(
-            Match::new(Index::find("spells_by_element"), "fire"),
-            Match::new(Index::find("spells_by_element"), "water"),
+            Match::new(Index::find("spells_by_element")).with_terms("fire"),
+            Match::new(Index::find("spells_by_element")).with_terms("water"),
         );
 
         let query = Query::from(fun);
@@ -208,13 +214,13 @@ mod tests {
 
     #[test]
     fn test_distinct() {
-        let fun = Distinct::new(Match::new(Index::find("spells_by_element"), Expr::null()));
+        let fun = Distinct::new(Match::new(Index::find("spells_by_element")));
 
         let query = Query::from(fun);
         let serialized = serde_json::to_value(&query).unwrap();
 
         let expected = json!({
-            "distinct": {"match": {"index": "spells_by_element"}, "terms": null},
+            "distinct": {"match": {"index": "spells_by_element"}},
         });
 
         assert_eq!(expected, serialized);
@@ -223,8 +229,8 @@ mod tests {
     #[test]
     fn test_intersection() {
         let fun = Intersection::new(
-            Match::new(Index::find("spells_by_element"), "fire"),
-            Match::new(Index::find("spells_by_element"), "water"),
+            Match::new(Index::find("spells_by_element")).with_terms("fire"),
+            Match::new(Index::find("spells_by_element")).with_terms("water"),
         );
 
         let query = Query::from(fun);
@@ -246,7 +252,7 @@ mod tests {
         owner.set_class("characters");
 
         let fun = Join::new(
-            Match::new(Index::find("spellbooks_by_owner"), owner),
+            Match::new(Index::find("spellbooks_by_owner")).with_terms(owner),
             Index::find("spells_by_spellbook"),
         );
 
@@ -280,7 +286,7 @@ mod tests {
 
     #[test]
     fn test_match() {
-        let fun = Match::new(Index::find("spells_by_element"), "fire");
+        let fun = Match::new(Index::find("spells_by_element")).with_terms("fire");
 
         let query = Query::from(fun);
         let serialized = serde_json::to_value(&query).unwrap();
@@ -295,8 +301,8 @@ mod tests {
     #[test]
     fn test_union() {
         let fun = Union::new(
-            Match::new(Index::find("spells_by_element"), "fire"),
-            Match::new(Index::find("spells_by_element"), "water"),
+            Match::new(Index::find("spells_by_element")).with_terms("fire"),
+            Match::new(Index::find("spells_by_element")).with_terms("water"),
         );
 
         let query = Query::from(fun);

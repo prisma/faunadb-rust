@@ -1,7 +1,4 @@
-use crate::{
-    expr::{Expr, Ref},
-    query::Query,
-};
+use crate::{expr::Expr, query::Query};
 
 query!(Update);
 
@@ -22,41 +19,49 @@ pub struct Update<'a> {
     params: UpdateParams<'a>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, Default)]
 pub struct UpdateParams<'a> {
     object: UpdateObject<'a>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, Default)]
 #[doc(hidden)]
 pub struct UpdateObject<'a> {
-    data: Expr<'a>,
-    credentials: Expr<'a>,
-    delegates: Expr<'a>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    data: Option<Expr<'a>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    credentials: Option<Expr<'a>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    delegates: Option<Expr<'a>>,
 }
 
 impl<'a> Update<'a> {
-    pub fn new(reference: Ref<'a>, params: UpdateParams<'a>) -> Self {
+    pub fn new(reference: impl Into<Expr<'a>>, params: UpdateParams<'a>) -> Self {
         Update {
-            update: Expr::from(reference),
+            update: reference.into(),
             params,
         }
     }
 }
 
 impl<'a> UpdateParams<'a> {
-    pub fn new(
-        data: impl Into<Expr<'a>>,
-        credentials: impl Into<Expr<'a>>,
-        delegates: impl Into<Expr<'a>>,
-    ) -> Self {
-        Self {
-            object: UpdateObject {
-                data: data.into(),
-                credentials: credentials.into(),
-                delegates: delegates.into(),
-            },
-        }
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn data(&mut self, data: impl Into<Expr<'a>>) -> &mut Self {
+        self.object.data = Some(data.into());
+        self
+    }
+
+    pub fn credentials(&mut self, credentials: impl Into<Expr<'a>>) -> &mut Self {
+        self.object.credentials = Some(credentials.into());
+        self
+    }
+
+    pub fn delegates(&mut self, delegates: impl Into<Expr<'a>>) -> &mut Self {
+        self.object.delegates = Some(delegates.into());
+        self
     }
 }
 
@@ -76,7 +81,10 @@ mod tests {
         let mut delegates = Object::default();
         delegates.insert("pawpaw", "meow");
 
-        let params = UpdateParams::new(data, credentials, delegates);
+        let mut params = UpdateParams::new();
+        params.data(data);
+        params.credentials(credentials);
+        params.delegates(delegates);
 
         let fun = Update::new(Ref::instance("musti"), params);
 
