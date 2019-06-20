@@ -22,7 +22,7 @@ fn main() {
 
     let secret = matches.value_of("secret").unwrap();
 
-    let mut builder = ClientBuilder::new(secret);
+    let mut builder = Client::builder(secret);
     builder.uri("http://localhost:8443");
 
     let client = builder.build().unwrap();

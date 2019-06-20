@@ -21,7 +21,7 @@ fn main() {
         .get_matches();
 
     let secret = matches.value_of("secret").unwrap();
-    let client = ClientBuilder::new(secret).build().unwrap();
+    let client = Client::builder(secret).build().unwrap();
 
     let params = FunctionParams::new(
         "double",

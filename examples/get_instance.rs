@@ -31,7 +31,7 @@ fn main() {
         .get_matches();
 
     let secret = matches.value_of("secret").unwrap();
-    let client = ClientBuilder::new(secret).build().unwrap();
+    let client = Client::builder(secret).build().unwrap();
 
     tokio::run(lazy(move || {
         let mut instance = Ref::instance(matches.value_of("id").unwrap());

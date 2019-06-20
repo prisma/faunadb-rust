@@ -6,7 +6,7 @@ use std::panic;
 
 lazy_static! {
     pub static ref CLIENT: SyncClient = {
-        let mut builder = ClientBuilder::new("secret");
+        let mut builder = Client::builder("secret");
         builder.uri("http://localhost:8443");
 
         builder.build_sync().unwrap()

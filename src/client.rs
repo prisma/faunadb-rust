@@ -33,16 +33,6 @@ pub struct ClientBuilder<'a> {
 }
 
 impl<'a> ClientBuilder<'a> {
-    /// Create a new client builder. Secret can be generated in [Fauna Cloud
-    /// Console](https://dashboard.fauna.com/keys-new/@db/).
-    pub fn new(secret: impl Into<Cow<'a, str>>) -> Self {
-        Self {
-            uri: Cow::from("https://db.fauna.com"),
-            secret: secret.into(),
-            timeout: Duration::new(60, 0),
-        }
-    }
-
     /// Change the uri if using dedicated Fauna servers. Default:
     /// `https://db.fauna.com`.
     pub fn uri(&mut self, uri: impl Into<Cow<'a, str>>) -> &mut Self {
@@ -90,6 +80,16 @@ pub struct Client {
 }
 
 impl Client {
+    /// Create a new client builder. Secret can be generated in [Fauna Cloud
+    /// Console](https://dashboard.fauna.com/keys-new/@db/).
+    pub fn builder<'a>(secret: impl Into<Cow<'a, str>>) -> ClientBuilder<'a> {
+        ClientBuilder {
+            uri: Cow::from("https://db.fauna.com"),
+            secret: secret.into(),
+            timeout: Duration::new(60, 0),
+        }
+    }
+
     /// Send a query to Fauna servers and parsing the response.
     pub fn query<'a, Q>(&self, query: Q) -> FutureResponse<Response>
     where

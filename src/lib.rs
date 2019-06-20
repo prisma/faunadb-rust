@@ -17,7 +17,7 @@
 //! use faunadb::prelude::*;
 //!
 //! fn main() {
-//!     let client = ClientBuilder::new("my_fauna_secret").build().unwrap();
+//!     let client = Client::builder("my_fauna_secret").build().unwrap();
 //!
 //!     let query = Filter::new(
 //!         Lambda::new("x", Gt::new(Var::new("x"), 2)),
@@ -43,7 +43,7 @@
 //! use faunadb::prelude::*;
 //!
 //! fn main() {
-//!     let mut client = ClientBuilder::new("my_fauna_secret").build_sync().unwrap();
+//!     let mut client = Client::builder("my_fauna_secret").build_sync().unwrap();
 //!
 //!     let query = Filter::new(
 //!         Lambda::new("x", Gt::new(Var::new("x"), 2)),

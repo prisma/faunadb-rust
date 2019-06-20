@@ -19,7 +19,7 @@ use tokio;
 use futures::{future::lazy, Future};
 
 fn main() {
-    let client = ClientBuilder::new("put-your-secret-here").build().unwrap();
+    let client = Client::builder("put-your-secret-here").build().unwrap();
     let params = DatabaseParams::new("my-first-database");
 
     tokio::run(lazy(move || {
