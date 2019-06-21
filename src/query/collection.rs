@@ -160,17 +160,14 @@ impl<'a> IsNonEmpty<'a> {
 #[derive(Serialize, Clone, Debug)]
 pub struct Map<'a> {
     collection: Expr<'a>,
-    map: Lambda<'a>,
+    map: Expr<'a>,
 }
 
 impl<'a> Map<'a> {
-    pub fn new<E>(collection: E, lambda: Lambda<'a>) -> Self
-    where
-        E: Into<Expr<'a>>,
-    {
+    pub fn new(collection: impl Into<Expr<'a>>, lambda: impl Into<Expr<'a>>) -> Self {
         Self {
             collection: collection.into(),
-            map: lambda,
+            map: lambda.into(),
         }
     }
 }

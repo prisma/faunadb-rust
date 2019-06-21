@@ -1,6 +1,8 @@
 use super::{SimpleValue, Value};
 use std::ops;
 
+/// Indexing to support square bracket syntax for the response values.
+///
 /// Shamelessly taken from `serde_json`, extended to be used with Fauna values.
 ///
 /// Read the
