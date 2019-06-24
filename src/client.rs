@@ -101,7 +101,6 @@ impl Client {
         trace!("Querying with: {:?}", &payload_json);
 
         self.request(self.build_request(payload_json), |body| {
-            trace!("Got response: {:?}", &body);
             serde_json::from_str(&body).unwrap()
         })
     }
@@ -128,6 +127,8 @@ impl Client {
 
             get_body.and_then(move |body_chunk| {
                 if let Ok(body) = String::from_utf8(body_chunk.to_vec()) {
+                    trace!("Got response: {:?}", &body);
+
                     match status {
                         s if s.is_success() => future::ok(f(body)),
                         StatusCode::UNAUTHORIZED => future::err(Error::Unauthorized),
