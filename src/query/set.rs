@@ -100,7 +100,7 @@ where
 /// source's values to be retrieved from the `detail` index terms.
 ///
 /// Read the
-/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/set/intersection)
+/// [docs](https://docs.fauna.com/fauna/current/reference/queryapi/set/join)
 #[derive(Serialize, Debug, Clone)]
 pub struct Join<'a> {
     join: Expr<'a>,
