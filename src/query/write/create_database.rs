@@ -2,7 +2,6 @@ use crate::{
     error::Error,
     expr::{Expr, Object},
     query::Query,
-    FaunaResult,
 };
 use std::borrow::Cow;
 
@@ -68,7 +67,7 @@ impl<'a> DatabaseParams<'a> {
         self
     }
 
-    pub fn priority(&mut self, priority: u16) -> FaunaResult<&mut Self> {
+    pub fn priority(&mut self, priority: u16) -> crate::Result<&mut Self> {
         if priority == 0 || priority > 500 {
             return Err(Error::RequestDataFailure(
                 "Priority should be a number between 1 and 500",

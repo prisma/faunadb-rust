@@ -1,5 +1,5 @@
 use super::{Client, Response};
-use crate::{expr::Expr, FaunaResult};
+use crate::expr::Expr;
 use std::sync::Mutex;
 use tokio::runtime::Runtime;
 
@@ -10,14 +10,14 @@ pub struct SyncClient {
 }
 
 impl SyncClient {
-    pub fn new(inner: Client) -> FaunaResult<Self> {
+    pub fn new(inner: Client) -> crate::Result<Self> {
         Ok(Self {
             inner,
             runtime: Mutex::new(Runtime::new()?),
         })
     }
 
-    pub fn query<'a, Q>(&self, query: Q) -> FaunaResult<Response>
+    pub fn query<'a, Q>(&self, query: Q) -> crate::Result<Response>
     where
         Q: Into<Expr<'a>>,
     {

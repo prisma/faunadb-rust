@@ -13,7 +13,6 @@ pub use sync::*;
 use crate::{
     error::{Error, FaunaErrors},
     expr::Expr,
-    FaunaResult,
 };
 use futures::{future, stream::Stream, Future};
 use http::header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE};
@@ -47,7 +46,7 @@ impl<'a> ClientBuilder<'a> {
     }
 
     /// Creates the client.
-    pub fn build(self) -> FaunaResult<Client> {
+    pub fn build(self) -> crate::Result<Client> {
         let mut builder = hyper::Client::builder();
         builder.keep_alive(true);
 
@@ -62,7 +61,7 @@ impl<'a> ClientBuilder<'a> {
     }
 
     #[cfg(feature = "sync_client")]
-    pub fn build_sync(self) -> FaunaResult<SyncClient> {
+    pub fn build_sync(self) -> crate::Result<SyncClient> {
         Ok(SyncClient::new(self.build()?)?)
     }
 }

@@ -76,4 +76,4 @@ mod serde;
 #[cfg(test)]
 mod test_utils;
 
-pub type FaunaResult<T> = Result<T, error::Error>;
+pub type Result<T> = ::std::result::Result<T, error::Error>;
