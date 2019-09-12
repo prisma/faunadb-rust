@@ -1,8 +1,8 @@
 use clap::{App, Arg};
 use faunadb::prelude::*;
-use futures::{future::lazy, Future};
 
-fn main() {
+#[tokio::main]
+async fn main() -> std::result::Result<(), faunadb::error::Error> {
     pretty_env_logger::init();
 
     let matches = App::new("A misc throwaway test client for development")
@@ -33,14 +33,8 @@ fn main() {
     params.priority(10).unwrap();
     params.data(data);
 
-    tokio::run(lazy(move || {
-        client
-            .query(CreateDatabase::new(params))
-            .map(|response| {
-                println!("{:#?}", response);
-            })
-            .map_err(|error: faunadb::error::Error| {
-                println!("Error: {:#?}", error);
-            })
-    }));
+    let response = client.query(CreateDatabase::new(params)).await?;
+    println!("{:#?}", response);
+
+    Ok(())
 }

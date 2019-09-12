@@ -1,12 +1,9 @@
 use chrono::{NaiveDate, Utc};
 use clap::{App, Arg};
 use faunadb::prelude::*;
-use futures::{
-    Future,
-    {future::Either, lazy},
-};
 
-fn main() {
+#[tokio::main]
+async fn main() -> std::result::Result<(), faunadb::error::Error> {
     pretty_env_logger::init();
 
     let matches = App::new("A Simple FaunaDB Client")
@@ -60,9 +57,7 @@ fn main() {
         Create::new(Ref::class("HouseCats"), obj)
     };
 
-    let instance_query = client.query(create_instance);
-
-    let query = if matches.is_present("create_class") {
+    let response = if matches.is_present("create_class") {
         let mut perms = ClassPermission::default();
         perms.read(Level::public());
 
@@ -71,25 +66,15 @@ fn main() {
         params.ttl_days(3);
         params.permissions(perms);
 
-        let class_query = client.query(CreateClass::new(params));
+        let class_res = client.query(CreateClass::new(params)).await?;
+        println!("{:?}", class_res);
 
-        let query = class_query.and_then(|res| {
-            println!("{:?}", res);
-            instance_query
-        });
-
-        Either::A(query)
+        client.query(create_instance).await?
     } else {
-        Either::B(instance_query)
+        client.query(create_instance).await?
     };
 
-    tokio::run(lazy(move || {
-        query
-            .map(|response| {
-                println!("{:?}", response);
-            })
-            .map_err(|error: faunadb::error::Error| {
-                println!("Error: {:#?}", error);
-            })
-    }));
+    println!("{:?}", response);
+
+    Ok(())
 }

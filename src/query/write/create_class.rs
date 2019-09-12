@@ -122,8 +122,8 @@ mod tests {
         assert_eq!(expected, serialized);
     }
 
-    #[test]
-    fn test_create_class_eval() {
+    #[tokio::test]
+    async fn test_create_class_eval() {
         let mut permission = ClassPermission::default();
         permission.read(Level::public());
         permission.write(Level::public());
@@ -139,15 +139,19 @@ mod tests {
         params.permissions(permission);
         params.data(data);
 
-        with_database(|_| {
-            let response = CLIENT.query(CreateClass::new(params)).unwrap();
-            let res = response.resource;
+        let db_name = create_database().await;
+        let response = CLIENT.query(CreateClass::new(params)).await.unwrap();
+        let res = response.resource;
 
+        let res = std::panic::catch_unwind(|| {
             assert_eq!(res["history_days"].as_u64(), Some(10));
             assert_eq!(res["ttl_days"].as_u64(), Some(3));
             assert_eq!(res["name"].as_str(), Some(class_name.as_str()));
             assert_eq!(res["data"]["meow"].as_bool(), Some(true));
             assert_eq!(res["permissions"]["read"].as_str(), Some("public"));
         });
+
+        delete_database(&db_name).await;
+        res.unwrap();
     }
 }

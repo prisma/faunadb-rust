@@ -1,13 +1,13 @@
 # FaunaDB Rust Client
 
-FaunaDB offers an asynchronous (and synchronous) client for communicating with
+FaunaDB offers an asynchronous client for communicating with
 the [Fauna](https://fauna.com) database.
 
 Goals:
 
 - Typesafe
 - Allocating only when really needed
-- Asynchronous using futures (and [Tokio](https://tokio.rs))
+- Asynchronous, async/await
 
 The crate is not yet tested on production so use at your own risk.
 
@@ -15,24 +15,17 @@ The crate is not yet tested on production so use at your own risk.
 
 ``` rust
 use faunadb::prelude::*;
-use tokio;
-use futures::{future::lazy, Future};
 
-fn main() {
-    let client = Client::builder("put-your-secret-here").build().unwrap();
+#[tokio::main]
+async fn main() -> std::result::Result<(), faunadb::error::Error> {
+    let client = Client::builder("put-your-secret-here").build()?;
     let params = DatabaseParams::new("my-first-database");
 
-    tokio::run(lazy(move || {
-        client
-            .query(CreateDatabase::new(params))
-            .map(|response| {
-                let res = response.resource;
-                assert_eq!(Some("my-first-database"), res["name"].as_str())
-            })
-            .map_err(|error: faunadb::error::Error| {
-                println!("Error: {:?}", error);
-            })
-    }));
+    let response = client.query(CreateDatabase::new(params)).await?;
+    let res = response.resource;
+
+    assert_eq!(Some("my-first-database"), res["name"].as_str())
+    Ok(())
 }
 ```
 

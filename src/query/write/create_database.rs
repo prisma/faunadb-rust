@@ -107,8 +107,8 @@ mod tests {
         assert_eq!(expected, serialized);
     }
 
-    #[test]
-    fn test_create_database_eval() {
+    #[tokio::test]
+    async fn test_create_database_eval() {
         let mut data = Object::default();
         data.insert("foo", "bar");
 
@@ -117,10 +117,10 @@ mod tests {
         params.priority(10).unwrap();
         params.data(data);
 
-        let result = panic::catch_unwind(|| {
-            let response = CLIENT.query(CreateDatabase::new(params)).unwrap();
-            let res = response.resource;
+        let response = CLIENT.query(CreateDatabase::new(params)).await.unwrap();
+        let res = response.resource;
 
+        let result = panic::catch_unwind(|| {
             assert_eq!(res["api_version"].as_str(), Some("2.0"));
             assert_eq!(res["name"].as_str(), Some(db_name));
             assert_eq!(res["priority"].as_u64(), Some(10));
@@ -135,7 +135,7 @@ mod tests {
             assert!(res["ts"].is_number());
         });
 
-        CLIENT.query(Delete::new(Ref::database(db_name))).unwrap();
+        CLIENT.query(Delete::new(Ref::database(db_name))).await.unwrap();
 
         result.unwrap();
     }

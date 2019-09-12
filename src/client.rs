@@ -2,25 +2,19 @@
 
 mod response;
 
-#[cfg(feature = "sync_client")]
-mod sync;
-
 pub use response::*;
-
-#[cfg(feature = "sync_client")]
-pub use sync::*;
 
 use crate::{
     error::{Error, FaunaErrors},
     expr::Expr,
 };
-use futures::{future, stream::Stream, Future};
+use futures::stream::TryStreamExt;
 use http::header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE};
 use hyper::{client::HttpConnector, Body, StatusCode, Uri};
 use hyper_tls::HttpsConnector;
 use serde_json;
 use std::{borrow::Cow, time::Duration};
-use tokio_timer::Timeout;
+use async_std::future;
 
 type Transport = hyper::Client<HttpsConnector<HttpConnector>>;
 
@@ -53,16 +47,11 @@ impl<'a> ClientBuilder<'a> {
         let secret_b64 = base64::encode(&format!("{}:", self.secret));
 
         Ok(Client {
-            transport: builder.build(HttpsConnector::new(1)?),
+            transport: builder.build(HttpsConnector::new()?),
             uri: self.uri.parse()?,
             timeout: self.timeout,
             authorization: format!("Basic {}", secret_b64),
         })
-    }
-
-    #[cfg(feature = "sync_client")]
-    pub fn build_sync(self) -> crate::Result<SyncClient> {
-        Ok(SyncClient::new(self.build()?)?)
     }
 }
 
@@ -90,7 +79,7 @@ impl Client {
     }
 
     /// Send a query to Fauna servers and parsing the response.
-    pub fn query<'a, Q>(&self, query: Q) -> FutureResponse<Response>
+    pub async fn query<'a, Q>(&self, query: Q) -> crate::Result<Response>
     where
         Q: Into<Expr<'a>>,
     {
@@ -98,67 +87,33 @@ impl Client {
         let payload_json = serde_json::to_string(&query).unwrap();
 
         trace!("Querying with: {:?}", &payload_json);
+        let request = self.request(self.build_request(payload_json));
+        let result = future::timeout(self.timeout, request).await??;
 
-        self.request(self.build_request(payload_json), |body| {
-            serde_json::from_str(&body).unwrap()
-        })
+        Ok(result)
     }
 
-    fn request<F, T>(&self, request: hyper::Request<Body>, f: F) -> FutureResponse<T>
-    where
-        T: Send + Sync + 'static,
-        F: FnOnce(String) -> T + Send + Sync + 'static,
+    async fn request(&self, request: hyper::Request<Body>) -> crate::Result<Response>
     {
-        let send_request = self
-            .transport
-            .request(request)
-            .map_err(|e| Error::ConnectionError(e.into()));
+        let response = self.transport.request(request).await?;
+        trace!("Client::call got response status {}", response.status());
 
-        let requesting = send_request.and_then(move |response| {
-            trace!("Client::call got response status {}", response.status());
+        let status = response.status();
+        let body = response.into_body().try_concat().await?;
 
-            let status = response.status();
-
-            let get_body = response
-                .into_body()
-                .map_err(|e| Error::ConnectionError(e.into()))
-                .concat2();
-
-            get_body.and_then(move |body_chunk| {
-                if let Ok(body) = String::from_utf8(body_chunk.to_vec()) {
-                    trace!("Got response: {:?}", &body);
-
-                    match status {
-                        s if s.is_success() => future::ok(f(body)),
-                        StatusCode::UNAUTHORIZED => future::err(Error::Unauthorized),
-                        StatusCode::BAD_REQUEST => {
-                            let errors: FaunaErrors = serde_json::from_str(&body).unwrap();
-                            future::err(Error::BadRequest(errors))
-                        }
-                        StatusCode::NOT_FOUND => {
-                            let errors: FaunaErrors = serde_json::from_str(&body).unwrap();
-                            future::err(Error::NotFound(errors))
-                        }
-                        _ => future::err(Error::DatabaseError(body)),
-                    }
-                } else {
-                    future::err(Error::EmptyResponse)
-                }
-            })
-        });
-
-        let with_timeout = Timeout::new(requesting, self.timeout).map_err(|e| {
-            if e.is_timer() {
-                Error::TimeoutError
-            } else {
-                match e.into_inner() {
-                    Some(error) => error,
-                    None => Error::Other,
-                }
+        match status {
+            s if s.is_success() => Ok(serde_json::from_slice(&body).unwrap()),
+            StatusCode::UNAUTHORIZED => Err(Error::Unauthorized),
+            StatusCode::BAD_REQUEST => {
+                let errors: FaunaErrors = serde_json::from_slice(&body).unwrap();
+                Err(Error::BadRequest(errors))
             }
-        });
-
-        FutureResponse(Box::new(with_timeout))
+            StatusCode::NOT_FOUND => {
+                let errors: FaunaErrors = serde_json::from_slice(&body).unwrap();
+                Err(Error::NotFound(errors))
+            }
+            _ => Err(Error::DatabaseError(String::from_utf8(body.to_vec()).unwrap())),
+        }
     }
 
     fn build_request(&self, payload: String) -> hyper::Request<Body> {

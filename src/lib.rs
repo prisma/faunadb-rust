@@ -16,24 +16,19 @@
 //! use futures::{future::lazy, Future};
 //! use faunadb::prelude::*;
 //!
-//! fn main() {
-//!     let client = Client::builder("my_fauna_secret").build().unwrap();
+//! #[tokio::main]
+//! async fn main() -> std::result::Result<(), faunadb::error::Error> {
+//!     let client = Client::builder("my_fauna_secret").build()?;
 //!
 //!     let query = Filter::new(
 //!         Lambda::new("x", Gt::new(Var::new("x"), 2)),
 //!         Array::from(vec![1, 2, 3]),
 //!     );
 //!
-//!     tokio::run(lazy(move || {
-//!         client
-//!             .query(query)
-//!             .map(|response| {
-//!                 println!("{:#?}", response);
-//!             })
-//!             .map_err(|error: faunadb::error::Error| {
-//!                 println!("Error: {:#?}", error);
-//!             })
-//!     }));
+//!     let response = client.query(query).await?;
+//!     println!("{:#?}", response);
+//!
+//!     Ok(())
 //! }
 //! ```
 //!
@@ -42,18 +37,19 @@
 //! ```no_run
 //! use faunadb::prelude::*;
 //!
-//! fn main() {
-//!     let mut client = Client::builder("my_fauna_secret").build_sync().unwrap();
+//! #[tokio::main]
+//! async fn main() -> std::result::Result<(), faunadb::error::Error> {
+//!     let mut client = Client::builder("my_fauna_secret").build()?;
 //!
 //!     let query = Filter::new(
 //!         Lambda::new("x", Gt::new(Var::new("x"), 2)),
 //!         Array::from(vec![1, 2, 3]),
 //!     );
 //!
-//!     match client.query(query) {
-//!         Ok(response) => println!("{:#?}", response),
-//!         Err(error) => println!("Error: {:#?}", error),
-//!     }
+//!     let response = client.query(query).await?;
+//!     println!("{:#?}", response);
+//!
+//!     Ok(())
 //! }
 //! ```
 #[macro_use]

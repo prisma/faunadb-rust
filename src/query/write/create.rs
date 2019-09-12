@@ -86,8 +86,8 @@ mod tests {
         assert_eq!(expected, serialized);
     }
 
-    #[test]
-    fn test_create_eval() {
+    #[tokio::test]
+    async fn test_create_eval() {
         let mut obj = Object::default();
         let nickname_vals = vec!["mustu", "muspus", "mustikka"];
 
@@ -100,13 +100,17 @@ mod tests {
         obj.insert("created_at", Utc.timestamp(60, 0));
         obj.insert("birthday", NaiveDate::from_ymd(2011, 7, 7));
 
-        with_class(|class_name| {
-            let response = CLIENT
-                .query(Create::new(Class::find(class_name), obj))
-                .unwrap();
+        let db_name = create_database().await;
+        let class_name = create_class().await;
 
-            let res = response.resource;
+        let response = CLIENT
+            .query(Create::new(Class::find(class_name.as_str()), obj))
+            .await
+            .unwrap();
 
+        let res = response.resource;
+
+        let res = std::panic::catch_unwind(|| {
             assert_eq!(res["data"]["name"].as_str(), Some("Musti"));
             assert_eq!(res["data"]["id"].as_u64(), Some(1));
             assert_eq!(res["data"]["age"].as_u64(), Some(7));
@@ -131,5 +135,10 @@ mod tests {
             assert_eq!(res["data"]["nicknames"][1].as_str(), Some("muspus"));
             assert_eq!(res["data"]["nicknames"][2].as_str(), Some("mustikka"));
         });
+
+        delete_class(&class_name).await;
+        delete_database(&db_name).await;
+
+        res.unwrap();
     }
 }

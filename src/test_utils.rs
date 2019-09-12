@@ -2,14 +2,13 @@ use crate::prelude::*;
 use lazy_static::lazy_static;
 use rand::distributions::Alphanumeric;
 use rand::Rng;
-use std::panic;
 
 lazy_static! {
-    pub static ref CLIENT: SyncClient = {
+    pub static ref CLIENT: Client = {
         let mut builder = Client::builder("secret");
         builder.uri("http://localhost:8443");
 
-        builder.build_sync().unwrap()
+        builder.build().unwrap()
     };
 }
 
@@ -20,28 +19,19 @@ pub fn gen_db_name() -> String {
         .collect()
 }
 
-pub fn with_database<F>(f: F)
-where
-    F: FnOnce(&str) -> () + panic::UnwindSafe,
-{
+pub async fn create_database() -> String {
     let db_name = gen_db_name();
     let params = DatabaseParams::new(&db_name);
+    CLIENT.query(CreateDatabase::new(params)).await.unwrap();
 
-    trace!("Creating a test database {}", &db_name);
-    CLIENT.query(CreateDatabase::new(params)).unwrap();
-
-    let result = panic::catch_unwind(|| f(db_name.as_ref()));
-
-    trace!("Deleting the test database {}", &db_name);
-    CLIENT.query(Delete::new(Ref::database(&db_name))).unwrap();
-
-    result.unwrap();
+    db_name
 }
 
-pub fn with_class<F>(f: F)
-where
-    F: FnOnce(&str) -> () + panic::UnwindSafe,
-{
+pub async fn delete_database(db_name: &str) {
+    CLIENT.query(Delete::new(Ref::database(db_name))).await.unwrap();
+}
+
+pub async fn create_class() -> String {
     let mut permission = ClassPermission::default();
     permission.read(Level::public());
     permission.write(Level::public());
@@ -57,13 +47,11 @@ where
     params.permissions(permission);
     params.data(data);
 
-    with_database(|_| {
-        trace!("Creating a test class {}", &class_name);
-        CLIENT.query(CreateClass::new(params)).unwrap();
+    CLIENT.query(CreateClass::new(params)).await.unwrap();
 
-        f(class_name.as_str());
+    class_name
+}
 
-        trace!("Creating the test class {}", &class_name);
-        CLIENT.query(Delete::new(Ref::class(&class_name))).unwrap();
-    })
+pub async fn delete_class(class_name: &str) {
+    CLIENT.query(Delete::new(Ref::class(class_name))).await.unwrap();
 }
