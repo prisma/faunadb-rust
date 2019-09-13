@@ -1,8 +1,8 @@
 use clap::{App, Arg};
 use faunadb::prelude::*;
-use futures::{lazy, Future};
 
-fn main() {
+#[tokio::main]
+async fn main() -> std::result::Result<(), faunadb::error::Error> {
     pretty_env_logger::init();
 
     let matches = App::new("A Simple FaunaDB Client")
@@ -42,14 +42,8 @@ fn main() {
     age_value.reverse();
     params.values(vec![ref_value, age_value, name_value]);
 
-    tokio::run(lazy(move || {
-        client
-            .query(CreateIndex::new(params))
-            .map(|response| {
-                println!("{:?}", response);
-            })
-            .map_err(|error: faunadb::error::Error| {
-                println!("Error: {:#?}", error);
-            })
-    }));
+    let response = client.query(CreateIndex::new(params)).await?;
+    println!("{:?}", response);
+
+    Ok(())
 }

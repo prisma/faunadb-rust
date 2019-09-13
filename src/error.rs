@@ -1,5 +1,6 @@
 use crate::client::Value;
 use failure::{self, Fail};
+use async_std::future::TimeoutError;
 
 #[derive(Debug, Fail)]
 pub enum Error {
@@ -27,9 +28,6 @@ pub enum Error {
     DatabaseError(String),
     #[fail(display = "Couldn't convert data: {}", _0)]
     ConversionError(&'static str),
-    #[cfg(feature = "sync_client")]
-    #[fail(display = "IO Error: {}", _0)]
-    IoError(failure::Error),
 }
 
 #[derive(Debug, Deserialize, Fail)]
@@ -51,19 +49,24 @@ pub struct FaunaError {
 
 impl From<native_tls::Error> for Error {
     fn from(e: native_tls::Error) -> Self {
-        Error::ConnectionError(e.into())
+        Self::ConnectionError(e.into())
     }
 }
 
 impl From<http::uri::InvalidUri> for Error {
     fn from(e: http::uri::InvalidUri) -> Self {
-        Error::ConfigurationError(e.into())
+        Self::ConfigurationError(e.into())
     }
 }
 
-#[cfg(feature = "sync_client")]
-impl From<std::io::Error> for Error {
-    fn from(e: std::io::Error) -> Self {
-        Error::IoError(e.into())
+impl From<hyper::error::Error> for Error {
+    fn from(e: hyper::error::Error) -> Self {
+        Self::ConnectionError(e.into())
+    }
+}
+
+impl From<TimeoutError> for Error {
+    fn from(_: TimeoutError) -> Self {
+        Self::TimeoutError
     }
 }

@@ -1,8 +1,8 @@
 use clap::{App, Arg};
 use faunadb::{prelude::*, query::write::Delete};
-use futures::{future::lazy, Future};
 
-fn main() {
+#[tokio::main]
+async fn main() -> std::result::Result<(), faunadb::error::Error> {
     pretty_env_logger::init();
 
     let matches = App::new("A Simple FaunaDB Client")
@@ -33,20 +33,12 @@ fn main() {
 
     let mut builder = Client::builder(secret);
     builder.uri("http://localhost:8443");
+
     let client = builder.build().unwrap();
+    let instance = Ref::database(matches.value_of("id").unwrap());
+    let response = client.query(Delete::new(instance)).await?;
 
-    tokio::run(lazy(move || {
-        let instance = Ref::database(matches.value_of("id").unwrap());
+    println!("{:?}", response);
 
-        let query = Delete::new(instance);
-
-        client
-            .query(query)
-            .map(|response| {
-                println!("{:?}", response);
-            })
-            .map_err(|error: faunadb::error::Error| {
-                println!("Error: {:?}", error);
-            })
-    }));
+    Ok(())
 }
