@@ -7,7 +7,7 @@ use futures::{Future, Poll};
 pub use index::*;
 pub use value::*;
 
-pub struct FutureResponse<T>(pub Box<Future<Item = T, Error = Error> + Send + 'static>);
+pub struct FutureResponse<T>(pub Box<dyn Future<Item = T, Error = Error> + Send + 'static>);
 
 impl<T> Future for FutureResponse<T> {
     type Item = T;
