@@ -11,6 +11,42 @@ Goals:
 
 The crate is not yet tested on production so use at your own risk.
 
+## SETUP LOCAL RUST DEV ENV
+1. Install latest Rust via source & source Cargo env.
+```bash
+$ cd /tmp
+$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rust.sh
+$ vim rust.sh
+$ chmod u+x rust.sh
+$ ./rust.sh
+$ source $HOME/.cargo/env
+```
+
+2. Confirm Rust version & that we're up-to-date.
+```bash
+$ rustc --version
+$ rustup self update
+info: checking for self-updates
+info: downloading self-update
+  rustup updated - 1.25.1 (from 1.24.3)
+```
+
+3. Let's follow Rust Nightly & install Rust's nightly toolchain.
+``bash
+$ rustup default nightly
+$ rustup toolchain install nightly
+```
+
+## CHANGES MADE SINCE FORKING
+1. README updates.
+2. Update the following Cargo packages to their latest.
+   1. base64-serde -> 0.6.1
+   2. base64 -> 0.13.0
+   3. clap -> 3
+   4. pretty_env_logger -> 0.4
+   5. rand -> 0.8
+   6. lazy_static -> 1.4
+
 ## Basic Usage
 
 ``` rust
