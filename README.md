@@ -37,16 +37,6 @@ $ rustup default nightly
 $ rustup toolchain install nightly
 ```
 
-## CHANGES MADE SINCE FORKING
-1. README updates.
-2. Update the following Cargo packages to their latest.
-   1. base64-serde -> 0.6.1
-   2. base64 -> 0.13.0
-   3. clap -> 3
-   4. pretty_env_logger -> 0.4
-   5. rand -> 0.8
-   6. lazy_static -> 1.4
-
 ## Basic Usage
 
 ``` rust
