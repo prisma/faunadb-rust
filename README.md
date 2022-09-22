@@ -11,6 +11,32 @@ Goals:
 
 The crate is not yet tested on production so use at your own risk.
 
+## SETUP LOCAL RUST DEV ENV
+1. Install latest Rust via source & source Cargo env.
+```bash
+$ cd /tmp
+$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rust.sh
+$ vim rust.sh
+$ chmod u+x rust.sh
+$ ./rust.sh
+$ source $HOME/.cargo/env
+```
+
+2. Confirm Rust version & that we're up-to-date.
+```bash
+$ rustc --version
+$ rustup self update
+info: checking for self-updates
+info: downloading self-update
+  rustup updated - 1.25.1 (from 1.24.3)
+```
+
+3. Let's follow Rust Nightly & install Rust's nightly toolchain.
+``bash
+$ rustup default nightly
+$ rustup toolchain install nightly
+```
+
 ## Basic Usage
 
 ``` rust
