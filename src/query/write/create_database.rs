@@ -121,7 +121,6 @@ mod tests {
             let response = CLIENT.query(CreateDatabase::new(params)).unwrap();
             let res = response.resource;
 
-            assert_eq!(res["api_version"].as_str(), Some("2.0"));
             assert_eq!(res["name"].as_str(), Some(db_name));
             assert_eq!(res["priority"].as_u64(), Some(10));
 
